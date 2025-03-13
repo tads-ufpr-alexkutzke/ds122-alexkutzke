@@ -2,7 +2,7 @@
 
 ## Plano de ensino e avaliação
 
-Consultar moodle da disciplina (https://ufprvirtual.ufpr.br).
+Consultar moodle da disciplina (<https://ufprvirtual.ufpr.br>).
 
 ## O que aprenderemos?
 
@@ -42,10 +42,9 @@ disponíveis na internet. Aproveitem e tirem o melhor deles! ;)
 
 Nessa disciplina, não utilizaremos nenhum software específico para a produção de arquivos HTML, CSS, JS e PHP. Utilizaremos editores de texto de propósito geral. Cada aluno pode utilizar aquele que preferir. Sugerem-se os seguintes:
 
-* [Atom];
-* [Sublime Text];
 * [Vscode];
-* [Vim] (caso goste de ambiente de terminal);
+* [Sublime Text];
+* [NeoVim] (caso goste de ambiente de terminal);
 * Qualquer outro minimamente viável.
 
 Além disso, no decorrer da disciplina, alguns conteúdos estarão disponíveis em
@@ -74,6 +73,5 @@ Existem, ainda, algumas outras opções limitadas disponíveis online, como:
 [Git]: https://git-scm.com/downloads
 [Sublime Text]: https://www.sublimetext.com/
 [GitHub]: http://www.github.com
-[Atom]: http://atom.io
-[Vim]: https://www.vim.org/
+[NeoVim]: https://neovim.io/
 [Vscode]: https://code.visualstudio.com/
