@@ -48,7 +48,7 @@ URL's são a forma utilizada para se localizar serviços na Web. Trata-se de uma
 sequência de caracteres, com estrutura definida, capaz de identificar onde e como
 uma dado serviço será acessado.
 
-Para mais detalhes e exemplo, consulte: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Identifying_resources_on_the_Web
+Para mais detalhes e exemplo, consulte: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Identifying_resources_on_the_Web>
 
 Interessado? Pesquise sobre a diferença entre URL, URN  e URI (pode começar
 por [aqui](https://developer.mozilla.org/en-US/docs/Glossary/URI))
@@ -87,7 +87,7 @@ Connection: close
 ```
 
 Toda mensagem HTTP recebe um código como resposta. Para uma breve lista deles,
-consulte: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+consulte: <https://developer.mozilla.org/en-US/docs/Web/HTTP/Status>
 
 O protocolo possui diferentes métodos, sendo os mais conhecidos:
 
@@ -95,7 +95,7 @@ O protocolo possui diferentes métodos, sendo os mais conhecidos:
 * POST: parâmetros enviados no corpo da mensagem.
 
 Sobre todos os métodos e parâmetros possíveis em um cabeçalho HTTP, consulte:
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers
+<https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers>
 
 Para realizar um teste de uma mensagem HTTP, é possível utilizar os comandos
 `telnet` e `nc` (netcat). A seguir, um exemplo com `nc` é descrito.
@@ -108,10 +108,9 @@ Em sistemas Windows, é possível utilizar a maquina virtual com vagrant ou inst
 
 Baixe o seguinte arquivo:
 
-https://joncraton.org/files/nc111nt.zip
+<https://joncraton.org/files/nc111nt.zip>
 
 Descompacte o arquivo `nc.exe` em uma pasta de fácil acesso. **A senha para descompactar é "nc"**.
-
 
 Agora, basta acessar pelo terminal (gitbash) a pasta onde o arquivo foi descompactado e utilizar o comando `nc` para executar o programa.
 
