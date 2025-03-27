@@ -16,3 +16,4 @@
 - [Aula 13 - PHP MySQL](./aula_13_php_mysql.md)
 - [Aula 14 - PHP Cookies e Sessões](./aula_14_cookies_session.md);
 - [Instruções para submissão de tarefas e trabalhos](./instrucoes_submissao_tarefas_e_trabalhos.md)
+- [Status entregas exercícios 2025/01/n](./report_2025_1_n.md)
