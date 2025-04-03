@@ -3,7 +3,7 @@ authors = ["Alex Kutzke"]
 language = "pt-br"
 multilingual = false
 src = "src"
-title = "DS151 - Desenvolvimento Mobile - Prof. Alex Kutzke"
+title = "DS122 - Desenvolvimento Web 1 - Prof. Alex Kutzke"
 
 [output.html]
 additional-css = ["./theme/catppuccin.css"]
