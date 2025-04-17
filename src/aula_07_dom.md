@@ -4,7 +4,7 @@
 * [w3schools - JS DOM](https://www.w3schools.com/js/js_htmldom.asp);
 
 ## Repositório com *starter code* para a aula:
-https://gitlab.com/ds122-alexkutzke/ds122-dom-example
+<https://gitlab.com/ds122-alexkutzke/ds122-dom-example>
 
 ## DOM (Document Object Model)
 
