@@ -5,7 +5,7 @@
 * [Jquery oficial](https://jquery.com/).
 
 ## Repositório com *starter code* para a aula:
-http://gitlab.com/ds122-alexkutzke/ds122-jquery-example
+<https://gitlab.com/ds122-alexkutzke/ds122-jquery-example>
 
 ## Jquery
 
