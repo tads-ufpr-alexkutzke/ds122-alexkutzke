@@ -7,7 +7,7 @@
 * [PHP documentação pt-BR](http://php.net/manual/pt_BR/).
 
 ## Starter-code
-https://gitlab.com/ds122-alexkutzke/ds122-php-example
+<https://gitlab.com/ds122-alexkutzke/ds122-php-example>
 
 ## Linguagem PHP
 

@@ -29,11 +29,11 @@ Portanto, o serviço de um servidor web é: dada uma requisição no formato HTT
 enviar o recurso solicitado ao cliente em uma resposta também HTTP.
 
 Alguns servidores Web conhecidos são: 
-* Apache (https://httpd.apache.org/);
-* Nginx (https://www.nginx.com/);
-* Puma (http://puma.io/);
-* Apache Tomcat (http://tomcat.apache.org/);
-* Lighttpd (http://www.lighttpd.net/).
+* Apache (<https://httpd.apache.org/>);
+* Nginx (<https://www.nginx.com/>);
+* Puma (<http://puma.io/>);
+* Apache Tomcat (<http://tomcat.apache.org/>);
+* Lighttpd (<http://www.lighttpd.net/>).
 
 ### Tradução de URL para arquivos locais ao servidor
 
