@@ -17,3 +17,4 @@
 - [Aula 14 - PHP Cookies e Sessões](./aula_14_cookies_session.md);
 - [Instruções para submissão de tarefas e trabalhos](./instrucoes_submissao_tarefas_e_trabalhos.md)
 - [Status entregas exercícios 2025/01/n](https://github.com/tads-ufpr-alexkutzke/ds122-exercises-reports/blob/main/report_2025_1_n.md)
+- [Especificação Trabalho Prático 2025/01/n](./especificacao_trabalho_01_25.md)
