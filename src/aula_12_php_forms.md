@@ -215,7 +215,7 @@ Mais funções para validação com PHP:
 
 #### Upload de arquivos
 
-* https://www.w3schools.com/php/php_file_upload.asp
+* <https://www.w3schools.com/php/php_file_upload.asp>
 
 ### Validação Front-end
 
@@ -252,7 +252,7 @@ desnecessário de informações.
 
 Atributos de formulário (ver: maxlenght, min, max e required):
 
-* https://www.w3schools.com/html/html_form_attributes.asp
+* <https://www.w3schools.com/html/html_form_attributes.asp>
 
 Outros métodos para validação com Javascript:
 
