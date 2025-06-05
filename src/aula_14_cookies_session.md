@@ -94,4 +94,4 @@ echo "Favorite animal is " . $_SESSION["favanimal"] . ".";
 
 ## Sistema de login com Sessions
 
-https://gitlab.com/ds122-alexkutzke/ds122-login-app
+<https://gitlab.com/ds122-alexkutzke/ds122-login-app>
