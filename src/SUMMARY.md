@@ -17,4 +17,4 @@
 - [Aula 13 - PHP MySQL](./aula_13_php_mysql.md)
 - [Aula 14 - PHP Cookies e Sessões](./aula_14_cookies_session.md);
 - [Instruções para submissão de tarefas e trabalhos](./instrucoes_submissao_tarefas_e_trabalhos.md)
-- [Especificação Trabalho Prático 2025/02/n](./especificacao_trabalho_02_25.md)
+- [Especificação Trabalho Prático 2-2025](./especificacao_trabalho_02_25.md)
