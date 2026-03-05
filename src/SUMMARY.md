@@ -1,6 +1,8 @@
 # Summary
 
 - [Capa](./00_capa.md)
+- [Pré-prompt para uso de IA generativa](./00_pre_prompt_para_ia_gen_durante_aulas.md)
+- [Sobre Mob Programming para exercícios](./00_mob_programming.md)
 - [Aula 01 - Apresentação e Ambiente de Desenvolvimento](./aula_01.md);
 - [Aula 02 - Git e Gitlab](./aula_02_git.md);
 - [Aula 03 - Protocolo HTTP](./aula_03_http.md);
