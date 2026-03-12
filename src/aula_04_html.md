@@ -1,4 +1,4 @@
-# Aula 02 - HTML5: Estrutura Semântica e Acessibilidade
+# Aula - HTML5: Estrutura Semântica e Acessibilidade
 
 ## Bibliografia Recomendada
 

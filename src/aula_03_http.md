@@ -1,4 +1,4 @@
-# Aula 03 - Protocolo HTTP
+# Aula - Protocolo HTTP
 
 ## Bibliografia recomendada para o tema:
 * Cap 7.3 do livro do Tanembaum (ver plano de ensino no moodle);

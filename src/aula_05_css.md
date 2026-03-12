@@ -1,254 +1,165 @@
-# Aula 05 - CSS
+# Aula CSS3: Fundamentos, Layout e Responsividade
 
-## Bibliografia recomendada para o tema:
-* [MDN - CSS](https://developer.mozilla.org/pt-BR/docs/Learn/CSS);
-* [w3schools - CSS](https://www.w3schools.com/css/default.asp).
+## Bibliografia Recomendada
 
-## Cascanding Style Sheets
+* [MDN - CSS: Cascading Style Sheets](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
+* [CSS-Tricks - A Complete Guide to Flexbox](https://css-tricks.com/snippets/css/a-guide-to-flexbox/)
+* [CSS-Tricks - A Complete Guide to Grid](https://css-tricks.com/snippets/css/complete-guide-grid/)
 
-**CSS** ou Cascanding Style Sheets é uma linguagem de descrição, utilizada
-para definir o estilo de um arquivo HTML. Ou seja, utiliza-se o CSS para
-especificar a **aparência** que um arquivo HTML deve ter.
+## Cascading Style Sheets (CSS3)
 
-Com o uso de arquivos CSS, é possível separar completamente a descrição da
-aparência e do conteúdo de uma página HTML. Com isso, facilita-se muito a
-manutenção das páginas de um site. Um exemplo de arquivo CSS é mostrado
-abaixo:
+O CSS (Cascading Style Sheets) é a linguagem de folha de estilo utilizada para descrever a apresentação de um documento escrito em HTML. Sua principal função no desenvolvimento web é garantir a estrita separação entre a estrutura/semântica (HTML) e a apresentação visual (CSS).
 
-```css
-body {
-    background-color: lightblue;
-}
+### Formas de Adicionar CSS ao HTML
 
-h1 {
-    color: white;
-    text-align: center;
-}
+Existem três métodos de integração, sendo o uso de arquivos externos o único recomendado para sistemas em produção:
 
-p {
-    font-family: verdana;
-    font-size: 20px;
-}
-```
-
-### Sintaxe e seletores
-
-Arquivos CSS seguem uma sintaxe simples: uma série **regras** definem as
-**propriedades** de aparência que devem ser aplicadas a diferentes
-**seletores**.
-
-Uma **regra** possui a seguinte sintaxe:
-
-```css
-Seletor {
-  propriedade: valor;
-}
-```
-
-Um **seletor** é um conjunto de caracteres capaz de identificar um ou mais
-elementos de uma página HTML. Por exemplo, o seletor `h1` identifica **todos
-os títulos h1** de uma página.
-
-Propriedades, por sua vez, são elementos que indicam quais os valores devem
-ser aplicados para cada características (fonte, tamanho, margem, ...) dos
-elementos indicados por um seletor.
-
-Abaixo, temos o exemplo de uma regra CSS completa:
-
-```css
-h1 {
-    color: white;
-    text-align: center;
-}
-```
-
-A regra acima indica que, todos os títulos `h1` devem ter cor de texto `branco`
-e alinhamento `centralizado`. Um arquivo CSS é composto por um conjunto de regras
-semelhantes à apresentada acima.
-
-### Adicionando um CSS ao HTML
-
-Existem 3 formas de adicionar regras CSS a um arquivo HTML:
-
-#### 1. Atributo Style
-
-Qualquer **tag** HTML pode receber propriedades CSS por meio de um atributo
-`style`. Nesse caso, omitem-se os seletores e as chaves. Por exemplo:
-
+1. **Atributo Style (Inline):** Aplica o estilo diretamente na tag. Tem a maior especificidade, mas fere o princípio de separação de responsabilidades. Não recomendado.
 ```html
-<p style="color:red; text-align: center">Texto do parágrafo</p>
+<p style="color: red; text-align: center;">Texto do parágrafo</p>
+
 ```
 
-Nesse caso, o parágrafo acima, **e apenas ele**, terá cor de texto vermelha e
-alinhamento centralizado.
 
-#### 2. Tag `style`
-
-É possível adicionar conteúdo CSS diretamente em um HTML através da tag `style`
-no cabeçalho da página. Por exemplo:
-
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Page Title</title>
-    <style>
-      body {
-          background-color: lightblue;
-      }
-
-      h1 {
-          color: white;
-          text-align: center;
-      }
-
-      p {
-          font-family: verdana;
-          font-size: 20px;
-      }
-    </style>
-  </head>
-<body>
-
-  <h1>This is a Heading</h1>
-  <p>This is a paragraph.</p>
-
-</body>
-</html>
-```
-
-#### 3. Arquivos externos
-
-Por fim, é possível adicionar as regras CSS relevantes a uma página através de
-um arquivo externo. Por exemplo, considere um arquivo chamado `estilo.css` com o
-seguinte conteúdo:
-
-```css
-/* estilo.css */
-body {
-    background-color: lightblue;
-}
-
-h1 {
-    color: white;
-    text-align: center;
-}
-
-p {
-    font-family: verdana;
-    font-size: 20px;
-}
-```
-
-Para utilizar esse arquivo CSS em um arquivo HTML, basta adicionar o seguinte
-ao cabeçalho do arquivo HTML (**desde que os dois arquivos estejam no mesmo
-diretório**):
-
+2. **Tag `<style>` (Interno):** Inserido no `<head>` do documento HTML.
 ```html
 <head>
-  <link rel="stylesheet" type="text/css" href="estilo.css">
+    <style>
+        p { color: red; }
+    </style>
 </head>
+
 ```
 
-A opção de adicionar CSS em um arquivo externo é a melhor delas, pois permite
-a total separação entre aparência e conteúdo. Além disso, vários arquivos HTML
-podem compartilhar um mesmo arquivo CSS. Facilita-se, assim, a manutenção dos
-arquivos.
 
-As opções do atributo `style` e da tag `<style>` devem ser utilizadas apenas
-em situações onde forem extremamente necessárias.
+3. **Arquivo Externo (Recomendado):** Importação de um arquivo `.css` via tag `<link>` no `<head>`.
+```html
+<head>
+    <link rel="stylesheet" href="estilo.css">
+</head>
+
+```
 
 
-### Identificação de tags
+## Sintaxe e Seletores
 
-É comum a necessidade de atribuir algum tipo de identificação para tags HTML a fim de que 
-essas fiquem mais acessível ao arquivo CSS. Para isso, utilizamos, comumente, os atributos
-`id` e `class`.
-
-#### Atributo `id`
-
-O atributo `id` define um nome, único em todo o documento, para uma tag HTML. Tags 
-com `id` são facilmente identificadas por regras CSS por meio do seletor `#`. Por exemplo,
-o código abaixo define regras para uma única tag que possui o id `teste`:
+A sintaxe baseia-se em uma declaração composta por uma **propriedade** e um **valor**, encapsulada em um bloco vinculado a um **seletor**.
 
 ```css
-#teste{
-  color: red;
+/* Seletor de Elemento (Tag) */
+h1 {
+    color: white;
+    text-align: center;
 }
+
+/* Seletor de Classe (.) - Reutilizável em múltiplos elementos */
+.alerta {
+    color: red;
+    font-weight: bold;
+}
+
+/* Seletor de ID (#) - Deve ser único na página */
+#menu-principal {
+    background-color: #333;
+}
+
+/* Pseudo-classes (Estado do elemento) */
+a:hover {
+    text-decoration: underline;
+}
+
 ```
 
-No HTML:
+## Cascata e Especificidade
 
-```html
-<div id="teste"> ... </div>
-```
+O termo "Cascading" refere-se ao algoritmo que o navegador utiliza para determinar qual regra CSS será aplicada quando há conflitos.
 
+A resolução de conflitos segue a hierarquia de **Especificidade**:
 
-#### Atributo `class`
+1. **Inline style:** Maior peso.
+2. **IDs:** Peso alto (ex: `#cabecalho`).
+3. **Classes, atributos e pseudo-classes:** Peso médio (ex: `.card`, `[type="text"]`, `:hover`).
+4. **Elementos e pseudo-elementos:** Menor peso (ex: `h1`, `div`, `::before`).
 
-O atributo `class` define uma  classe para uma tag HTML. Mais de uma tag pode receber
-uma mesma classe. Além disso, uma tag HTML pode receber quantas classes forem necessárias. 
-Tags com `class` são facilmente identificadas por regras CSS por meio do seletor `.` (ponto). 
-Por exemplo, o código abaixo define regras para um conjunto de tags que possuem a
-classe `teste`:
+Se duas regras tiverem a mesma especificidade, a que foi declarada **por último** no código (cascata) prevalece.
+
+## Box Model (Modelo de Caixa) e Unidades de Medida
+
+No CSS, todo elemento HTML é renderizado como uma caixa retangular.
+
+* **Content:** A área onde o texto ou imagem é exibido.
+* **Padding:** Espaçamento interno (entre o conteúdo e a borda).
+* **Border:** A borda que envolve o padding e o conteúdo.
+* **Margin:** Espaçamento externo (afasta o elemento dos elementos adjacentes).
+
+**Boa prática:** Utilize a propriedade `box-sizing: border-box;` no reset global para garantir que o cálculo da largura (`width`) e altura (`height`) inclua o `padding` e a `border`, evitando quebras de layout.
 
 ```css
-.teste{
-  color: red;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
 ```
 
-No HTML:
+### Unidades de Medida Modernas
 
-```html
-<div class="teste"> ... </div>
+O uso exclusivo de pixels (`px`) é desencorajado em layouts modernos.
+
+* **`rem`**: Relativo ao tamanho da fonte do elemento raiz (`<html>`). Ideal para fontes e margens, pois respeita a configuração de acessibilidade do navegador do usuário.
+* **`%`**: Percentual em relação ao elemento pai.
+* **`vw` / `vh**`: Largura (`viewport width`) e altura (`viewport height`) relativas à janela do navegador.
+
+## Layouts Modernos: Flexbox e CSS Grid
+
+Modelos de layout atuais substituem o uso de `float` e tabelas para posicionamento.
+
+### 1. Flexbox (Layout Unidimensional)
+
+Projetado para alinhar itens em uma única dimensão (linha ou coluna) e distribuir o espaço dinamicamente.
+
+```css
+.flex-container {
+    display: flex;
+    flex-direction: row;            /* Organiza em linha */
+    justify-content: space-between; /* Espaçamento horizontal */
+    align-items: center;            /* Alinhamento vertical cruzado */
+    gap: 15px;                      /* Espaçamento entre os filhos (CSS moderno) */
+}
+
 ```
 
+### 2. CSS Grid (Layout Bidimensional)
 
-### Modelo de caixa
+Projetado para organizar elementos simultaneamente em linhas e colunas.
 
-Um conceito importante utilizado no CSS é o que chamamos de **modelo de caixa**.
-Esse conceito define que **todos** os elementos de uma página HTML são
-retangulares e são compostos por 4 camadas: margin (margem), border (borda),
-padding (espaçamento) e conteúdo. A figura a seguir demonstra um exemplo do
-modelo de caixa:
+```css
+.grid-container {
+    display: grid;
+    /* Cria 3 colunas: as das extremidades com 1 fração de espaço e a central com 2 */
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: auto 200px;
+    gap: 20px;
+}
 
-![box model](https://www.hostinger.com/tutorials/wp-content/uploads/sites/2/2021/11/css-box-model.webp "Modelo de Caixa")
+```
 
-* Conteúdo: é o conteúdo do elemento (texto, imagens, etc);
-* Padding: é o espaço entre o conteúdo e a borda do elemento;
-* Border: borda visível ou não que cerca o elemento;
-* Margin: espaço transparente que separa o elemento dos demais.
+## Design Responsivo (Media Queries)
 
-### Links importantes
+A responsividade garante que a interface se adapte a diferentes tamanhos de tela. O padrão de mercado é a abordagem **Mobile-first**: o CSS base é escrito para telas pequenas, e media queries são utilizadas para adaptar o layout para telas maiores.
 
-* [Principais seletores](https://www.w3schools.com/css/css_syntax.asp);
-* [Cores](https://www.w3schools.com/css/css_colors.asp);
-* [Background](https://www.w3schools.com/css/css_background.asp);
-* [Bordas](https://www.w3schools.com/css/css_border.asp);
-* [Margens](https://www.w3schools.com/css/css_margin.asp);
-* [Padding](https://www.w3schools.com/css/css_padding.asp);
-* [Altura e Largura](https://www.w3schools.com/css/css_dimension.asp);
-* [Texto](https://www.w3schools.com/css/css_text.asp);
-* [Fontes](https://www.w3schools.com/css/css_font.asp);
-* [Display](https://www.w3schools.com/css/css_display_visibility.asp);
-* [Largura máxima](https://www.w3schools.com/css/css_max-width.asp);
-* [Position](https://www.w3schools.com/css/css_positioning.asp);
-* [Overflow](https://www.w3schools.com/css/css_overflow.asp);
-* [Float](https://www.w3schools.com/css/css_float.asp);
-* [Inline-block](https://www.w3schools.com/css/css_inline-block.asp);
-* [Combinadores](https://www.w3schools.com/css/css_combinators.asp);
-* [Pseudo-classes](https://www.w3schools.com/css/css_pseudo_classes.asp);
-* [Pseudo-elementos](https://www.w3schools.com/css/css_pseudo_elements.asp);
+```css
+/* Estilo base (Mobile - telas pequenas) */
+.coluna {
+    width: 100%;
+}
 
-### CSS3
+/* Breakpoint para Tablets e Desktops (mínimo de 768px de largura) */
+@media screen and (min-width: 768px) {
+    .coluna {
+        width: 50%; /* Passa a ocupar metade da tela */
+    }
+}
 
-A linguagem CSS passa por constante evolução e, atualmente, caminhamos para
-o estabelecimento da versão 3, conhecida por CSS3. Navegadores ainda estão
-se adaptando às novas regras e propriedades da linguagem, mas a compatibilidade
-já é bastante satisfatória.
-
-O CSS3 traz várias melhores e novas propriedades que permitem uma maior liberdade
-na definição do estilo de uma página HTML. Algumas exemplos da novas
-funcionalidades interessantes da versão 3: transformações 2D e 3D, animações,
-transparência, sombras dentre várias outras. 
+```
