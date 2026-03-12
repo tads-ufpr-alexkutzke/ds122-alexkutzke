@@ -103,6 +103,7 @@ No CSS, todo elemento HTML é renderizado como uma caixa retangular.
 
 ```
 
+
 ### Unidades de Medida Modernas
 
 O uso exclusivo de pixels (`px`) é desencorajado em layouts modernos.
@@ -110,6 +111,97 @@ O uso exclusivo de pixels (`px`) é desencorajado em layouts modernos.
 * **`rem`**: Relativo ao tamanho da fonte do elemento raiz (`<html>`). Ideal para fontes e margens, pois respeita a configuração de acessibilidade do navegador do usuário.
 * **`%`**: Percentual em relação ao elemento pai.
 * **`vw` / `vh**`: Largura (`viewport width`) e altura (`viewport height`) relativas à janela do navegador.
+
+---
+
+## Exercícios Práticos: Fundamentos de CSS3 (Pré-Layout)
+
+Criar um arquivo `index.html` e um arquivo `style.css` na mesma pasta, realizando a vinculação através da tag `<link>`.
+
+### Exercício 01: Teste de Especificidade e Cascata
+
+**Objetivo:** Compreender a hierarquia de aplicação de estilos e o cálculo de especificidade do navegador.
+
+**HTML base (`index.html`):**
+
+```html
+<div class="artigo" id="noticia-principal">
+    <h2 class="titulo">Lançamento do Novo Sistema</h2>
+    <p class="texto destaque">O sistema entrará em produção na próxima semana.</p>
+</div>
+
+```
+
+**Requisitos (CSS):**
+
+1. Crie uma regra utilizando o seletor de tag `p` e defina a cor do texto como azul.
+2. Crie uma regra utilizando o seletor de classe `.texto` e defina a cor do texto como verde.
+3. Crie uma regra utilizando o seletor de classe `.destaque` e defina a cor do texto como laranja.
+4. Crie uma regra encadeada `.artigo p.destaque` e defina a cor como roxo.
+5. Adicione um estilo *inline* diretamente na tag `<p>` no HTML definindo a cor como vermelho.
+6. **Análise:** O aluno deve documentar em forma de comentário (`/* ... */`) qual cor prevaleceu em cada etapa e o motivo técnico com base na regra de especificidade.
+
+
+### Exercício 02: Tipografia, Cores e Unidades Relativas (`rem`)
+
+**Objetivo:** Aplicar fontes externas e utilizar a unidade de medida `rem` atrelada ao elemento raiz.
+
+**Requisitos (CSS):**
+
+1. Importe a fonte "Roboto" ou "Open Sans" do Google Fonts via `@import` no início do arquivo CSS.
+2. Defina no seletor `html` o `font-size: 16px;`.
+3. Defina a fonte importada para o seletor `body` e aplique uma cor de fundo utilizando a notação Hexadecimal (ex: `#f4f4f9`).
+4. Estilize um elemento `<h1>`: defina o tamanho da fonte para `2.5rem` e a cor do texto utilizando a notação `rgba()` com 80% de opacidade.
+5. Estilize um elemento `<p>`: defina o tamanho para `1rem`, o espaçamento entre linhas (`line-height`) para `1.5` e o alinhamento de texto como justificado.
+
+
+### Exercício 03: O Box Model e `box-sizing`
+
+**Objetivo:** Visualizar o impacto do `padding` e `border` no tamanho total de um elemento e corrigir o comportamento padrão com `box-sizing`.
+
+**HTML base:**
+
+```html
+<div class="caixa padrao">Caixa 1: Content-Box</div>
+<div class="caixa corrigida">Caixa 2: Border-Box</div>
+
+```
+
+**Requisitos (CSS):**
+
+1. Para a classe `.caixa`, defina `width: 300px`, `height: 150px`, cor de fundo amarela e `margin-bottom: 20px`.
+2. Para ambas as caixas, adicione um `padding` de `30px` e uma `border` sólida preta de `5px`.
+3. Na classe `.corrigida`, adicione a propriedade `box-sizing: border-box;`.
+4. **Análise:** O aluno deve inspecionar os elementos no navegador (F12) e anotar as dimensões finais renderizadas de cada caixa.
+
+
+### Exercício 04: Display e Centralização de Bloco
+
+**Objetivo:** Manipular os valores da propriedade `display` (`block`, `inline`, `inline-block`) e aplicar centralização horizontal com margens automáticas.
+
+**HTML base:**
+
+```html
+<section class="container">
+    <a href="#" class="botao">Clique Aqui</a>
+    <a href="#" class="botao">Saiba Mais</a>
+</section>
+
+```
+
+**Requisitos (CSS):**
+
+1. Para a classe `.container`, defina `width: 50%`, uma cor de fundo cinza clara e aplique `margin: 0 auto;` para centralizar a seção horizontalmente na página.
+2. A tag `<a>` por padrão é `inline`. Altere a classe `.botao` para `display: inline-block;`.
+3. Defina para os botões:
+* `padding: 10px 20px;`
+* `margin-right: 15px;`
+* Cor de fundo azul, texto branco e remova o sublinhado (`text-decoration`).
+
+
+4. Adicione uma pseudo-classe `:hover` aos botões para alterar a cor de fundo para um azul mais escuro quando o mouse passar sobre eles.
+
+---
 
 ## Layouts Modernos: Flexbox e CSS Grid
 
