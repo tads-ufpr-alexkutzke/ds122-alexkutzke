@@ -139,7 +139,6 @@ Criar um arquivo `index.html` e um arquivo `style.css` na mesma pasta, realizand
 3. Crie uma regra utilizando o seletor de classe `.destaque` e defina a cor do texto como laranja.
 4. Crie uma regra encadeada `.artigo p.destaque` e defina a cor como roxo.
 5. Adicione um estilo *inline* diretamente na tag `<p>` no HTML definindo a cor como vermelho.
-6. **Análise:** O aluno deve documentar em forma de comentário (`/* ... */`) qual cor prevaleceu em cada etapa e o motivo técnico com base na regra de especificidade.
 
 
 ### Exercício 02: Tipografia, Cores e Unidades Relativas (`rem`)
@@ -172,7 +171,6 @@ Criar um arquivo `index.html` e um arquivo `style.css` na mesma pasta, realizand
 1. Para a classe `.caixa`, defina `width: 300px`, `height: 150px`, cor de fundo amarela e `margin-bottom: 20px`.
 2. Para ambas as caixas, adicione um `padding` de `30px` e uma `border` sólida preta de `5px`.
 3. Na classe `.corrigida`, adicione a propriedade `box-sizing: border-box;`.
-4. **Análise:** O aluno deve inspecionar os elementos no navegador (F12) e anotar as dimensões finais renderizadas de cada caixa.
 
 
 ### Exercício 04: Display e Centralização de Bloco
