@@ -8,7 +8,8 @@
 - [Aula 03 - Protocolo HTTP](./aula_03_http.md);
 - [Aula 04 - HTML](./aula_04_html.md);
 - [Aula 05 - CSS](./aula_05_css.md);
-- [Aula 06 - Javascript](./aula_06_js.md);
+- [Aula 06 - Javascript](./aula_06_00_js.md);
+- [Aula 06 - Exercícios Javascript](./aula_06_01_js_exercicios.md);
 - [Aula 07 - DOM](./aula_07_00_dom.md);
 - [Aula 07 - Exercícios JS, DOM e Eventos](./aula_07_01_dom_exercicios.md);
 - [Aula 08 - Jquery](./aula_08_jquery.md);
