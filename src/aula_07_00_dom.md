@@ -2,7 +2,7 @@
 
 ## Bibliografia recomendada
 
-  * [MDN Web Docs - Introdução ao DOM](https://www.google.com/search?q=https://developer.mozilla.org/pt-BR/docs/Web/API/Document_Object_Model/Introduction)
+  * [MDN Web Docs - Introdução ao DOM](https://developer.mozilla.org/pt-BR/docs/Web/API/Document_Object_Model)
   * [w3schools - JS HTML DOM](https://www.w3schools.com/js/js_htmldom.asp)
 
 ## DOM (Document Object Model)
