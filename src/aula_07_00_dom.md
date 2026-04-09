@@ -1,184 +1,156 @@
-# Aula 7 - DOM
+# Aula 07 - Programação Cliente (Manipulação do DOM)
 
-## Bibliografia recomendada para o tema:
-* [w3schools - JS DOM](https://www.w3schools.com/js/js_htmldom.asp);
+## Bibliografia recomendada
 
-## Repositório com *starter code* para a aula:
-<https://gitlab.com/ds122-alexkutzke/ds122-dom-example>
+  * [MDN Web Docs - Introdução ao DOM](https://www.google.com/search?q=https://developer.mozilla.org/pt-BR/docs/Web/API/Document_Object_Model/Introduction)
+  * [w3schools - JS HTML DOM](https://www.w3schools.com/js/js_htmldom.asp)
 
 ## DOM (Document Object Model)
 
-O **DOM** (Documet Object Model) é um padrão estabelecido pelo W3C
-que define como a linguagem Javascript pode acessar e modificar um
-documento HTML dentro do navegador. Em outras palavras, o DOM pode
-ser entendido como uma *API* de acesso ao documento exibido pelo
-navegador. Por meio dessa API, programas escritos em Javascript
-podem, facilmente, acessar e modificar quaisquer características
-de um documento HTML.
+O **DOM** (Document Object Model) é uma interface de programação padronizada pelo W3C que representa o documento HTML como uma árvore de objetos (nós). Esta API permite que a linguagem JavaScript acesse, altere, adicione ou remova elementos e estilos do documento renderizado pelo navegador em tempo de execução.
+
+Através do DOM, a estrutura estática do HTML torna-se dinâmica. O ponto de entrada principal para esta API é o objeto global `document`.
 
 ### Manipulação do DOM
 
-Por se tratar de um padrão emitido pelo W3C, a maioria dos navegadores
-possui, nativamente, a implementação do DOM.
-Essa API é composta por um objeto JS chamado `document` que representa
-integralmente o documento HTML que está sendo exibido pelo navegador.
+A implementação nativa da API nos navegadores modernos dispensa o uso de bibliotecas de terceiros (como jQuery) para a maioria das tarefas de manipulação.
 
-![Arquitetura do DOM](https://www.w3schools.com/js/pic_htmltree.gif)
+#### Seleção de Elementos (Busca)
 
-Dessa forma, os programas Javascript rodados em navegadores possuem
-acesso à uma variável global com o nome de `document`. E, a partir
-dela, a todas operações possíveis sobre o documento.
-
-#### Seleção de elementos
-
-Em geral, quando é necessário manipular um documento HTML a partir
-do DOM, temos que identificar o elemento a ser alterado. Um elemento
-nada mais é do que um componente que faz parte do documento (como
-um parágrafo, um título, um link, etc.).
-
-Existem algumas formas de seleção de elementos permitidos pelo DOM.
-A seguir, seguem alguns exemplos:
+Historicamente, utilizavam-se métodos específicos para ID, classes ou tags. No JavaScript moderno, o padrão da indústria é a utilização dos métodos `querySelector` e `querySelectorAll`, que aceitam a sintaxe padrão de seletores CSS, conferindo maior flexibilidade.
 
 ```javascript
-// Seleção por id
-var x = document.getElementById("teste");
+// Métodos legados (ainda válidos e performáticos, mas menos flexíveis)
+const porId = document.getElementById("teste");
+const porClasse = document.getElementsByClassName("intro");
+const porTag = document.getElementsByTagName("p");
 
-// Seleção por nome de Tag
-var x = document.getElementsByTagName("p");
+// O padrão moderno e mais versátil: querySelector (Retorna o primeiro elemento que casar com o seletor)
+const titulo = document.querySelector("#teste");
+const primeiroParagrafoIntro = document.querySelector("p.intro");
 
-// Seleção por classe
-var x = document.getElementsByClassName("intro");
-
-// Seleção por seletores CSS
-var x = document.querySelectorAll("p.intro");
-
-// Seleção por coleções pré-existentes (ver mais em w3schools)
-var x = document.forms
+// querySelectorAll (Retorna uma NodeList com todos os elementos que casam com o seletor)
+const todosParagrafos = document.querySelectorAll("p");
 ```
 
-Cada elemento do DOM possui atributos e métodos utilizados
-para alterar as propriedades do elemento no documento.
-Por exemplo, os comandos abaixo realizam alterações em elementos
-do DOM:
+#### Alteração de Conteúdo e Propriedades
+
+Após selecionar o elemento, suas propriedades podem ser alteradas. O uso de `var` é obsoleto; utilize `const` para referências de elementos do DOM.
 
 ```javascript
-// Altera todo o body
-document.write(Date());
+const elemento = document.querySelector("#p1");
 
-// Altera o conteúdo do elemento com id igual a "p1"
-document.getElementById("p1").innerHTML = "Novo conteudo!";
+// 1. textContent: Altera apenas o texto. É mais rápido e seguro contra ataques XSS.
+elemento.textContent = "Novo conteúdo textual puro!";
 
-// Cada elemento pode ser atribuído em uma variável e alterado posteriormente
-var element = document.getElementById("header");
-element.innerHTML = "Novo texto";
+// 2. innerHTML: Interpreta tags HTML. Use apenas se for estritamente necessário renderizar novas tags.
+elemento.innerHTML = "Texto com <strong>negrito</strong>.";
 
-// Altera um atributo do elemento com id igual "myImage"
-document.getElementById("myImage").src = "landscape.jpg";
+// 3. Alteração de atributos
+const imagem = document.querySelector("#myImage");
+imagem.src = "landscape.jpg";
+imagem.alt = "Nova descrição da imagem";
 
-// Altera propriedades CSS
-document.getElementById("p2").style.color = "blue";
+// 4. Alteração de estilos inline (Apenas para valores dinâmicos)
+const p2 = document.querySelector("#p2");
+p2.style.color = "blue";
+p2.style.marginTop = "20px";
+
+// 5. Manipulação de Classes CSS (Prática recomendada para estilização)
+const divAlerta = document.querySelector(".alerta");
+divAlerta.classList.add("alerta-sucesso"); // Adiciona classe
+divAlerta.classList.remove("alerta-erro"); // Remove classe
+divAlerta.classList.toggle("oculto");      // Alterna a classe (adiciona se não tiver, remove se tiver)
 ```
 
-#### Navegação no DOM
+*Nota: Evite o uso da função `document.write()`. Trata-se de uma prática obsoleta que sobrescreve todo o documento HTML caso executada após o carregamento da página.*
 
-Cada elemento do DOM pode possuir elementos filhos, ancestrais e irmãos.
-É possível, através da API DOM "navegar" por esses elementos.
+#### Navegação no DOM (Traversing)
 
-![](https://www.w3schools.com/js/pic_navigate.gif)
-
-É possível utilizar os seguintes atributos para navegar entre os elementos
-do DOM:
-
-* `parentNode`
-* `childNodes[nodenumber]`
-* `firstChild`
-* `lastChild`
-* `nextSibling`
-* `previousSibling`
+É possível navegar pela árvore do DOM através de relações estruturais (pais, filhos e irmãos). Recomenda-se utilizar as propriedades baseadas em *Element* em vez de *Node*, pois ignoram nós de texto em branco (quebras de linha no HTML).
 
 ```javascript
-// primeiro filho de um elemento
-var myTitle = document.getElementById("demo").firstChild.nodeValue;
+const container = document.querySelector("#demo");
 
-// primeiro filho de um elemento (utilizando o array childNodes)
-var myTitle = document.getElementById("demo").childNodes[0].nodeValue;
+// Navegação Moderna (Focada em Elementos HTML)
+const pai = container.parentElement;
+const filhos = container.children; // Retorna uma HTMLCollection apenas com tags filhas
+const primeiroFilho = container.firstElementChild;
+const ultimoFilho = container.lastElementChild;
+const proximoIrmao = container.nextElementSibling;
+const irmaoAnterior = container.previousElementSibling;
+
+// Acesso direto ao primeiro filho
+const textoPrimeiroFilho = filhos[0].textContent;
 ```
 
-É possível, ainda, criar novos elementos em um arquivo html utilizando Javascript:
+#### Criação de Elementos Dinâmicos
+
+A inserção de novos componentes na interface envolve a criação de elementos na memória e sua posterior anexação à árvore do DOM.
 
 ```javascript
-// Cria uma nova tag <p>
-var para = document.createElement("p");
-var node = document.createTextNode("This is new.");
-para.appendChild(node);
+// 1. Criação de um novo elemento <div>
+const novaDiv = document.createElement("div");
 
-var element = document.getElementById("div1");
-element.appendChild(para);
+// 2. Configuração do elemento
+novaDiv.textContent = "Conteúdo gerado via JS";
+novaDiv.classList.add("box-destaque");
+
+// 3. Seleção do nó pai onde o elemento será inserido
+const elementoPai = document.querySelector("#secao-principal");
+
+// 4. Inserção no DOM
+elementoPai.append(novaDiv); // append() é o padrão moderno, substituindo appendChild()
 ```
 
-Para mais detalhes, consulte: https://www.w3schools.com/js/js_htmldom_nodes.asp
+### Eventos e Interatividade
 
-#### Eventos
+A interatividade no lado do cliente ocorre por meio do mapeamento de **eventos** (cliques, digitação, envio de formulários, redimensionamento de janela).
 
-Boa parte da programação realizada utilizando Javascript em navegadores
-trabalha sobre um paradigma orientado a **eventos**. Um evento é algo
-que ocorre no navegador, como: um clique, o carregamento da página, redimensionamento
-da janela do navegador, movimento do mouse, etc.
+**Má Prática (Evite):** O uso de atributos de evento diretamente no HTML (ex: `<button onclick="funcao()">`) fere o princípio de separação de responsabilidades. O HTML deve conter apenas a estrutura, e o JS o comportamento.
 
-Isso significa que os programas são, em geral, um conjunto de
-funções executadas quando certos eventos ocorrem. Por exemplo,
-*"uma função X é executada sempre que um dado link é clicado"*.
+**Padrão Moderno (`addEventListener`):**
 
-Existem algumas formas de atribuir uma função a um dado evento:
-
-```html
-<!-- Evento como atributo -->
-<h1 onclick="this.innerHTML = 'Ooops!'">Click on this text!</h1>
-
-<h1 onclick="funcaoX()">Click on this text!</h1>
-
-<body onload="funcaoW()">
-```
+A interface `addEventListener` permite vincular múltiplas funções a um mesmo evento sem sobrescrever ouvintes anteriores.
 
 ```javascript
-// Evento como atributo de elemento do DOM
-document.getElementById("myBtn").onclick = displayDate;
-```
+// Seleção do botão
+const botaoEnviar = document.querySelector("#btnEnviar");
 
-Para atribuirmos mais de uma função a um mesmo evento, utilizamos
-`eventListeners`:
-
-```javascript
-// A função displayDate será executada quando o elemento de id = "myBtn" for clicado
-// Note que, nesse caso, não existe o "on" no nome do evento
-document.getElementById("myBtn").addEventListener("click", displayDate);
-```
-
-Eventlisteners são úteis para separar o código HTML do código Javascript.
-
-```javascript
-// Exemplo com objeto event (ev)
-var f = function(ev){
-  ev.target.style.color = "red";
+// Declaração da função de callback (Arrow Function)
+const processarClique = (event) => {
+    // O objeto 'event' (ou 'e') contém os metadados do evento disparado
+    
+    // event.target aponta para o elemento exato que acionou o evento
+    event.target.textContent = "Processando...";
+    event.target.classList.add("desativado");
+    
+    console.log("Botão clicado nas coordenadas: X:", event.clientX, "Y:", event.clientY);
 };
 
-document.getElementById("demo").addEventListener("click", f);
-
-// Atribuir o evento a todos os paragrafos do documento
-var ps = document.getElementsByTagName("p");
-
-for (var i = 0; i < ps.length; i++) {
-  ps[i].addEventListener("click",f);
-}
+// Vinculação do ouvinte de evento
+botaoEnviar.addEventListener("click", processarClique);
 ```
 
-### Links interessantes
+#### Atribuindo eventos a múltiplos elementos
 
-* [Document](https://www.w3schools.com/js/js_htmldom_document.asp);
-* [Elementos](https://www.w3schools.com/js/js_htmldom_elements.asp);
-* [Modificando HTML](https://www.w3schools.com/js/js_htmldom_html.asp);
-* [Modificando CSS](https://www.w3schools.com/js/js_htmldom_css.asp);
-* [Eventos](https://www.w3schools.com/js/js_htmldom_events.asp);
-* [Event listeners](https://www.w3schools.com/js/js_htmldom_eventlistener.asp);
-* [Navegação](https://www.w3schools.com/js/js_htmldom_navigation.asp);
-* [Nodes](https://www.w3schools.com/js/js_htmldom_nodes.asp).
+Se o sistema precisar capturar eventos de uma lista de elementos semelhantes, utilize um laço de repetição (`forEach`) sobre a `NodeList` gerada pelo `querySelectorAll`.
+
+```javascript
+// Seleciona todos os parágrafos com a classe 'clicavel'
+const paragrafos = document.querySelectorAll("p.clicavel");
+
+paragrafos.forEach((paragrafo) => {
+    paragrafo.addEventListener("click", (e) => {
+        // Altera a cor de fundo do elemento específico que foi clicado
+        e.target.style.backgroundColor = "yellow";
+    });
+});
+```
+
+### Links Importantes
+
+  * [Introdução a Eventos](https://developer.mozilla.org/pt-BR/docs/Learn/JavaScript/Building_blocks/Events)
+  * [Manipulando o DOM](https://developer.mozilla.org/pt-BR/docs/Learn/JavaScript/Client-side_web_APIs/Manipulating_documents)
+  * [Element.classList](https://developer.mozilla.org/pt-BR/docs/Web/API/Element/classList)
+  * [Document.querySelector](https://developer.mozilla.org/pt-BR/docs/Web/API/Document/querySelector)
