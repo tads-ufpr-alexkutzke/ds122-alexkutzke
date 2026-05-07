@@ -10,7 +10,7 @@ Universidade Federal do Paraná - UFPR
 
 Prof. Alexander Robert Kutzke
 
-# Especificação de Trabalho Prático 01/2026
+# Especificação de Trabalho Prático 0l/2026
 
 O trabalho prático envolve a criação de uma aplicação WEB completa. Ou seja,
 que inclua a implementação de front-end, back-end e que possua integração com 
