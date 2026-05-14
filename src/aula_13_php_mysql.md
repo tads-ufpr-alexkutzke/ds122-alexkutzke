@@ -29,7 +29,7 @@ Antes de qualquer operação, é necessário estabelecer uma conexão com o serv
 **Boas práticas:**
 - Armazene os dados de conexão (host, usuário, senha, nome do banco) em **variáveis** ou em um arquivo de configuração separado. Assim, se os dados mudarem, você altera em um único lugar.
 - Utilize `mysqli_connect_error()` para verificar se a conexão foi bem-sucedida.
-- Sempre defina o charset da conexão com `mysqli_set_charset()` para `utf8mb4`, que oferece suporte completo a caracteres especiais e emojis.
+- É possível definir o charset da conexão com `mysqli_set_charset()` para `utf8mb4`, que oferece suporte completo a caracteres especiais e emojis.
 
 ```php
 <?php
@@ -54,7 +54,7 @@ echo "Conectado com sucesso!";
 ?>
 ```
 
-> **Dica:** em projetos maiores, isole a conexão em um arquivo `conexao.php` e utilize `require 'conexao.php';` nos demais scripts. Assim você evita repetir o código de conexão em cada página.
+> Em projetos maiores, isole a conexão em um arquivo `conexao.php` e utilize `require 'conexao.php';` nos demais scripts. Assim você evita repetir o código de conexão em cada página.
 
 ---
 
@@ -494,22 +494,6 @@ $stmt->execute([':id' => 1]);
 ## Exemplos Mysqli
 
 Para exemplos de arquivos utilizando o mysqli acesse: <https://gitlab.com/ds122-alexkutzke/ds122-php-mysqli-example>
-
----
-
-## Prática (não precisa entregar)
-
-Criar a aplicação My Tasks, disponível no seguinte repositório:
-
-https://gitlab.com/ds122-alexkutzke/ds122-my-tasks-app2
-
-A partir do código inicial, disponível em:
-
-https://gitlab.com/ds122-alexkutzke/ds122-my-tasks-app-starter
-
-### Video aula sobre criação da aplicação My Tasks
-
-https://youtu.be/5XLp6uZKEug
 
 ---
 
