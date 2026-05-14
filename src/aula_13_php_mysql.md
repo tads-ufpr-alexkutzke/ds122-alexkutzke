@@ -64,7 +64,17 @@ A criação do banco pode ser feita via phpMyAdmin (XAMPP) ou diretamente pelo t
 
 ```php
 <?php
-require 'conexao_sem_db.php'; // Conexão sem selecionar banco ainda
+$host   = "localhost";
+$user   = "appuser";
+$pass   = "web1";
+
+// Estabelece a conexão sem uma base de dados
+$conn = mysqli_connect($host, $user, $pass);
+
+// Verifica se houve erro
+if (mysqli_connect_error()) {
+    die("Erro de conexão: " . mysqli_connect_error());
+}
 
 $sql = "CREATE DATABASE IF NOT EXISTS minha_aplicacao CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci";
 
@@ -80,13 +90,32 @@ mysqli_close($conn);
 
 ---
 
+## Criando um arquivo de credenciais
+
+```php
+<?php
+$host   = "mysql";
+$user   = "usuario";
+$pass   = "senha";
+$dbname = "minha_aplicacao";
+?>
+```
+
+---
+
 ## Criando uma Tabela
 
 Após selecionar o banco, criamos as tabelas necessárias. Abaixo, um exemplo de tabela `tarefas` que será usada nos exemplos seguintes:
 
 ```php
 <?php
-require 'conexao.php';
+require 'credentials.php';
+
+$conn = mysqli_connect($host, $user, $pass, $dbname);
+
+if (mysqli_connect_error()) {
+    die("Erro de conexão: " . mysqli_connect_error());
+}
 
 $sql = "CREATE TABLE IF NOT EXISTS tarefas (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -103,7 +132,6 @@ if (mysqli_query($conn, $sql)) {
 }
 
 mysqli_close($conn);
-?>
 ```
 
 ---
@@ -118,6 +146,24 @@ CRUD é o acrônimo para as quatro operações básicas de persistência de dado
 | Read     | SELECT | Consultar registros      |
 | Update   | UPDATE | Atualizar um registro    |
 | Delete   | DELETE | Remover um registro      |
+
+---
+
+### Criando arquivo de conexão genérico
+
+```php
+<?php
+require_once 'credentials.php';
+
+// Estabelece a conexão
+$conn = mysqli_connect($host, $user, $pass, $dbname);
+
+// Verifica se houve erro
+if (mysqli_connect_error()) {
+    die("Erro de conexão: " . mysqli_connect_error());
+}
+?>
+```
 
 ---
 
@@ -375,7 +421,7 @@ mysqli_close($conn);
 ?>
 ```
 
-> ⚠️ **Cuidado:** nunca execute um `DELETE` sem uma cláusula `WHERE` — isso apagaria **todos** os registros da tabela.
+> Sempre lembre-se de adicionar uma cláusula `WHERE` ao comando `DELETE`.
 
 ---
 
@@ -419,7 +465,7 @@ Com Prepared Statements, o valor `1 OR 1=1` é tratado **apenas como dado**, nun
 
 ---
 
-## Um Olhar sobre o Futuro: PDO (PHP Data Objects)
+## PDO (PHP Data Objects)
 
 > Esta seção é informativa. O PDO utiliza Programação Orientada a Objetos e será abordado com mais profundidade quando você tiver essa base. O objetivo aqui é apresentar a alternativa para que você conheça o caminho recomendado pela comunidade PHP.
 
@@ -452,48 +498,6 @@ $stmt->execute([
     ':descricao' => $descricao,
 ]);
 ```
-
-### Exemplo de CRUD completo com PDO
-
-```php
-<?php
-// Conexão
-$pdo = new PDO("mysql:host=localhost;dbname=minha_aplicacao;charset=utf8mb4", "appuser", "web1", [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-]);
-
-// Create
-$stmt = $pdo->prepare("INSERT INTO tarefas (titulo, descricao) VALUES (:t, :d)");
-$stmt->execute([':t' => 'Estudar PDO', ':d' => 'Aprender a nova biblioteca']);
-$novoId = $pdo->lastInsertId();
-
-// Read — todos
-$tarefas = $pdo->query("SELECT * FROM tarefas ORDER BY id DESC")->fetchAll();
-
-// Read — um registro
-$stmt = $pdo->prepare("SELECT * FROM tarefas WHERE id = :id");
-$stmt->execute([':id' => 1]);
-$tarefa = $stmt->fetch();
-
-// Update
-$stmt = $pdo->prepare("UPDATE tarefas SET concluida = :c WHERE id = :id");
-$stmt->execute([':c' => 1, ':id' => 1]);
-
-// Delete
-$stmt = $pdo->prepare("DELETE FROM tarefas WHERE id = :id");
-$stmt->execute([':id' => 1]);
-?>
-```
-
-> **Quando usar PDO?** Quando você se sentir confortável com orientação a objetos, o PDO será mais conciso, seguro e portável. Por enquanto, domine bem o mysqli procedural e o conceito de Prepared Statements — essa base é transferível para qualquer biblioteca de acesso a banco de dados.
-
----
-
-## Exemplos Mysqli
-
-Para exemplos de arquivos utilizando o mysqli acesse: <https://gitlab.com/ds122-alexkutzke/ds122-php-mysqli-example>
 
 ---
 
