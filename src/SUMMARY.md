@@ -16,6 +16,7 @@
 - [Aula 09 - Frameworks Front-end](./aula_09_frameworks_front_end.md); 
 - [Aula 10 - Programação Backend](./aula_10_back_end.md); 
 - [Aula 11 - PHP](./aula_11_php.md); 
-- [Aula 11 - PHP e Formulários](./aula_12_php_forms.md); 
+- [Aula 12 - PHP e Formulários](./aula_12_php_forms.md); 
 - [Aula 13 - PHP e MySQL](./aula_13_php_mysql.md);
+- [Aula 14 - Cookies e Sessions](./aula_14_cookies_session.md);
 - [Especificação trabalho prático](./especificacao_trabalho_01_26.md)
