@@ -1,5 +1,7 @@
 # Protocolo HTTP
 
+[Slides desta aula (PDF)](slides/aula_03_http.pdf)
+
 ## Bibliografia recomendada para o tema
 
 * TANENBAUM, A. S. **Redes de Computadores**, cap. 7.3 (ver plano de ensino na UFPR Virtual);
@@ -33,7 +35,7 @@ por uma rede:
 * **Servidor**: nunca inicia a comunicação. Fica permanentemente à espera
   (*escutando*) e, ao receber uma requisição, processa e devolve uma **resposta**.
 
-Uma característica decisiva: **o servidor nunca inicia a comunicação**. Ele não
+Importante: **o servidor nunca inicia a comunicação**. Ele não
 tem como avisar espontaneamente o navegador de que algo mudou na página. Toda
 informação que chega ao cliente chega porque o cliente pediu.
 
@@ -46,7 +48,7 @@ limitação exige tecnologias construídas por cima do protocolo, como WebSocket
 
 ## 2. O protocolo HTTP
 
-Duas máquinas conectadas por rede conseguem trocar bytes. Isso não basta: elas
+Duas máquinas conectadas por rede conseguem trocar bytes. Porém, isso geralmente não é suficiente: elas
 precisam concordar sobre o **significado** desses bytes. Quem manda primeiro?
 Como se pede um documento? Como se responde que o documento não existe?
 
@@ -83,7 +85,8 @@ forma de saber se o documento que você está lendo ainda vale.
 
 ## 3. Primeiro contato: ver uma mensagem real
 
-Antes de dissecar o protocolo, convém olhar uma conversa real. Os detalhes não
+Antes de compreender o protocolo, convém olhar uma conversa real, ou seja, uma troca de mensagens. 
+Os detalhes não
 precisam ser entendidos ainda: cada um deles é uma seção desta aula. O que
 importa agora é reconhecer a **forma** da mensagem.
 
@@ -99,7 +102,7 @@ curl -v https://example.com
 Na saída, `>` marca as linhas que o `curl` **enviou**, `<` marca as que o
 servidor **devolveu**, e `*` são comentários do próprio `curl` sobre a conexão.
 
-Quatro coisas a notar:
+Quatro coisas a notar nas mensagens (linhas com `<` e `>`):
 
 1. tudo é **texto**;
 2. a primeira linha é diferente das outras;
@@ -198,7 +201,7 @@ A **linha inicial** de uma resposta tem três partes:
 ### O cabeçalho Host
 
 `Host` é obrigatório em HTTP/1.1 e não existia em HTTP/1.0. A razão é econômica:
-um único servidor, com um único endereço IP, hospeda centenas de sites
+um único servidor, com um único endereço IP, pode hospedar centenas de sites
 diferentes. Quando a requisição chega, o servidor precisa decidir qual site
 entregar, e a única informação disponível para isso é o cabeçalho `Host`. Essa
 técnica se chama **hospedagem virtual por nome** (*name-based virtual hosting*).
@@ -219,15 +222,15 @@ https://usuario@www.example.com:8080/produtos/lista.php?cat=livros&pag=2#topo
 esquema  userinfo     host      porta      caminho          consulta   fragmento
 ```
 
-| Parte | Descrição |
-|---|---|
-| **esquema** | O protocolo a usar: `http`, `https`, `mailto`, `file`. Determina tudo o que vem depois. |
-| **userinfo** | Credencial embutida. Praticamente em desuso e desencorajado por segurança. |
-| **host** | Nome de domínio ou endereço IP do servidor. |
-| **porta** | Número da porta TCP. Se omitida, vale 80 para `http` e 443 para `https`. |
-| **caminho** | Identifica o recurso dentro do servidor. |
+| Parte                         | Descrição                                                                                 |
+|-------------------------------|-------------------------------------------------------------------------------------------|
+| **esquema**                   | O protocolo a usar: `http`, `https`, `mailto`, `file`. Determina tudo o que vem depois.  |
+| **userinfo**                  | Credencial embutida. Praticamente em desuso no http e desencorajado por segurança.       |
+| **host**                      | Nome de domínio ou endereço IP do servidor.                                               |
+| **porta**                     | Número da porta TCP. Se omitida, vale 80 para `http` e 443 para `https`.                  |
+| **caminho**                   | Identifica o recurso dentro do servidor.                                                  |
 | **consulta** (*query string*) | Pares `chave=valor` separados por `&`, iniciados por `?`. É o que o PHP lerá em `$_GET`. |
-| **fragmento** | Iniciado por `#`. Identifica uma parte interna do documento. |
+| **fragmento**                 | Iniciado por `#`. Identifica uma parte interna do documento.                              |
 
 Dois pontos que costumam gerar confusão:
 
@@ -262,7 +265,7 @@ aplicação web precisa de mais: o termo digitado na busca, a página da listage
 que se quer ver, o login e a senha, os campos de um cadastro. Sem o cliente
 enviar dados, não existe aplicação, apenas um servidor de arquivos.
 
-A mensagem HTTP tem três lugares onde esses dados cabem:
+A mensagem HTTP tem três lugares onde esses dados podem ser enviados:
 
 | Lugar | Exemplo | Onde fica na mensagem |
 |---|---|---|
@@ -273,7 +276,7 @@ A mensagem HTTP tem três lugares onde esses dados cabem:
 Cabeçalhos também transportam dados, como `Cookie` e `Authorization`, mas são
 metadados da requisição, e não parâmetros da operação.
 
-### Consulta: parâmetros na própria URL
+### Parâmetros na própria URL
 
 ```
 /busca?q=teclado&pag=2&ordem=preco
@@ -287,14 +290,14 @@ As regras já foram vistas na seção sobre URL, e valem repetir juntas:
 * caracteres especiais vão codificados: `q=ar%20condicionado`.
 
 O servidor recebe essa cadeia de caracteres e a converte numa estrutura de chave
-e valor. Em PHP, essa estrutura se chama `$_GET`:
+e valor. Em PHP, essa estrutura se chama `$_GET` (veremos mais na segunda metade da disciplina):
 
 ```php
 $_GET['q']      // "teclado"
 $_GET['pag']    // "2"
 ```
 
-### Corpo: os mesmos pares, em outro lugar
+### Parâmetros no corpo da mensagem
 
 ```http
 POST /busca HTTP/1.1
@@ -344,8 +347,8 @@ O método é o verbo da requisição. Os mais frequentes:
 
 ### GET e POST não se distinguem pelo lugar dos dados
 
-É comum ouvir que "GET manda os dados pela URL e POST manda pelo corpo". Isso
-descreve o efeito, e não a causa, e leva a decisões erradas de projeto. A
+É comum ouvir que "GET manda os dados pela URL e POST manda pelo corpo". Isso é verdade, mas, 
+descreve o efeito, e não a causa, e pode levar a decisões erradas de projeto. A
 distinção que importa está em duas propriedades definidas na RFC 9110.
 
 **Método seguro** (*safe*): não altera o estado do servidor. É apenas leitura.
@@ -394,7 +397,7 @@ O primeiro dígito define a classe:
 | `4xx` | Erro do cliente. A requisição está errada. |
 | `5xx` | Erro do servidor. A requisição estava certa, o servidor falhou. |
 
-A fronteira entre `4xx` e `5xx` é uma atribuição de culpa. Ao depurar um sistema,
+A fronteira entre `4xx` e `5xx` é uma indicação importante. Ao depurar um sistema,
 `4xx` manda você olhar o código que fez a requisição, `5xx` manda olhar o
 servidor.
 
@@ -415,7 +418,7 @@ Os que interessam nesta disciplina:
 | `405` | Method Not Allowed | O recurso existe, o método não é aceito. Acompanha `Allow`. |
 | `500` | Internal Server Error | Falha no servidor. Em PHP, geralmente um erro fatal no script. |
 
-Duas distinções cobradas com frequência:
+Duas distinções importantes:
 
 * `401` contra `403`: o primeiro significa "identifique-se", o segundo significa
   "já sei quem você é e ainda assim não pode".
@@ -426,7 +429,7 @@ Duas distinções cobradas com frequência:
 ## 9. Cabeçalhos
 
 Cabeçalhos são pares `Nome: valor` que carregam os metadados da mensagem. O nome
-não diferencia maiúsculas de minúsculas. Existem centenas; os relevantes agora:
+não diferencia maiúsculas de minúsculas. Existem centenas; os relevantes para essa disciplina são:
 
 **Enviados pelo cliente**
 
@@ -487,7 +490,7 @@ Pergunta que parece trivial e não é: recebida a última linha de cabeçalho, c
 cliente sabe em que ponto a resposta acabou? O TCP entrega um fluxo contínuo de
 bytes e não sinaliza fronteiras de mensagem.
 
-O HTTP resolve isso de três formas, todas em uso:
+O HTTP resolve isso de três formas:
 
 **1. `Content-Length`.** O servidor informa o tamanho exato do corpo em bytes e o
 cliente conta. Exige que o servidor conheça o tamanho total antes de começar a
@@ -519,7 +522,7 @@ hexadecimal. O bloco de tamanho `0` encerra a mensagem. O corpo reconstruído é
 corpo e encerra a conexão TCP. O fim da conexão é o fim da mensagem. Era o
 mecanismo do HTTP/1.0 e é ineficiente, porque impede reaproveitar a conexão.
 
-Este é o mecanismo por trás de dois sintomas comuns: uma requisição que fica
+Este é o mecanismo por trás de dois problemas comuns: uma requisição que fica
 pendurada indefinidamente (o cliente ainda espera bytes prometidos por um
 `Content-Length` maior que o corpo real) e uma resposta truncada.
 
@@ -531,10 +534,10 @@ Duas requisições do mesmo usuário, com um segundo de intervalo, são para o
 servidor dois eventos sem relação entre si.
 
 Isso não é limitação acidental, é decisão de projeto. Sem estado, qualquer
-servidor da fazenda pode atender qualquer requisição, e derrubar um servidor não
+servidor em cluster ou "fazenda de servidores" pode atender qualquer requisição, e derrubar um servidor não
 derruba as sessões em curso. É o que permitiu a web escalar.
 
-O preço é evidente: se o servidor não se lembra de nada, como existe "usuário
+Porém, se o servidor não se lembra de nada, como existe "usuário
 logado"? A única saída é o **cliente reenviar**, em toda requisição, alguma
 informação que permita ao servidor reconstruir o contexto.
 
@@ -546,8 +549,7 @@ domínio, no cabeçalho `Cookie: nome=valor`. O cookie é apenas texto trafegand
 cabeçalho, e o navegador o devolve automaticamente.
 
 **Sessões.** O cookie guarda apenas um identificador aleatório; os dados ficam no
-servidor, associados a esse identificador. É o modelo que usaremos com PHP na
-Aula 14.
+servidor, associados a esse identificador. É o modelo que usaremos com PHP.
 
 **Tokens.** Uma credencial assinada, enviada no cabeçalho `Authorization`, comum
 em APIs.
@@ -632,7 +634,7 @@ somente se as três coincidirem:
 | `http://site.com` | `http://site.com:8080` | não, porta difere |
 
 A **política de mesma origem** (*same-origin policy*) é uma regra imposta pelo
-navegador: JavaScript executando numa origem não pode ler a resposta de uma
+**navegador**: JavaScript executando numa origem não pode ler a resposta de uma
 requisição feita a outra origem. Sem essa regra, uma página maliciosa aberta numa
 aba faria requisições ao seu banco em outra aba, aproveitando os cookies já
 armazenados, e leria o resultado.
@@ -655,7 +657,7 @@ Voltaremos a isso na Aula 07, ao consumir APIs com a Fetch API.
 
 ## 15. Cache e requisições condicionais
 
-Rebaixar tráfego desnecessário é papel do cache. O HTTP oferece dois níveis.
+A função do cache é reduzir a quantidade de tráfego (mensagens e dados) desnecessário. O HTTP oferece dois níveis.
 
 **Cache por prazo.** O servidor responde com `Cache-Control: max-age=3600`,
 declarando que a resposta vale por 3600 segundos. Durante esse período o
@@ -671,7 +673,7 @@ do servidor:
   `If-Modified-Since: <data>`.
 
 Se o recurso não mudou, o servidor responde `304 Not Modified`, **sem corpo**. A
-economia é o corpo inteiro; apenas os cabeçalhos trafegam.
+economia de dados trafegados é o corpo inteiro da mensagem; apenas os cabeçalhos trafegam.
 
 Valores úteis de `Cache-Control`:
 
@@ -692,7 +694,7 @@ Ele está dentro do prazo declarado pelo servidor e sequer perguntou. A combina�
 # Parte prática
 
 Nesta parte você vai construir requisições HTTP manualmente e, em seguida, atuar
-como servidor. Registre os comandos e as saídas: eles compõem a entrega do dia.
+como servidor. 
 
 ## 16. Preparando o ambiente
 
@@ -704,8 +706,7 @@ A ferramenta principal é o **`curl`**, um cliente HTTP de linha de comando.
 > **Atenção, usuários de Windows.** No PowerShell, o nome `curl` é um apelido para
 > o comando `Invoke-WebRequest`, que tem sintaxe completamente diferente. Se
 > estiver no PowerShell, escreva `curl.exe` com a extensão. No `cmd` e no Git
-> Bash, `curl` funciona normalmente. Recomenda-se usar o **Git Bash**, já
-> instalado na Aula 01.
+> Bash, `curl` funciona normalmente. Recomenda-se usar o **Git Bash** ou um ambiente **WSL**.
 
 Verifique com:
 
@@ -973,7 +974,7 @@ tempo do handshake TCP; entre `TLS` e `TCP`, o custo da criptografia; entre
 ## 24. Exercícios
 
 **Não há entrega nem nota nesta aula.** Os exercícios abaixo são de fixação e
-devem ser feitos ao longo da semana, no seu ritmo.
+devem ser feitos ao longo da semana.
 
 Ainda assim, faça-os. O conteúdo desta aula cai na Prova 1, e digitar os
 comandos é a única forma de fixar o que foi visto aqui. Sugestão de método: para

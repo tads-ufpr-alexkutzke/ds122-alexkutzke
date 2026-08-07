@@ -1,0 +1,1431 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{03 - Protocolo HTTP}
+\author{Prof. Alex Kutzke}
+\date{Agosto de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+  \begin{center}
+    \large{Setor de Educação Profissional e Tecnológica}\\
+    Tecnologia em Análise e Desenvolvimento de Sistemas\\
+    \vspace{1cm}
+    \small{DS122 - Desenvolvimento de Aplicações Web 1}
+  \end{center}
+  \titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+  Ao final desta aula você deve ser capaz de:
+  \begin{enumerate}
+    \item Descrever a estrutura de uma mensagem HTTP byte a byte;
+    \item Explicar o que significa o protocolo ser \textit{sem estado} e as
+          consequências disso;
+    \item Identificar os três lugares por onde o cliente envia parâmetros:
+          caminho, consulta e corpo;
+    \item Escolher o método HTTP correto, justificando com segurança e
+          idempotência;
+    \item Interpretar códigos de status e cabeçalhos;
+    \item Construir requisições manualmente com \texttt{curl};
+    \item Atuar como servidor, respondendo à mão a uma requisição do navegador.
+  \end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+  \tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Fundamentos}
+% ==========================================
+
+\begin{frame}{Modelo cliente-servidor}
+  \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw, rounded corners, minimum width=3cm,
+                    minimum height=1.6cm, align=center, thick},
+        every node/.style={font=\small}
+      ]
+      \node[box, fill=blue!8]  (c) at (0,0)  {\textbf{Cliente}\\navegador, \texttt{curl}};
+      \node[box, fill=green!8] (s) at (7,0)  {\textbf{Servidor}\\nginx, Apache};
+
+      \draw[-{Stealth[length=3mm]}, thick, blue]
+        ([yshift=4mm]c.east) -- node[above, font=\footnotesize]{requisição}
+        ([yshift=4mm]s.west);
+      \draw[-{Stealth[length=3mm]}, thick, green!50!black]
+        ([yshift=-4mm]s.west) -- node[below, font=\footnotesize]{resposta}
+        ([yshift=-4mm]c.east);
+    \end{tikzpicture}
+  \end{center}
+
+  \begin{itemize}
+    \item \textbf{Cliente}: inicia a comunicação. Envia uma requisição e aguarda.
+    \item \textbf{Servidor}: nunca inicia. Fica escutando e responde.
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \footnotesize No modelo \textbf{desktop} existe um ator só: o programa roda na
+  máquina do usuário, lê o teclado, escreve na tela, acessa arquivos locais.
+\end{frame}
+
+\begin{frame}{O servidor nunca inicia a comunicação}
+  \begin{block}{}
+    O servidor não tem como avisar espontaneamente o navegador de que algo
+    mudou. Toda informação que chega ao cliente chega \textbf{porque o cliente
+    pediu}.
+  \end{block}
+
+  \vspace{0.5cm}
+  Uma página que precisa exibir dados novos sem interação do usuário só tem uma
+  saída dentro do HTTP: perguntar de novo, de tempos em tempos. Contornar essa
+  limitação exige tecnologias construídas por cima do protocolo, como WebSocket
+  e \textit{Server-Sent Events}, fora do escopo desta disciplina.
+\end{frame}
+
+\begin{frame}{O que é um protocolo}
+  Duas máquinas conectadas conseguem trocar bytes. Porém, isso geralmente não é
+  suficiente: elas precisam concordar sobre o \textbf{significado} desses bytes.
+
+  \begin{itemize}
+    \item Quem manda primeiro?
+    \item Como se pede um documento?
+    \item Como se responde que o documento não existe?
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Um \textbf{protocolo} é esse acordo.
+
+  \vspace{0.3cm}
+  Na web, o protocolo é o \textbf{HTTP} (\textit{HyperText Transfer Protocol}),
+  criado por Tim Berners-Lee no início dos anos 1990.
+\end{frame}
+
+\begin{frame}{Onde o HTTP fica}
+  \begin{center}
+    \begin{tikzpicture}[
+        layer/.style={draw, minimum width=6.5cm, minimum height=0.95cm,
+                      align=center, font=\small}
+      ]
+      \node[layer, fill=blue!12]   (app) at (0,0)    {\textbf{Aplicação}: HTTP, DNS, SMTP};
+      \node[layer, fill=gray!10]   (tra) at (0,-1.1) {\textbf{Transporte}: TCP, UDP};
+      \node[layer, fill=gray!10]   (red) at (0,-2.2) {\textbf{Rede}: IP};
+      \node[layer, fill=gray!10]   (enl) at (0,-3.3) {\textbf{Enlace}: Ethernet, Wi-Fi};
+    \end{tikzpicture}
+  \end{center}
+
+  O HTTP \textbf{não} se preocupa em fazer os bytes chegarem em ordem e sem
+  perdas. Isso é tarefa do TCP, abaixo dele. O HTTP assume um canal confiável e
+  define o que trafega por ele.
+\end{frame}
+
+\begin{frame}{RFCs}
+  As especificações da Internet são publicadas como \textbf{RFCs}
+  (\textit{Request for Comments}), numeradas e mantidas pela IETF.
+
+  \begin{alertblock}{Uma RFC nunca é editada depois de publicada}
+    Quando a especificação muda, publica-se uma RFC nova que \textbf{torna
+    obsoleta} (\textit{obsoletes}) a anterior.
+  \end{alertblock}
+
+  O HTTP/1.1 foi definido pela RFC 2616, de 1999. Ela está \tcr{obsoleta desde
+  2014}, e a maior parte do material antigo na Internet ainda a cita.
+\end{frame}
+
+\begin{frame}{Especificações vigentes}
+  \begin{center}
+    \small
+    \begin{tabular}{@{}llp{4.9cm}@{}}
+      \toprule
+      \textbf{RFC} & \textbf{Ano} & \textbf{Define} \\
+      \midrule
+      9110 & 2022 & Semântica do HTTP (métodos, status, cabeçalhos), comum a todas as versões \\
+      9111 & 2022 & Cache \\
+      9112 & 2022 & Sintaxe do HTTP/1.1 \\
+      9113 & 2022 & HTTP/2 \\
+      9114 & 2022 & HTTP/3 \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  Ao abrir uma RFC, procure no topo os campos \texttt{Obsoletes} e
+  \texttt{Obsoleted by}. É assim que se sabe se o documento ainda vale.
+\end{frame}
+
+\begin{frame}{Duas formas de ver uma mensagem real}
+  Nos próximos minutos você vai olhar mensagens HTTP \textbf{reais}, de dois
+  jeitos diferentes:
+
+  \begin{enumerate}
+    \item pelo terminal, com o \texttt{curl};
+    \item pelo navegador, com as ferramentas de desenvolvimento.
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  Os detalhes não precisam ser entendidos ainda. Cada um deles é uma seção desta
+  aula, e as duas ferramentas voltam em detalhe na parte prática.
+\end{frame}
+
+\begin{frame}[fragile]{No terminal}
+  \begin{minted}{bash}
+curl -v https://example.com
+  \end{minted}
+
+  \begin{itemize}
+    \item \texttt{>} são as linhas que o \texttt{curl} \textbf{enviou};
+    \item \texttt{<} são as linhas que o servidor \textbf{devolveu};
+    \item \texttt{*} são comentários do próprio \texttt{curl}.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Quatro coisas a notar: a conversa é \textbf{texto}; tem uma primeira linha
+  diferente das outras; depois vem uma pilha de pares \texttt{Nome: valor}; por
+  fim uma linha em branco, e só então o HTML.
+\end{frame}
+
+\begin{frame}{No navegador}
+  \begin{enumerate}
+    \item Abra qualquer site;
+    \item \texttt{F12} ou \texttt{Ctrl+Shift+I};
+    \item aba \textbf{Rede} (\textit{Network});
+    \item recarregue a página com \texttt{Ctrl+R};
+    \item clique em qualquer linha da lista que aparecer.
+  \end{enumerate}
+
+  \vspace{0.4cm}
+  Na aba \textbf{Cabeçalhos} (\textit{Headers}) você encontra os mesmos dois
+  blocos: o que o navegador mandou e o que o servidor respondeu.
+
+  \vspace{0.3cm}
+  \begin{block}{}
+    É a mesma conversa que o \texttt{curl} mostrou. Muda a apresentação.
+  \end{block}
+\end{frame}
+
+\begin{frame}{A mesma mensagem nas duas ferramentas}
+  \begin{center}
+    \small
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      & \textbf{No \texttt{curl -v}} & \textbf{No navegador} \\
+      \midrule
+      Endereço pedido    & 1\textsuperscript{a} linha após \texttt{>} & \textit{Request URL} \\
+      Verbo              & \texttt{GET}, no início    & \textit{Request Method} \\
+      Deu certo?         & 1\textsuperscript{a} linha após \texttt{<} & \textit{Status Code} \\
+      Metadados enviados & pares após \texttt{>}      & \textit{Request Headers} \\
+      Metadados recebidos& pares após \texttt{<}      & \textit{Response Headers} \\
+      Conteúdo           & depois da linha em branco  & aba \textit{Resposta} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  As seis linhas da tabela são, nesta ordem, o roteiro das próximas seções.
+\end{frame}
+
+% ==========================================
+\section{A mensagem}
+% ==========================================
+
+\begin{frame}[fragile]{Anatomia de uma mensagem}
+  Toda mensagem HTTP/1.1, de requisição ou de resposta, tem a mesma forma:
+
+  \begin{minted}[fontsize=\small]{text}
+<linha inicial>
+<Nome-do-cabecalho>: <valor>
+<Nome-do-cabecalho>: <valor>
+<linha em branco>
+<corpo, opcional>
+  \end{minted}
+
+  \vspace{0.3cm}
+  E o mais importante: \textbf{é texto}. Você pode digitá-la à mão.
+\end{frame}
+
+\begin{frame}[fragile]{CRLF e a linha em branco}
+  \begin{block}{CRLF}
+    Cada linha termina com \textbf{dois} caracteres: \verb|\r\n| (retorno de
+    carro e nova linha). Não é apenas \verb|\n|, como é usual em arquivos de
+    texto no Linux. Terminador errado, mensagem rejeitada.
+  \end{block}
+
+  \begin{block}{A linha em branco}
+    Separa os cabeçalhos do corpo. É \textbf{obrigatória}, mesmo quando não há
+    corpo.
+
+    \vspace{0.2cm}
+    É por isso que, ao digitar uma requisição à mão, você pressiona
+    \texttt{Enter} duas vezes.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Requisição}
+  \begin{minted}{http}
+GET /docs/index.html HTTP/1.1
+Host: www.example.com
+User-Agent: curl/8.5.0
+Accept: text/html
+
+  \end{minted}
+
+  A \textbf{linha inicial} tem três partes separadas por espaço:
+  \begin{enumerate}
+    \item o \tcb{método} (\texttt{GET}): o que se quer fazer;
+    \item o \tcb{alvo} (\texttt{/docs/index.html}): o caminho do recurso;
+    \item a \tcb{versão} do protocolo (\texttt{HTTP/1.1}).
+  \end{enumerate}
+
+  \vspace{0.2cm}
+  Repare: o alvo \textbf{não contém o nome do site}.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta}
+  \begin{minted}{http}
+HTTP/1.1 200 OK
+Date: Mon, 23 May 2026 22:38:34 GMT
+Server: nginx
+Content-Type: text/html; charset=UTF-8
+Content-Length: 47
+
+<html>
+<body>
+<p>Ola mundo</p>
+</body>
+</html>
+  \end{minted}
+
+  \begin{enumerate}
+    \item a \tcb{versão} do protocolo;
+    \item o \tcb{código de status} (\texttt{200}), para o programa;
+    \item a \tcb{frase de motivo} (\texttt{OK}), para o humano, ignorada pelo programa.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{O cabeçalho Host}
+  \texttt{Host} é obrigatório em HTTP/1.1 e não existia em HTTP/1.0.
+  A razão é econômica.
+
+  \vspace{0.4cm}
+  Um único servidor, com um único endereço IP, pode hospedar centenas de sites. Quando
+  a requisição chega, o servidor precisa decidir \textbf{qual site entregar}, e a
+  única informação disponível é o cabeçalho \texttt{Host}.
+
+  \vspace{0.4cm}
+  Chama-se \textbf{hospedagem virtual por nome}
+  (\textit{name-based virtual hosting}).
+\end{frame}
+
+\begin{frame}{DNS, TCP e TLS antes do HTTP}
+  \begin{enumerate}
+    \item O navegador consulta o \textbf{DNS} para descobrir o IP de
+          \texttt{www.example.com};
+    \item Abre uma \textbf{conexão TCP} com esse IP;
+    \item (se HTTPS) executa o \textbf{handshake TLS};
+    \item Envia a requisição, informando \textbf{dentro dela} com qual nome
+          pretendia falar.
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  O passo 4 é o que torna a hospedagem virtual possível.
+\end{frame}
+
+\begin{frame}{Onde a mensagem termina}
+  Pergunta que parece trivial e não é:
+
+  \begin{block}{}
+    Recebida a última linha de cabeçalho, como o cliente sabe \textbf{em que
+    ponto} a resposta acabou?
+  \end{block}
+
+  \vspace{0.4cm}
+  O TCP entrega um fluxo contínuo de bytes. Ele \textbf{não} sinaliza fronteiras
+  de mensagem.
+
+  \vspace{0.4cm}
+  O HTTP resolve isso de três formas.
+\end{frame}
+
+\begin{frame}[fragile]{1. Content-Length}
+  O servidor informa o tamanho exato do corpo em bytes. O cliente conta.
+
+  \begin{minted}{http}
+HTTP/1.1 200 OK
+Content-Length: 47
+
+  \end{minted}
+
+  \vspace{0.2cm}
+  Exige que o servidor conheça o tamanho total \textbf{antes} de começar a
+  enviar.
+\end{frame}
+
+\begin{frame}[fragile]{2. Transfer-Encoding: chunked}
+  O corpo vai em blocos, cada um precedido pelo seu tamanho em hexadecimal.
+  Um bloco de tamanho \texttt{0} encerra a mensagem.
+
+  \begin{minted}{text}
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+
+7
+Ola mun
+3
+do!
+0
+
+  \end{minted}
+
+  Corpo reconstruído: \texttt{Ola mundo}.
+
+  \vspace{0.2cm}
+  Permite responder \textbf{antes} de saber o tamanho final. É a base do envio
+  contínuo de dados (\textit{streaming}).
+\end{frame}
+
+\begin{frame}{3. Fechamento da conexão}
+  O servidor envia \texttt{Connection: close}, transmite o corpo e encerra a
+  conexão TCP. O fim da conexão é o fim da mensagem.
+
+  \vspace{0.4cm}
+  Era o mecanismo do HTTP/1.0. É ineficiente, porque impede reaproveitar a
+  conexão.
+
+  \vspace{0.6cm}
+  \begin{alertblock}{Requisição pendurada e resposta truncada}
+    Requisição que fica pendurada indefinidamente: o cliente ainda espera bytes
+    prometidos por um \texttt{Content-Length} maior que o corpo real.
+
+    \vspace{0.2cm}
+    Resposta truncada: o contrário.
+  \end{alertblock}
+\end{frame}
+
+% ==========================================
+% \subsection{URL}
+% ==========================================
+
+\begin{frame}[fragile]{Anatomia de uma URL}
+  \begin{center}
+    \begin{minted}[fontsize=\tiny, breaklines=false, frame=none]{text}
+https://usuario@www.example.com:8080/produtos/lista.php?cat=livros&pag=2#topo
+\___/   \_____/ \_____________/ \__/\_________________/ \______________/ \__/
+  |        |           |          |          |                  |          |
+esquema  userinfo    host       porta     caminho           consulta   fragmento
+    \end{minted}
+  \end{center}
+
+  \vspace{0.5cm}
+  Sete partes. Duas delas, \textbf{consulta} e \textbf{fragmento}, são as que
+  mais confundem, e são justamente as que interessam nesta aula.
+\end{frame}
+
+\begin{frame}{As partes da URL}
+  \begin{center}
+    \footnotesize
+    \begin{tabular}{@{}lp{7.2cm}@{}}
+      \toprule
+      \textbf{esquema}  & O protocolo: \texttt{http}, \texttt{https}, \texttt{mailto}, \texttt{file}. Determina tudo o que vem depois. \\
+      \textbf{userinfo} & Credencial embutida. Em desuso no HTTP e desencorajado por segurança. \\
+      \textbf{host}     & Nome de domínio ou IP do servidor. \\
+      \textbf{porta}    & Porta TCP. Omitida, vale 80 para \texttt{http} e 443 para \texttt{https}. \\
+      \textbf{caminho}  & Identifica o recurso dentro do servidor. \\
+      \textbf{consulta} & Pares \texttt{chave=valor} separados por \texttt{\&}, iniciados por \texttt{?}. É o que o PHP lerá em \texttt{\$\_GET}. \\
+      \textbf{fragmento}& Iniciado por \texttt{\#}. Identifica parte interna do documento. \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{O fragmento nunca é enviado ao servidor}
+  \begin{center}
+    \Large \texttt{https://site.com/pagina\#secao}
+  \end{center}
+
+  \vspace{0.6cm}
+  O trecho \texttt{\#secao} é processado \textbf{inteiramente pelo navegador},
+  que o usa para rolar a página até o elemento correspondente.
+
+  \vspace{0.4cm}
+  O servidor \textbf{jamais} toma conhecimento dele.
+
+  \vspace{0.6cm}
+  \begin{block}{}
+    Você vai comprovar isso experimentalmente na parte prática desta aula.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Codificação percentual}
+  Espaços, acentos e os próprios caracteres \texttt{?}, \texttt{\&} e
+  \texttt{\#} não podem aparecer cruamente numa URL.
+
+  \vspace{0.3cm}
+  São substituídos por \texttt{\%} seguido do valor hexadecimal de cada byte na
+  codificação UTF-8.
+
+  \begin{center}
+    \small
+    \begin{tabular}{@{}ll@{}}
+      \toprule
+      \textbf{Caractere} & \textbf{Codificado} \\
+      \midrule
+      espaço  & \texttt{\%20} \\
+      \texttt{á} & \texttt{\%C3\%A1} \\
+      \texttt{\&} & \texttt{\%26} \\
+      \texttt{\#} & \texttt{\%23} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.2cm}
+  A busca por \texttt{análise e projeto} vira:
+
+  \begin{center}
+    \small\texttt{q=an\%C3\%A1lise\%20e\%20projeto}
+  \end{center}
+
+  \vspace{0.2cm}
+  \footnotesize Note que \texttt{á} ocupa \textbf{dois} bytes em UTF-8.
+\end{frame}
+
+% ==========================================
+\section{Semântica}
+% ==========================================
+
+\begin{frame}{Passagem de parâmetros}
+  Até agora o cliente só pediu: ``me entregue o recurso deste caminho''.
+
+  \vspace{0.4cm}
+  Mas uma aplicação web precisa que o cliente \textbf{envie dados}:
+
+  \begin{itemize}
+    \item o termo digitado na busca;
+    \item a página da listagem que se quer ver;
+    \item o login e a senha;
+    \item os campos de um cadastro.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    Sem isso não existe aplicação, só um servidor de arquivos. Toda a
+    disciplina, daqui em diante, gira em torno disso.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Caminho, consulta e corpo}
+  A mensagem HTTP tem três lugares onde dados cabem.
+
+  \begin{center}
+    \small
+    \begin{tabular}{@{}lll@{}}
+      \toprule
+      \textbf{Lugar} & \textbf{Exemplo} & \textbf{Onde fica na mensagem} \\
+      \midrule
+      Caminho   & \texttt{/produtos/42}       & linha inicial \\
+      Consulta  & \texttt{/busca?q=teclado}   & linha inicial, após \texttt{?} \\
+      Corpo     & \texttt{q=teclado}          & depois da linha em branco \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  Cabeçalhos também carregam dados (\texttt{Cookie}, \texttt{Authorization}),
+  mas são metadados, e não parâmetros da operação.
+\end{frame}
+
+\begin{frame}[fragile]{Parâmetros na própria URL}
+  \begin{center}
+    \large \texttt{/busca?q=teclado\&pag=2\&ordem=preco}
+  \end{center}
+
+  \vspace{0.4cm}
+  Regras da \textit{query string}:
+
+  \begin{itemize}
+    \item começa no primeiro \texttt{?};
+    \item cada parâmetro é um par \texttt{chave=valor};
+    \item pares são separados por \texttt{\&};
+    \item caracteres especiais vão codificados: \texttt{q=ar\%20condicionado}.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  O servidor recebe isto e monta uma estrutura de chave e valor. Em PHP:
+
+  \begin{minted}[fontsize=\small]{php}
+$_GET['q']      // "teclado"
+$_GET['pag']    // "2"
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Parâmetros no corpo da mensagem}
+  \begin{minted}{http}
+POST /busca HTTP/1.1
+Host: loja.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 15
+
+q=teclado&pag=2
+  \end{minted}
+
+  \vspace{0.3cm}
+  \textbf{Exatamente a mesma gramática} da consulta, só que depois da linha em
+  branco. O nome do formato diz isso: \texttt{x-www-form-urlencoded}, ou seja,
+  ``codificado como numa URL''.
+
+  \vspace{0.2cm}
+  Em PHP, muda apenas o nome da variável: \texttt{\$\_POST['q']}.
+\end{frame}
+
+\begin{frame}[fragile]{O formulário HTML}
+  Você raramente monta a URL à mão. Quem monta é o formulário HTML.
+
+  \begin{minted}[fontsize=\small]{html}
+<form action="/busca" method="get">
+  <input name="q">
+  <input name="pag">
+</form>
+  \end{minted}
+
+  \vspace{0.2cm}
+  Com \texttt{method="get"}, o navegador coloca os campos na \textbf{consulta}:
+  \texttt{/busca?q=teclado\&pag=2}
+
+  \vspace{0.2cm}
+  Com \texttt{method="post"}, coloca os mesmos campos no \textbf{corpo}.
+
+  \vspace{0.4cm}
+  \begin{alertblock}{GET ou POST?}
+    Se os dois transportam os mesmos dados, qual escolher, e por quê?
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Métodos}
+  O método é o verbo da requisição.
+
+  \begin{center}
+    \small
+    \begin{tabular}{@{}lp{7cm}@{}}
+      \toprule
+      \texttt{GET}     & Solicita a representação de um recurso. \\
+      \texttt{POST}    & Envia dados para serem processados pelo recurso. \\
+      \texttt{PUT}     & Substitui integralmente o recurso. \\
+      \texttt{DELETE}  & Remove o recurso. \\
+      \texttt{HEAD}    & Igual ao \texttt{GET}, mas devolve só os cabeçalhos. \\
+      \texttt{OPTIONS} & Pergunta quais métodos o servidor aceita. \\
+      \texttt{PATCH}   & Altera parcialmente o recurso. \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{GET e POST não se distinguem pelo lugar dos dados}
+  \begin{center}
+    \large ``GET manda os dados pela URL e POST manda pelo corpo.''
+  \end{center}
+
+  \vspace{0.4cm}
+  A formulação é verdadeira, mas descreve o \textbf{efeito}, não a
+  \textbf{causa}, e pode levar a decisões erradas de projeto.
+
+  \vspace{0.4cm}
+  A distinção que importa está em duas propriedades definidas na RFC 9110.
+\end{frame}
+
+\begin{frame}{Seguro e idempotente}
+  \begin{block}{Método seguro (\textit{safe})}
+    Não altera o estado do servidor. É apenas leitura.
+  \end{block}
+
+  \begin{block}{Método idempotente}
+    Executá-lo uma vez ou N vezes seguidas produz o \textbf{mesmo estado final}
+    no servidor.
+  \end{block}
+
+  \begin{center}
+    \small
+    \begin{tabular}{@{}lcc@{}}
+      \toprule
+      \textbf{Método} & \textbf{Seguro} & \textbf{Idempotente} \\
+      \midrule
+      \texttt{GET}    & \tcg{sim} & \tcg{sim} \\
+      \texttt{HEAD}   & \tcg{sim} & \tcg{sim} \\
+      \texttt{PUT}    & \tcr{não} & \tcg{sim} \\
+      \texttt{DELETE} & \tcr{não} & \tcg{sim} \\
+      \texttt{POST}   & \tcr{não} & \tcr{não} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.2cm}
+  \footnotesize
+  \texttt{DELETE} não é seguro, mas é idempotente: apagar o mesmo recurso duas
+  vezes deixa o servidor no mesmo estado, ainda que a segunda resposta seja
+  \texttt{404}. \texttt{POST} não é, porque enviar duas vezes o formulário de
+  compra cria duas compras.
+\end{frame}
+
+\begin{frame}{Consequências no navegador}
+  \begin{itemize}
+    \item Ele pode buscar antecipadamente um link, porque \texttt{GET} é seguro
+          e não causa dano;
+    \item Ele recarrega um \texttt{GET} sem perguntar nada, e exige confirmação
+          antes de reenviar um \texttt{POST};
+    \item Caches e servidores intermediários armazenam respostas de
+          \texttt{GET}, e nunca de \texttt{POST};
+    \item O histórico guarda a URL, portanto guarda os dados de um \texttt{GET}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Senhas e links que apagam}
+  \begin{alertblock}{Senha não viaja por GET}
+    Mesmo em HTTPS. Ela ficaria no histórico do navegador e nos registros de
+    acesso do servidor.
+  \end{alertblock}
+
+  \begin{alertblock}{Link que apaga registro não é GET}
+    Qualquer mecanismo que percorra links da página o executaria sem intenção.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Códigos de status: as classes}
+  O primeiro dígito define a classe.
+
+  \begin{center}
+    \small
+    \begin{tabular}{@{}lp{7cm}@{}}
+      \toprule
+      \texttt{1xx} & Informativo. Processamento em andamento. \\
+      \texttt{2xx} & Sucesso. \\
+      \texttt{3xx} & Redirecionamento. O cliente precisa de uma ação adicional. \\
+      \texttt{4xx} & Erro do \textbf{cliente}. A requisição está errada. \\
+      \texttt{5xx} & Erro do \textbf{servidor}. A requisição estava certa. \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  \begin{block}{A fronteira entre 4xx e 5xx indica onde procurar o erro}
+    Ao depurar um sistema, \texttt{4xx} manda olhar o código que fez a
+    requisição, e \texttt{5xx} manda olhar o servidor.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Códigos frequentes}
+  \begin{center}
+    \scriptsize
+    \begin{tabular}{@{}llp{5.6cm}@{}}
+      \toprule
+      \textbf{Código} & \textbf{Nome} & \textbf{Quando ocorre} \\
+      \midrule
+      \texttt{200} & OK                    & Sucesso, com corpo. \\
+      \texttt{201} & Created               & Recurso criado. Acompanha \texttt{Location}. \\
+      \texttt{204} & No Content            & Sucesso sem corpo. Não pode ter corpo. \\
+      \texttt{301} & Moved Permanently     & Mudou definitivamente. O navegador memoriza. \\
+      \texttt{302} & Found                 & Mudou temporariamente. Não memoriza. \\
+      \texttt{304} & Not Modified          & Não mudou desde a última vez. Sem corpo. \\
+      \texttt{400} & Bad Request           & Requisição malformada. \\
+      \texttt{401} & Unauthorized          & Falta autenticação. Acompanha \texttt{WWW-Authenticate}. \\
+      \texttt{403} & Forbidden             & Entendeu, sabe quem você é, e recusa. \\
+      \texttt{404} & Not Found             & O recurso não existe naquele caminho. \\
+      \texttt{405} & Method Not Allowed    & Recurso existe, método não é aceito. Acompanha \texttt{Allow}. \\
+      \texttt{500} & Internal Server Error & Falha no servidor. Em PHP, erro fatal no script. \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{401 contra 403, 301 contra 302}
+  \begin{block}{401 contra 403}
+    \texttt{401}: ``identifique-se''. \\
+    \texttt{403}: ``já sei quem você é e ainda assim não pode''.
+  \end{block}
+
+  \begin{block}{301 contra 302}
+    O \texttt{301} é memorizado pelo navegador de forma persistente.
+
+    \vspace{0.2cm}
+    Publicar um \texttt{301} errado é \textbf{difícil de reverter}: os
+    navegadores dos usuários continuarão indo ao endereço antigo mesmo depois
+    da correção.
+  \end{block}
+\end{frame}
+
+% ==========================================
+% \subsection{Cabeçalhos}
+% ==========================================
+
+\begin{frame}{Cabeçalhos}
+  Pares \texttt{Nome: valor} que carregam os metadados da mensagem.
+  O nome não diferencia maiúsculas de minúsculas. Existem centenas.
+
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \textbf{Enviados pelo cliente}
+      \scriptsize
+      \begin{description}
+        \item[Host] Nome do site. Obrigatório.
+        \item[User-Agent] Identifica o programa.
+        \item[Accept] Tipos que sabe processar.
+        \item[Accept-Language] Idiomas preferidos.
+        \item[Accept-Encoding] Compressões.
+        \item[Content-Type] Formato do corpo.
+        \item[Content-Length] Tamanho do corpo.
+        \item[Cookie] Dados devolvidos.
+        \item[Authorization] Credenciais.
+      \end{description}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Enviados pelo servidor}
+      \scriptsize
+      \begin{description}
+        \item[Content-Type] Formato do corpo.
+        \item[Content-Length] Tamanho do corpo.
+        \item[Location] Destino em \texttt{3xx}.
+        \item[Set-Cookie] Pede para armazenar.
+        \item[Cache-Control] Regras de cache.
+        \item[ETag] Versão atual do recurso.
+        \item[Server] Software servidor.
+      \end{description}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Negociação de conteúdo}
+  Os cabeçalhos \texttt{Accept*} permitem que cliente e servidor combinem o
+  formato da resposta.
+
+  \vspace{0.3cm}
+  O cliente \textbf{declara} o que aceita. O servidor \textbf{escolhe} entre o
+  que sabe produzir.
+
+  \vspace{0.4cm}
+  A mesma URL pode devolver HTML para um navegador e JSON para um programa.
+
+  \vspace{0.5cm}
+  \begin{alertblock}{Nem todo servidor negocia}
+    Negociação de conteúdo é um recurso do protocolo. Cabe a cada servidor
+    implementá-la ou não. Muitos escolhem o formato pelo caminho da URL.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Content-Type}
+  Informa como interpretar os bytes do corpo. Segue o padrão MIME.
+
+  \begin{center}
+    \footnotesize
+    \begin{tabular}{@{}ll@{}}
+      \toprule
+      \texttt{text/html}    & Documento HTML \\
+      \texttt{text/css}     & Folha de estilo \\
+      \texttt{application/javascript} & Script \\
+      \texttt{application/json}       & Dados em JSON \\
+      \texttt{image/png}              & Imagem PNG \\
+      \texttt{application/x-www-form-urlencoded} & Formulário HTML padrão \\
+      \texttt{multipart/form-data}    & Formulário com upload de arquivo \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{charset e os acentos quebrados}
+  \begin{center}
+    \large \texttt{Content-Type: text/html; charset=UTF-8}
+  \end{center}
+
+  \vspace{0.5cm}
+  O parâmetro \texttt{charset} diz que os bytes devem ser lidos como UTF-8.
+
+  \vspace{0.5cm}
+  \begin{alertblock}{A causa mais comum de \texttt{Ã§Ã£o} na tela}
+    Um \texttt{charset} errado ou ausente.
+
+    \vspace{0.2cm}
+    O problema quase nunca está no arquivo. Está na \textbf{declaração}.
+  \end{alertblock}
+\end{frame}
+
+% ==========================================
+\section{Além de uma requisição}
+% ==========================================
+
+\begin{frame}{Protocolo sem estado}
+  \begin{block}{\textit{Stateless}}
+    Cada requisição é interpretada de forma isolada. O servidor não guarda
+    nenhuma lembrança das requisições anteriores.
+  \end{block}
+
+  \vspace{0.4cm}
+  Duas requisições do mesmo usuário, com um segundo de intervalo, são para o
+  servidor \textbf{dois eventos sem relação entre si}.
+\end{frame}
+
+\begin{frame}{Escala, e o problema do usuário logado}
+  \begin{itemize}
+    \item Sem estado, \textbf{qualquer} servidor em cluster (ou ``fazenda de
+          servidores'') pode atender \textbf{qualquer} requisição;
+    \item Derrubar um servidor não derruba as sessões em curso.
+  \end{itemize}
+
+  Foi o que permitiu a web escalar. Mas:
+
+  \vspace{0.4cm}
+  \begin{center}
+    \Large Se o servidor não se lembra de nada, \\ como existe ``usuário logado''?
+  \end{center}
+
+  \vspace{0.4cm}
+  A única saída é o \textbf{cliente reenviar}, em toda requisição, alguma
+  informação que permita ao servidor reconstruir o contexto.
+\end{frame}
+
+\begin{frame}{Cookies, sessões e tokens}
+  \begin{description}
+    \item[Cookies] O servidor responde com \texttt{Set-Cookie: nome=valor}. O
+      navegador armazena e passa a incluir \texttt{Cookie: nome=valor} em toda
+      requisição para aquele domínio. É apenas texto em cabeçalho.
+
+    \item[Sessões] O cookie guarda só um identificador aleatório. Os dados ficam
+      no servidor, associados a esse identificador. É o modelo que usaremos com
+      PHP.
+
+    \item[Tokens] Uma credencial assinada, enviada em \texttt{Authorization}.
+      Comum em APIs.
+  \end{description}
+
+  \vspace{0.4cm}
+  Todos resolvem o mesmo problema pela mesma via: \textbf{fazer o cliente
+  carregar o contexto}, porque o protocolo não o carrega.
+\end{frame}
+
+% ==========================================
+% \subsection{Versões e conexões}
+% ==========================================
+
+\begin{frame}{HTTP/1.0 e HTTP/1.1}
+  \begin{block}{HTTP/1.0}
+    Uma conexão TCP \textbf{por recurso}. Uma página com trinta imagens exigia
+    trinta conexões, cada uma com o custo de abertura e fechamento.
+  \end{block}
+
+  \begin{block}{HTTP/1.1}
+    \textbf{Conexões persistentes}: a conexão TCP permanece aberta e várias
+    requisições são feitas em sequência por ela.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Bloqueio de cabeça de fila}
+  No HTTP/1.1 as requisições são atendidas \textbf{em ordem}. Uma resposta lenta
+  bloqueia todas as seguintes na mesma conexão.
+
+  \vspace{0.4cm}
+  Chama-se \textbf{bloqueio de cabeça de fila}
+  (\textit{head-of-line blocking}).
+
+  \vspace{0.4cm}
+  Os navegadores contornavam abrindo cerca de \textbf{seis conexões paralelas}
+  por domínio.
+\end{frame}
+
+\begin{frame}{HTTP/2 (2015) e HTTP/3 (2022)}
+  \begin{block}{HTTP/2}
+    Mensagens deixam de ser texto e passam a ser \textbf{binárias}, em quadros.
+    Traz \textbf{multiplexação}: várias requisições e respostas trafegam
+    simultaneamente e intercaladas na mesma conexão, eliminando o bloqueio no
+    nível do HTTP. Comprime cabeçalhos com HPACK.
+  \end{block}
+
+  \begin{block}{HTTP/3}
+    Substitui o TCP pelo \textbf{QUIC}, que roda sobre UDP e implementa
+    confiabilidade por conta própria. Elimina o bloqueio de cabeça de fila que
+    \textbf{persistia na camada TCP} e funde o estabelecimento de conexão com o
+    handshake criptográfico, reduzindo as idas e vindas até o primeiro byte.
+  \end{block}
+\end{frame}
+
+\begin{frame}{A semântica é a mesma nas três versões}
+  Métodos, códigos de status e cabeçalhos são definidos na RFC 9110 e valem para
+  HTTP/1.1, HTTP/2 e HTTP/3.
+
+  \vspace{0.4cm}
+  O que muda é a \textbf{codificação} e o \textbf{transporte}.
+
+  \vspace{0.6cm}
+  \begin{block}{HTTP/1.1 é o único legível por humanos}
+    Porque ele é texto e pode ser digitado à mão.
+
+    \vspace{0.2cm}
+    A versão 2 é a mesma conversa, em formato ilegível para humanos.
+  \end{block}
+\end{frame}
+
+% ==========================================
+% \subsection{HTTPS e origem}
+% ==========================================
+
+\begin{frame}{HTTPS}
+  HTTPS é HTTP transportado dentro de um túnel \textbf{TLS}
+  (\textit{Transport Layer Security}, sucessor do SSL).
+
+  \vspace{0.4cm}
+  O protocolo HTTP \textbf{não muda}. As mesmas mensagens de texto trafegam,
+  agora cifradas.
+
+  \vspace{0.5cm}
+  No \textit{handshake}, cliente e servidor negociam algoritmos, o servidor
+  apresenta seu \textbf{certificado digital}, e ambos derivam uma chave de
+  sessão usada para cifrar o restante da conversa.
+\end{frame}
+
+\begin{frame}{O que o TLS garante}
+  \begin{description}
+    \item[Confidencialidade] Quem observa a rede não lê o conteúdo das
+      mensagens: caminho da URL, cabeçalhos, cookies e corpo.
+    \item[Integridade] Alterações no tráfego são detectadas.
+    \item[Autenticação do servidor] O certificado, assinado por uma autoridade
+      certificadora reconhecida pelo navegador, comprova que o servidor controla
+      aquele nome de domínio.
+  \end{description}
+\end{frame}
+
+\begin{frame}{O que o TLS não garante}
+  \begin{itemize}
+    \item \textbf{Não esconde com quem você fala.} O IP de destino é visível, e
+          o nome do host viaja em claro no handshake (campo SNI);
+    \item \textbf{Não atesta idoneidade.} Certificados são gratuitos e obtidos em
+          minutos. Um site fraudulento tem cadeado igual ao de um banco;
+    \item \textbf{Não protege o dado depois que ele chega.} Segurança do banco de
+          dados, das senhas e do código do servidor são problemas separados.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \begin{alertblock}{Conteúdo misto}
+    Página HTTPS que carrega script por HTTP: o atacante troca o script e
+    controla a página inteira. A garantia é anulada pelo elo mais fraco, e por
+    isso os navegadores bloqueiam a carga.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Origem}
+  \begin{center}
+    \Large \textbf{esquema + host + porta}
+  \end{center}
+
+  \vspace{0.4cm}
+  Duas URLs são da mesma origem somente se as \textbf{três} coincidirem.
+
+  \begin{center}
+    \scriptsize
+    \begin{tabular}{@{}llc@{}}
+      \toprule
+      \textbf{URL A} & \textbf{URL B} & \textbf{Mesma origem?} \\
+      \midrule
+      \texttt{https://site.com/a}  & \texttt{https://site.com/b/c}    & \tcg{sim}, caminho não conta \\
+      \texttt{http://site.com}     & \texttt{https://site.com}        & \tcr{não}, esquema difere \\
+      \texttt{https://site.com}    & \texttt{https://api.site.com}    & \tcr{não}, host difere \\
+      \texttt{http://site.com}     & \texttt{http://site.com:8080}    & \tcr{não}, porta difere \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Política de mesma origem e CORS}
+  Regra imposta pelo \textbf{navegador}: JavaScript executando numa origem não
+  pode ler a resposta de uma requisição feita a outra origem. Sem ela, uma
+  página maliciosa faria requisições ao seu banco em outra aba, aproveitando os
+  cookies já armazenados, e leria o resultado.
+
+  \vspace{0.3cm}
+  \textbf{CORS} (\textit{Cross-Origin Resource Sharing}) é como o servidor de
+  destino autoriza essa leitura, pelo cabeçalho
+  \texttt{Access-Control-Allow-Origin}. Para requisições que possam alterar
+  dados, o navegador antes envia uma verificação prévia com \texttt{OPTIONS}.
+
+  \begin{block}{Quem impõe e quem autoriza}
+    \begin{enumerate}
+      \item A restrição é do \textbf{navegador}, não do protocolo. O
+            \texttt{curl} acessa qualquer origem. Por isso uma URL funciona no
+            terminal e falha no console.
+      \item Quem autoriza é o \textbf{servidor de destino}. Não há nada no seu
+            JavaScript que contorne a recusa.
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+% ==========================================
+% \subsection{Cache}
+% ==========================================
+
+\begin{frame}{Cache por prazo}
+  \begin{center}
+    \large \texttt{Cache-Control: max-age=3600}
+  \end{center}
+
+  \vspace{0.5cm}
+  O servidor declara que a resposta vale por 3600 segundos.
+
+  \vspace{0.4cm}
+  Durante esse período o navegador usa a cópia local e \textbf{não faz
+  requisição nenhuma}.
+\end{frame}
+
+\begin{frame}{Requisição condicional}
+  Vencido o prazo, o cliente não precisa baixar tudo de novo. Ele
+  \textbf{pergunta se mudou}, usando um identificador de versão que guardou:
+
+  \begin{description}
+    \item[ETag] Etiqueta opaca que identifica a versão do recurso. \\
+      Servidor: \texttt{ETag: "abc123"} \\
+      Cliente reenvia: \texttt{If-None-Match: "abc123"}
+    \item[Last-Modified] Data da última alteração. \\
+      Cliente reenvia: \texttt{If-Modified-Since: <data>}
+  \end{description}
+
+  \vspace{0.4cm}
+  Se não mudou, o servidor responde \texttt{304 Not Modified},
+  \textbf{sem corpo}.
+
+  \vspace{0.2cm}
+  A economia é o corpo inteiro. Só os cabeçalhos trafegam.
+\end{frame}
+
+% ==========================================
+\section{Prática}
+% ==========================================
+
+\begin{frame}{Preparando o ambiente}
+  A ferramenta principal é o \textbf{\texttt{curl}}, um cliente HTTP de linha de
+  comando.
+
+  \begin{itemize}
+    \item \textbf{Linux e macOS}: já instalado.
+    \item \textbf{Windows 10 e 11}: já instalado, como \texttt{curl.exe}.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \begin{alertblock}{Atenção, usuários de Windows}
+    No PowerShell, \texttt{curl} é apelido de \texttt{Invoke-WebRequest}, que
+    tem sintaxe completamente diferente. Escreva \texttt{curl.exe} com a
+    extensão.
+
+    \vspace{0.2cm}
+    No \texttt{cmd} e no Git Bash, \texttt{curl} funciona normalmente.
+    Recomenda-se o \textbf{Git Bash} ou um ambiente \textbf{WSL}.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Ver a conversa completa}
+  \begin{minted}{bash}
+curl -v https://example.com
+  \end{minted}
+
+  A opção \texttt{-v} (\textit{verbose}) exibe a mensagem trocada:
+
+  \begin{itemize}
+    \item \texttt{>} linhas \textbf{enviadas};
+    \item \texttt{<} linhas \textbf{recebidas};
+    \item \texttt{*} comentários do próprio \texttt{curl} sobre a conexão.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Identifique na saída: resolução do nome, handshake TLS, linha de requisição,
+  cabeçalhos enviados, linha de status, cabeçalhos recebidos, corpo.
+\end{frame}
+
+\begin{frame}[fragile]{Somente os cabeçalhos}
+  \begin{minted}{bash}
+curl -s -o /dev/null -D - https://developer.mozilla.org
+  \end{minted}
+
+  \begin{itemize}
+    \item \texttt{-s} silencia a barra de progresso;
+    \item \texttt{-o /dev/null} descarta o corpo;
+    \item \texttt{-D -} escreve os cabeçalhos na saída padrão.
+  \end{itemize}
+
+  \begin{minted}{bash}
+curl -I https://developer.mozilla.org
+  \end{minted}
+
+  A opção \texttt{-I} faz algo parecido, porém enviando o método
+  \texttt{HEAD} em vez de \texttt{GET}. São requisições \textbf{distintas}, e
+  alguns servidores respondem diferente a cada uma.
+\end{frame}
+
+\begin{frame}[fragile]{Enviar dados: formulário}
+  \begin{minted}{bash}
+curl -v -d "nome=Ana&curso=TADS" https://postman-echo.com/post
+  \end{minted}
+
+  A opção \texttt{-d}, sozinha, define o método como \texttt{POST} e o
+  cabeçalho \texttt{Content-Type: application/x-www-form-urlencoded}.
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    Este é exatamente o formato que o PHP lerá em \texttt{\$\_POST}, na segunda
+    metade da disciplina.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Cookies com \texttt{-c} e \texttt{-b}}
+  \begin{minted}{bash}
+curl -s -o /dev/null -c jar.txt \
+     "https://postman-echo.com/cookies/set?turma=ds122"
+cat jar.txt
+curl -s -b jar.txt https://postman-echo.com/cookies
+curl -s           https://postman-echo.com/cookies
+  \end{minted}
+
+  \begin{itemize}
+    \item \texttt{-c jar.txt} grava os cookies recebidos, fazendo o papel do
+          armazenamento do navegador;
+    \item \texttt{-b jar.txt} reenvia esses cookies.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Com e sem o cookie}
+  \begin{minted}[fontsize=\scriptsize]{text}
+com -b:   {"cookies":{ ... ,"turma":"ds122"}}
+sem -b:   {"cookies":{}}
+  \end{minted}
+
+  \vspace{0.4cm}
+  O último comando é idêntico ao anterior, exceto pela ausência de \texttt{-b}.
+
+  \begin{center}
+    \Large O servidor não guardou nada.
+  \end{center}
+
+  \vspace{0.3cm}
+  \footnotesize
+  O primeiro comando responde \texttt{302}, porque o serviço redireciona depois
+  de gravar. E o arquivo \texttt{jar.txt} conterá também cookies definidos pela
+  infraestrutura do site.
+\end{frame}
+
+\begin{frame}[fragile]{Ser o servidor}
+  Até aqui você foi o cliente. Agora inverta os papéis com o \texttt{nc}
+  (\textit{netcat}), que abre conexões TCP brutas.
+
+  \begin{minted}{bash}
+nc -l 8080          # macOS, OpenBSD
+nc -l -p 8080       # GNU netcat
+ncat -l 8080        # Fedora e derivados (nmap-ncat)
+  \end{minted}
+
+  Com o comando rodando e o terminal aparentemente travado, abra no navegador:
+
+  \begin{minted}{text}
+http://localhost:8080/pagina?a=1&b=2#secao
+  \end{minted}
+\end{frame}
+
+\begin{frame}{O que aparece na requisição do navegador}
+  \begin{enumerate}
+    \item O navegador envia \textbf{muito mais cabeçalhos} que o \texttt{curl}:
+          \texttt{User-Agent}, \texttt{Accept}, \texttt{Accept-Encoding},
+          \texttt{Accept-Language}, \texttt{Sec-Fetch-*} e outros.
+          Compare com a saída do \texttt{curl -v}.
+
+    \item A consulta \texttt{?a=1\&b=2} aparece na linha de requisição.
+          O fragmento \texttt{\#secao} \textbf{não aparece em lugar nenhum}.
+
+    \item O navegador continua carregando, porque \textbf{ninguém respondeu}.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Responda à mão}
+  Digite no terminal do \texttt{nc} e pressione \texttt{Enter} duas vezes após a
+  linha \texttt{Content-Length}:
+
+  \begin{minted}{http}
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Length: 38
+
+<h1>Resposta digitada byte a byte</h1>
+  \end{minted}
+
+  Confira: \texttt{<h1>} tem 4 bytes, o texto tem 29, \texttt{</h1>} tem 5.
+  Total 38. Se errar para mais, o navegador ficará aguardando bytes que nunca
+  chegam.
+
+  \vspace{0.3cm}
+  \begin{center}
+    \large Você acabou de operar como servidor web.
+  \end{center}
+\end{frame}
+
+\begin{frame}{De volta às ferramentas do navegador}
+  Abrimos a aba \textbf{Rede} no começo da aula sem saber o nome de nada.
+  Volte nela agora: cada coluna e cada campo tem nome, e você já os conhece.
+
+  \vspace{0.3cm}
+  Recomendados: \textbf{Firefox} e navegadores baseados em \textbf{Chromium}.
+
+  \vspace{0.5cm}
+  \begin{block}{Copiar como cURL}
+    Na aba Rede, clique com o botão direito sobre uma requisição e escolha
+    \textbf{Copiar como cURL}. Cole no terminal e execute.
+
+    \vspace{0.2cm}
+    Mesma resposta. Navegador e \texttt{curl} falam exatamente o mesmo
+    protocolo. A diferença está na quantidade de cabeçalhos.
+  \end{block}
+\end{frame}
+
+% ==========================================
+\section{Exercícios}
+% ==========================================
+
+\begin{frame}{Para fazer durante a semana}
+  \begin{block}{Sem entrega e sem nota}
+    Estes exercícios são de \textbf{fixação}. Nada é recolhido nesta aula.
+  \end{block}
+
+  \vspace{0.4cm}
+  Ainda assim, faça-os. O conteúdo desta aula cai na Prova 1, e digitar os
+  comandos é a única forma de fixar o que vimos aqui.
+
+  \vspace{0.4cm}
+  Sugestão de método: para cada item, anote o \textbf{comando} usado, o
+  \textbf{trecho relevante} da saída e a \textbf{resposta} da pergunta. Guarde
+  num arquivo seu. Vai servir de resumo na semana da prova.
+
+  \vspace{0.4cm}
+  Dúvidas na aula que vem, ou no fórum da UFPR Virtual.
+\end{frame}
+
+\begin{frame}{Exercícios 1 a 3}
+  \begin{enumerate}
+    \item Escolha três sites. Para cada um, registre o código de status, a
+          versão do HTTP e o valor de \texttt{Server}, quando presente. Explique
+          as diferenças observadas.
+
+    \item Encontre uma URL que responda \texttt{301} e outra que responda
+          \texttt{404}. Para a primeira, mostre a cadeia completa de
+          redirecionamento e informe quantos saltos foram necessários.
+
+    \item Envie \texttt{nome=SeuNome\&periodo=2} por \texttt{GET} e por
+          \texttt{POST} para um serviço de eco. Mostre onde os dados aparecem em
+          cada caso. Explique por que a URL do \texttt{GET} fica no histórico e
+          a do \texttt{POST} não, relacionando com segurança e idempotência.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Exercícios 4 a 7}
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Demonstre experimentalmente que o HTTP não guarda estado, usando
+          \texttt{-c} e \texttt{-b}. Descreva, em no máximo três frases, o que o
+          servidor recebeu em cada requisição.
+
+    \item Obtenha o \texttt{ETag} de um recurso, reenvie-o em
+          \texttt{If-None-Match} e registre o código e o tamanho do corpo da
+          segunda resposta. Explique a economia produzida.
+
+    \item Execute o \texttt{nc} como servidor, acesse
+          \texttt{http://localhost:8080/teste?x=1\#topo} pelo navegador e cole a
+          requisição recebida. Por que \texttt{\#topo} não aparece, e quem
+          processa esse valor?
+
+    \item Meça as fases da conexão com um site brasileiro e outro hospedado fora
+          do país. Compare DNS, TCP e TLS e proponha uma explicação para a
+          diferença.
+  \end{enumerate}
+
+  \vspace{0.2cm}
+  \footnotesize
+  Os comandos dos itens 5 e 7 não foram vistos em aula. Estão na seção
+  \textbf{Mais exemplos com curl}, no material escrito.
+\end{frame}
+
+\begin{frame}{Desafio}
+  Escreva um \textbf{servidor HTTP mínimo}, em qualquer linguagem, que:
+
+  \begin{enumerate}
+    \item abra uma porta TCP;
+    \item aceite uma conexão;
+    \item leia a requisição recebida;
+    \item devolva uma resposta HTTP válida, com \texttt{Content-Type} e
+          \texttt{Content-Length} corretos.
+  \end{enumerate}
+
+  \vspace{0.4cm}
+  \begin{alertblock}{Sem biblioteca pronta}
+    Não use biblioteca de servidor web pronta. Trabalhe diretamente com sockets.
+  \end{alertblock}
+
+  \vspace{0.2cm}
+  Em Python, cerca de vinte linhas resolvem.
+\end{frame}
+
+% ==========================================
+\section*{Resumo}
+% ==========================================
+
+\begin{frame}{Resumo}
+  \small
+  \begin{itemize}
+    \item HTTP é um acordo de formato entre cliente e servidor. O cliente sempre
+          inicia.
+    \item Toda mensagem tem linha inicial, cabeçalhos, linha em branco e corpo
+          opcional.
+    \item Métodos se distinguem por serem seguros e idempotentes. Daí decorre o
+          comportamento do navegador, do cache e do histórico.
+    \item Códigos de status separam sucesso, redirecionamento, culpa do cliente
+          e culpa do servidor.
+    \item O protocolo não guarda estado. Cookies, sessões e tokens existem para
+          o cliente carregar o contexto a cada requisição.
+    \item HTTPS acrescenta confidencialidade, integridade e autenticação do
+          servidor, e nada mais.
+    \item Origem é esquema, host e porta juntos. A restrição de mesma origem é
+          do navegador, e o servidor de destino autoriza a exceção.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bibliografia}
+  \begin{itemize}
+    \item TANENBAUM, A. S. \textbf{Redes de Computadores}, cap. 7.3.
+    \item MDN Web Docs. \textbf{HTTP}. \\
+          \url{https://developer.mozilla.org/pt-BR/docs/Web/HTTP}
+    \item IETF. \textbf{RFC 9110: HTTP Semantics}, 2022. \\
+          \url{https://www.rfc-editor.org/rfc/rfc9110.html}
+  \end{itemize}
+\end{frame}
+
+\end{document}
