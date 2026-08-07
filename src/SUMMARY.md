@@ -12,7 +12,8 @@
 - [Aula 06 - Exercícios Javascript](./aula_06_01_js_exercicios.md);
 - [Aula 07 - DOM](./aula_07_00_dom.md);
 - [Aula 07 - Exercícios JS, DOM e Eventos](./aula_07_01_dom_exercicios.md);
-- [Aula 08 - Jquery](./aula_08_jquery.md);
+- [Aula 07 - Fetch API e JSON](./aula_07_02_fetch_api.md);
+- [Aula 08 - Jquery (descontinuada)](./aula_08_jquery.md);
 - [Aula 09 - Frameworks Front-end](./aula_09_frameworks_front_end.md); 
 - [Aula 10 - Programação Backend](./aula_10_back_end.md); 
 - [Aula 11 - PHP](./aula_11_php.md); 

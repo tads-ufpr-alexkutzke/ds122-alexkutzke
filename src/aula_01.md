@@ -12,8 +12,7 @@ Consultar moodle da disciplina (<https://ufprvirtual.ufpr.br>).
 - Linguagens:
   - HTML (HyperText Markup Language);
   - CSS (Cascading Style Sheets);
-  - JS (JavaScript):
-    - Biblioteca Jquery;
+  - JS (JavaScript);
   - PHP.
 
 ### Q. Essa disciplina é difícil?
