@@ -1,4 +1,4 @@
-# Aula 12 - PHP - SuperGlobals, Formulários, Validação e Includes.
+# PHP: SuperGlobals, Formulários, Validação e Includes
 
 ## Bibliografia recomendada para o tema:
 

@@ -1,4 +1,4 @@
-# Aula 06 - Programação Cliente (JavaScript Moderno)
+# Programação Cliente (JavaScript Moderno)
 
 ## Bibliografia recomendada
 

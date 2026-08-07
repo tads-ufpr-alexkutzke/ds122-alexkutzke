@@ -1,4 +1,4 @@
-# Aulas 14 - PHP - Cookies, Sessions e Login
+# PHP: Cookies, Sessions e Login
 
 ## Bibliografia recomendada para o tema:
 

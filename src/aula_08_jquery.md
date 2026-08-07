@@ -1,4 +1,4 @@
-# Aula 8 - Jquery
+# jQuery (descontinuada)
 
 ## Bibliografia recomendada para o tema:
 * [w3schools - Jquery](https://www.w3schools.com/jquery/default.asp);

@@ -1,4 +1,4 @@
-# Aula 07 - Programação Cliente (Manipulação do DOM)
+# Programação Cliente (Manipulação do DOM)
 
 ## Bibliografia recomendada
 

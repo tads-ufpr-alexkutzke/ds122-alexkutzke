@@ -1,4 +1,4 @@
-# Aula — Frameworks Front-end e Bootstrap 5
+# Frameworks Front-end e Bootstrap 5
 
 ## Bibliografia recomendada para o tema:
 

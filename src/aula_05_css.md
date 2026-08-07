@@ -1,4 +1,4 @@
-# Aula CSS3: Fundamentos, Layout e Responsividade
+# CSS3: Fundamentos, Layout e Responsividade
 
 ## Bibliografia Recomendada
 

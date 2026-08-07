@@ -1,4 +1,4 @@
-# Aula - Ambientaçao com o Git
+# Ambientação com o Git
 
 ![Ideia Git](./images/git/git.gif)
 

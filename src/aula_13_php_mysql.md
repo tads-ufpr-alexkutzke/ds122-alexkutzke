@@ -1,4 +1,4 @@
-# Aulas 13 - PHP - Manipulação de bancos de dados
+# PHP: Manipulação de Bancos de Dados
 
 ## Bibliografia recomendada para o tema:
 

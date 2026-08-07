@@ -1,4 +1,4 @@
-# Aula — Consumo de APIs com Fetch e JSON
+# Consumo de APIs com Fetch e JSON
 
 ## Bibliografia recomendada
 

@@ -3,21 +3,21 @@
 - [Capa](./00_capa.md)
 - [Pré-prompt para uso de IA generativa](./00_pre_prompt_para_ia_gen_durante_aulas.md)
 - [Sobre Mob Programming para exercícios](./00_mob_programming.md)
-- [Aula 01 - Apresentação e Ambiente de Desenvolvimento](./aula_01.md);
-- [Aula 02 - Git e Gitlab](./aula_02_git.md);
-- [Aula 03 - Protocolo HTTP](./aula_03_http.md);
-- [Aula 04 - HTML](./aula_04_html.md);
-- [Aula 05 - CSS](./aula_05_css.md);
-- [Aula 06 - Javascript](./aula_06_00_js.md);
-- [Aula 06 - Exercícios Javascript](./aula_06_01_js_exercicios.md);
-- [Aula 07 - DOM](./aula_07_00_dom.md);
-- [Aula 07 - Exercícios JS, DOM e Eventos](./aula_07_01_dom_exercicios.md);
-- [Aula 07 - Fetch API e JSON](./aula_07_02_fetch_api.md);
-- [Aula 08 - Jquery (descontinuada)](./aula_08_jquery.md);
-- [Aula 09 - Frameworks Front-end](./aula_09_frameworks_front_end.md); 
-- [Aula 10 - Programação Backend](./aula_10_back_end.md); 
-- [Aula 11 - PHP](./aula_11_php.md); 
-- [Aula 12 - PHP e Formulários](./aula_12_php_forms.md); 
-- [Aula 13 - PHP e MySQL](./aula_13_php_mysql.md);
-- [Aula 14 - Cookies e Sessions](./aula_14_cookies_session.md);
-- [Especificação trabalho prático](./especificacao_trabalho_01_26.md)
+- [Apresentação e Ambiente de Desenvolvimento](./aula_01.md)
+- [Git e Gitlab](./aula_02_git.md)
+- [Protocolo HTTP](./aula_03_http.md)
+- [HTML](./aula_04_html.md)
+- [CSS](./aula_05_css.md)
+- [Javascript](./aula_06_00_js.md)
+- [Exercícios de Javascript](./aula_06_01_js_exercicios.md)
+- [DOM](./aula_07_00_dom.md)
+- [Exercícios de JS, DOM e Eventos](./aula_07_01_dom_exercicios.md)
+- [Fetch API e JSON](./aula_07_02_fetch_api.md)
+- [jQuery (descontinuada)](./aula_08_jquery.md)
+- [Frameworks Front-end](./aula_09_frameworks_front_end.md)
+- [Programação Back-end](./aula_10_back_end.md)
+- [PHP](./aula_11_php.md)
+- [PHP e Formulários](./aula_12_php_forms.md)
+- [PHP e MySQL](./aula_13_php_mysql.md)
+- [Cookies e Sessions](./aula_14_cookies_session.md)
+- [Especificação do trabalho prático](./especificacao_trabalho_01_26.md)

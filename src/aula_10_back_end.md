@@ -1,6 +1,4 @@
-# Aula 10 - Programação Back-end
-
-## Programação Back-end
+# Programação Back-end
 
 **Back-end**, ou *server-side*, é o termo utilizado para fazer referência à parte de uma aplicação Web que é executada na máquina servidor. Em sua essência, envolve as operações relacionadas ao processamento da lógica de negócio e à produção e entrega de arquivos HTML com conteúdo dinâmico. Trata, em grande medida, do gerenciamento e da persistência dos **dados** da aplicação Web. Por essa razão, o back-end atua quase sempre integrado a sistemas de bancos de dados.
 Para que uma aplicação Web seja capaz de gerar conteúdo dinâmico baseando-se na arquitetura de renderização no servidor, é necessário o seguinte conjunto:
