@@ -28,7 +28,10 @@ Para mantermos uma organização das tarefas submetidas, siga os seguintes passo
     outra para a disciplina. O passo a passo do cadastro, com as telas que o
     GitLab apresenta pelo caminho, está em
     [Criação da conta no GitLab](./instrucoes_criacao_conta_gitlab.md);
-2. Crie um novo grupo com as seguintes características:
+2. Crie um novo grupo com as características abaixo. **A tela de boas-vindas do
+   cadastro já obriga a criar um grupo**, então é provável que o seu já exista:
+   nesse caso, confira o nome e a visibilidade em **Settings > General** em vez
+   de criar outro:
   * Nome: **ds122-ano-semestre-turno-grr**;
     * Por exemplo, em 2026, segundo semestre, se você é do turno noturno e seu login é `grr20249999`,
       o nome do grupo criado deve ser: `ds122-2026-2-n-grr20249999`.

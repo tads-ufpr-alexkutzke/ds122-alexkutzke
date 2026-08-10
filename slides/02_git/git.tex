@@ -769,20 +769,46 @@ git commit -m "Ignora arquivos de senha e de log"
   para a disciplina. Os trabalhos ficam separados dos seus projetos.
 \end{frame}
 
+\begin{frame}{A tela \textit{Welcome to GitLab}}
+  Depois da confirmação do e-mail, o GitLab pede empresa, grupo e projeto de uma
+  vez só, e não deixa pular.
+
+  \vspace{0.2cm}
+  \begin{center}
+    \small
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Campo} & \textbf{Resposta} \\
+      \midrule
+      Company name & \texttt{UFPR} (obrigatório) \\
+      Group name & \texttt{ds122-2026-2-turno-grr} \\
+      Project name & \texttt{teste} \\
+      Role & \texttt{Other} (não há opção de estudante) \\
+      Who will be using GitLab? & \texttt{Just me} \\
+      Reason for joining & \texttt{I want to learn the basics of Git} \\
+      Country or region & \texttt{Brazil} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.2cm}
+  \footnotesize O \textbf{Group name} é o que importa: vira o endereço do seu
+  grupo e é por ele que as entregas são recolhidas.
+\end{frame}
+
 \begin{frame}{Grupo}
   Um \textbf{grupo} reúne vários repositórios sob um mesmo controle de acesso.
-  Você cria o seu uma vez no semestre, e todas as tarefas vão para dentro dele.
+  Você usa um só no semestre, e ele já foi criado na tela de boas-vindas.
 
   \vspace{0.3cm}
   \begin{nonavegador}
     \begin{enumerate}
-      \item menu \textbf{+}, \textbf{New group}, \textbf{Create group};
-      \item \textbf{Group name}: \texttt{ds122-2026-2-turno-grr}, em minúsculas,
-            com \texttt{n} ou \texttt{t} no lugar de \texttt{turno}. Exemplo:
-            \texttt{ds122-2026-2-t-grr20261234};
-      \item \textbf{Visibility level}: \textbf{Private};
+      \item \textbf{Settings > General}: confira o nome
+            \texttt{ds122-2026-2-turno-grr} e a visibilidade \textbf{Private};
       \item \textbf{Manage > Members > Invite members}: procure
-            \texttt{alexkutzke} e atribua o papel \textbf{Reporter}.
+            \texttt{alexkutzke} e atribua o papel \textbf{Reporter};
+      \item quem não tiver grupo nenhum cria agora, pelo menu \textbf{+},
+            \textbf{New group}.
     \end{enumerate}
   \end{nonavegador}
 

@@ -770,23 +770,30 @@ tenha uma conta pessoal no GitLab:
 1. Acesse <https://gitlab.com/users/sign_up> e cadastre-se com o **e-mail da
    UFPR**, usando o seu **GRR como nome de usuário**, em minúsculas
    (`grr20249999`). Confirme o e-mail que o GitLab envia;
-2. Em **Edit profile**, preencha o nome completo.
+2. Na tela **Welcome to GitLab**, que aparece logo depois, preencha `UFPR` em
+   **Company name** e use o nome do grupo da disciplina em **Group name**
+   (próxima seção). O passo a passo campo a campo está em
+   [Criação da conta no GitLab](./instrucoes_criacao_conta_gitlab.md);
+3. Em **Edit profile**, confira o nome completo.
 
 O GRR no nome de usuário e o e-mail institucional resolvem a identificação: o
 professor sabe de quem é cada repositório sem perguntar. A conta separada
 também mantém os trabalhos da disciplina fora dos seus projetos e grupos
 pessoais.
 
-Em seguida, crie o grupo que vai guardar todas as tarefas do semestre. Isso é
-feito **uma vez só**:
+O grupo que vai guardar todas as tarefas do semestre é criado **uma vez só**, e
+a tela **Welcome to GitLab** já obriga a criar um durante o cadastro. Quem
+seguiu o passo a passo chega aqui com o grupo pronto e só confere os itens 4 e
+5; quem não tem grupo nenhum, cria agora:
 
-3. No menu **+**, escolha **New group**, e depois **Create group**;
-4. Em **Group name**, use `ds122-2026-2-turno-grr`, tudo em minúsculas,
+4. No menu **+**, escolha **New group**, e depois **Create group**;
+5. Em **Group name**, use `ds122-2026-2-turno-grr`, tudo em minúsculas,
    trocando `turno` por `n` ou `t` e `grr` pelo seu GRR. Exemplo:
-   `ds122-2026-2-t-grr20261234`;
-5. Em **Visibility level**, marque **Private**;
-6. Criado o grupo, entre em **Manage > Members**, clique em **Invite members**,
-   procure por `alexkutzke` e atribua o papel **Reporter**.
+   `ds122-2026-2-t-grr20261234`. Num grupo já existente, o nome e o endereço se
+   corrigem em **Settings > General**;
+6. Em **Visibility level**, marque **Private**;
+7. Com o grupo no lugar, entre em **Manage > Members**, clique em **Invite
+   members**, procure por `alexkutzke` e atribua o papel **Reporter**.
 
 O papel `Reporter` deixa o professor ler e comentar, sem poder alterar o seu
 código.

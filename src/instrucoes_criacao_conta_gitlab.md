@@ -66,43 +66,75 @@ sistema antifraude do GitLab, e informar o número resolve.
 > professor. O cartão só é pedido para usar os servidores de integração
 > contínua do GitLab, recurso que a disciplina não utiliza.
 
-## Passo 3: as perguntas de boas-vindas
+## Passo 3: a tela `Welcome to GitLab`
 
-Depois da confirmação, o GitLab faz algumas perguntas antes de liberar a tela
-principal. As respostas que interessam:
+Confirmado o e-mail, o GitLab abre uma tela única, **Welcome to GitLab**, com o
+subtítulo *Set up your GitLab environment and answer a few questions to
+personalize your experience*. Ela pede empresa, grupo, projeto e mais quatro
+informações, e não há como pular. O grupo criado aqui é o mesmo que você usaria
+para as tarefas, então vale preencher com cuidado:
 
-| Pergunta | Resposta |
+| Campo | O que preencher |
 |---|---|
-| **Role** | `Student` |
-| **Who will be using GitLab?** | **Just me** |
-| **What would you like to do?** | `Create a new project`, ou a opção equivalente |
+| **Company name** | `UFPR`. O campo é obrigatório, e o GitLab reclama se ficar vazio |
+| **Group name** | `ds122-2026-2-turno-grr`, todo em minúsculas, com `n` ou `t` no lugar de `turno` e o seu GRR no lugar de `grr`. Exemplo: `ds122-2026-2-n-grr20249999` |
+| **Project name** | `teste`. Este projeto não é usado na disciplina, e existe só porque o GitLab exige um |
+| **Role** | não há opção para estudante na lista. Escolha `Other` |
+| **Who will be using GitLab?** | `Just me`, e não `My team` |
+| **What's your reason for joining GitLab?** | `I want to learn the basics of Git` |
+| **Country or region** | `Brazil` |
 
-A resposta **Just me** é a que importa: ela evita a tela seguinte, que pede nome
-e dados de empresa.
+Depois, o botão **Continue** no fim do formulário.
 
-## Passo 4: se o GitLab insistir em criar um grupo
+![Tela Welcome to GitLab preenchida](./images/gitlab/welcome_to_gitlab.png)
 
-Em algumas versões do cadastro não há como pular essa etapa. Nesse caso, use
-desde já o grupo da disciplina, que você precisaria criar de qualquer forma:
+A captura acima foi feita com uma conta de teste, e por isso os nomes não são os
+da disciplina. Use os valores da tabela.
 
-* **Group name**: `ds122-2026-2-turno-grr`, tudo em minúsculas, com `n` ou `t`
-  no lugar de `turno` e o seu GRR no lugar de `grr`. Exemplo:
-  `ds122-2026-2-n-grr20249999`;
-* **Visibility level**: **Private**.
+O campo que exige atenção é o **Group name**: ele vira o endereço do seu grupo e
+é por ele que o professor localiza as suas entregas. Confira letra por letra
+antes de enviar, principalmente o GRR.
 
-Se a tela pedir **Organization name** ou **Company name**, escreva `UFPR`. Se
-pedir número de funcionários, setor de atuação ou algo do tipo, responda
-qualquer coisa: esses campos não afetam a sua conta.
+O nome escrito em **Company name** não tem efeito sobre a sua conta. O GitLab
+pergunta porque usa o mesmo cadastro para empresas.
 
-Terminado o cadastro, volte a
+### Depois de enviar essa tela
+
+O GitLab abre a criação do projeto com um painel de propaganda por cima, o
+**GitLab Duo Agent Platform**, oferecendo um teste gratuito de 30 dias. Feche no
+**X do canto superior direito** do painel e siga. Não clique em **Start a Free
+Trial**: a disciplina não usa nada disso.
+
+![Painel do GitLab Duo, a ser fechado no X](./images/gitlab/duo_trial_fechar.png)
+
+Feito isso, duas conferências rápidas no grupo recém-criado, em
+**Settings > General**:
+
+* a **visibilidade** do grupo precisa estar em **Private**;
+* o nome e o endereço precisam bater com o padrão
+  `ds122-2026-2-turno-grr`.
+
+Em seguida, siga
 [Entrega de exercícios e trabalhos no GitLab](./instrucoes_submissao_tarefas_e_trabalhos.md)
-e adicione o usuário `alexkutzke` ao grupo com o papel `Reporter`.
+para adicionar o usuário `alexkutzke` ao grupo com o papel `Reporter`.
+
+O projeto `teste` pode ficar onde está, ou ser apagado em **Settings > General >
+Advanced > Delete project**. As tarefas da disciplina não saem dele: elas chegam
+por *fork* dos repositórios publicados pelo professor.
+
+## Passo 4: se aparecer qualquer outra pergunta
+
+O GitLab muda esse questionário de tempos em tempos. Se aparecer um campo que
+não está na tabela acima, como número de funcionários ou setor de atuação,
+responda qualquer coisa: esses campos não afetam a sua conta nem a disciplina.
 
 ## Passo 5: o plano
 
-O GitLab oferece o teste do plano **Ultimate** por 30 dias em vários pontos do
-cadastro. Procure a opção do plano **Free**, com texto parecido com
-`Continue with Free` ou `Skip trial`.
+A tela de boas-vindas não pede plano nenhum, mas o GitLab oferece testes pagos em
+painéis e faixas espalhados pela interface, como o do **GitLab Duo** mostrado
+acima e o do plano **Ultimate**. Feche todos. Quando houver escolha explícita,
+procure a opção do plano **Free**, com texto parecido com `Continue with Free` ou
+`Skip trial`.
 
 Cair no teste por engano não gera cobrança: o GitLab não pede cartão de crédito
 para iniciá-lo, e ao fim dos 30 dias a conta volta sozinha ao plano gratuito.
@@ -110,9 +142,10 @@ Tudo o que a disciplina usa está no plano gratuito.
 
 ## Passo 6: nome completo no perfil
 
-No menu do seu avatar, escolha **Edit profile** e preencha o campo **Full name**
-com o seu nome completo. O professor usa esse campo para conferir a autoria das
-entregas.
+No menu do seu avatar, escolha **Edit profile** e confira o campo **Full name**.
+Ele já vem preenchido com o **First name** e o **Last name** do cadastro;
+complete se estiver faltando parte do seu nome. O professor usa esse campo para
+conferir a autoria das entregas.
 
 ## Conferência final
 
@@ -129,6 +162,11 @@ Antes de fechar o navegador, confirme:
 **Digitei o nome de usuário errado.** Dá para trocar em **Settings > Account >
 Change username**. Faça isso antes de criar qualquer *fork*, porque a troca
 altera o endereço de todos os repositórios.
+
+**Errei o nome do grupo na tela de boas-vindas.** O nome se troca em **Settings
+> General**, e o endereço em **Settings > General > Advanced > Change group
+URL**. Os dois precisam ficar no padrão. Corrija antes de criar qualquer
+*fork* dentro do grupo.
 
 **Já tenho conta pessoal e o navegador entra sempre nela.** Use uma janela
 anônima para a conta da disciplina, ou saia da conta pessoal antes de entrar na
