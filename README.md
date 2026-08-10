@@ -14,6 +14,7 @@ Prof. Alexander Robert Kutzke
 
 ## Instruções gerais
 
+* [Criação da conta no GitLab](src/instrucoes_criacao_conta_gitlab.md);
 * [Instruções para submissão de Tarefas com o Gitlab](src/instrucoes_submissao_tarefas_e_trabalhos.md);
 * [Guia rápido para o Git](http://rogerdudler.github.io/git-guide/index.pt_BR.html).
 

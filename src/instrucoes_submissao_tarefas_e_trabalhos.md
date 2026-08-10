@@ -13,11 +13,26 @@ aluno e armazenado no seu grupo criado (ver abaixo).
 
 Para mantermos uma organização das tarefas submetidas, siga os seguintes passos:
 
-1. Acesse o Gitlab (se for seu primeiro acesso, crie um novo usuário, e lembre de colocar seu nome completo para que o professor possa saber que é você);
+1. Acesse o GitLab e **crie um usuário para a disciplina**, com estas três
+   características:
+  * **E-mail**: o seu e-mail institucional da UFPR;
+  * **Nome de usuário** (*username*): o seu GRR, em minúsculas. Por exemplo,
+    `grr20249999`;
+  * **Nome completo**: preenchido no perfil (**Edit profile**).
+
+    Com o GRR no nome de usuário e o e-mail institucional, o professor
+    identifica você sem ambiguidade. E, com uma conta separada, os trabalhos da
+    disciplina não se misturam aos seus projetos e grupos pessoais.
+
+    Se você já usa o GitLab, mantenha a sua conta pessoal como está e crie esta
+    outra para a disciplina. O passo a passo do cadastro, com as telas que o
+    GitLab apresenta pelo caminho, está em
+    [Criação da conta no GitLab](./instrucoes_criacao_conta_gitlab.md);
 2. Crie um novo grupo com as seguintes características:
   * Nome: **ds122-ano-semestre-turno-grr**;
-    * Por exemplo, em 2025, primeiro semestre, se você é do turno noturno e seu login é `grr20249999`,
-      o nome do grupo criado deve ser: `ds122-2025-1-n-grr20249999`.
+    * Por exemplo, em 2026, segundo semestre, se você é do turno noturno e seu login é `grr20249999`,
+      o nome do grupo criado deve ser: `ds122-2026-2-n-grr20249999`.
+    * Use `n` para o turno da noite e `t` para o turno da tarde;
     * Utilize **letras minúsculas**;
   * Visibilidade do grupo: **Privado**;
 3. Vá na tela de membros do grupo e adicione o usuário `alexkutzke` (o primeiro da lista) com o perfil `reporter` ao seu novo grupo;
@@ -30,6 +45,12 @@ O grupo deve ser criado apenas uma vez por aluno e deve conter todos os
 repositórios das tarefas realizadas durante a disciplina pelo aluno.
 
 Com isso, o professor será capaz encontrar e avaliar com facilidade seus trabalhos.
+
+> **Dois limites do plano gratuito do GitLab que valem conhecer.** Um grupo
+> privado aceita até cinco membros; o seu terá dois, você e o professor, então
+> não há problema. Contas criadas a partir de 27/01/2026 podem manter no máximo
+> três grupos de nível superior, então evite criar um grupo novo para cada
+> disciplina sem necessidade.
 
 Comandos para configuração de nome e email para o repositório (faça isso para cada repositório clonado
 **se estiver utilizando os computadores do SEPT**):

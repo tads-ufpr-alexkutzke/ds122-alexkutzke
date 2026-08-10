@@ -1,0 +1,1181 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+% Sob LuaTeX, o grupo vazio de "-{}-" não impede a ligadura de dois hífens em
+% fonte monoespaçada, e o resultado sai como travessão. O \mbox{} impede.
+\newcommand{\ddash}{-\mbox{}-}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\newenvironment{noterminal}
+  {\begin{exampleblock}{No seu terminal}}
+  {\end{exampleblock}}
+
+\newenvironment{nonavegador}
+  {\begin{exampleblock}{No navegador}}
+  {\end{exampleblock}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{02 - Git e GitLab}
+\author{Prof. Alex Kutzke}
+\date{Agosto de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+  \begin{center}
+    \large{Setor de Educação Profissional e Tecnológica}\\
+    Tecnologia em Análise e Desenvolvimento de Sistemas\\
+    \vspace{1cm}
+    \small{DS122 - Desenvolvimento de Aplicações Web 1}
+  \end{center}
+  \titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+  Ao final desta aula você deve ser capaz de:
+  \begin{enumerate}
+    \item Explicar que problema o controle de versão resolve;
+    \item Descrever as três áreas de um repositório local e dizer em qual delas
+          um arquivo está, a partir da saída de \texttt{git status};
+    \item Executar o ciclo \texttt{add}, \texttt{commit} e \texttt{push}, e ler
+          o que cada comando devolveu;
+    \item Escrever mensagens de \textit{commit} que descrevam a alteração feita;
+    \item Ler o histórico com \texttt{git log}, \texttt{git show} e
+          \texttt{git diff};
+    \item Resolver um conflito de mesclagem editando o arquivo marcado pelo Git;
+    \item Entregar um exercício da disciplina pelo GitLab, do \textit{fork} ao
+          \texttt{push}.
+  \end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Dinâmica da aula}
+  Aula de mãos no teclado. Abra agora um terminal e deixe-o visível ao lado dos
+  slides.
+
+  \vspace{0.4cm}
+  \begin{exampleblock}{No seu terminal}
+    Os quadros verdes são o que você digita. Digite junto com o professor e
+    espere a explicação antes de seguir para o próximo.
+  \end{exampleblock}
+
+  \vspace{0.4cm}
+  Entre um comando e outro, paramos para olhar a saída. Ler o que o Git
+  respondeu é metade do aprendizado desta aula: quase todo problema com Git na
+  disciplina vem de alguém que digitou sem ler a resposta.
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+  \tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Preparação}
+% ==========================================
+
+\begin{frame}[fragile]{O problema}
+  A pasta do trabalho da disciplina anterior:
+
+  \begin{minted}{text}
+trabalho.odt
+trabalho_v2.odt
+trabalho_v2_revisado.odt
+trabalho_FINAL.odt
+trabalho_FINAL_agora_vai.odt
+  \end{minted}
+
+  \vspace{0.2cm}
+  O arranjo funciona no sentido mais fraco possível: nada foi perdido. Fora
+  isso, não responde a nada.
+
+  \begin{itemize}
+    \item Qual é a versão mais recente, a \texttt{FINAL} ou a
+          \texttt{FINAL\_agora\_vai}?
+    \item O que mudou de \texttt{v2} para \texttt{v2\_revisado}?
+    \item Em qual arquivo ainda existe o parágrafo apagado por engano na terça?
+    \item Se o trabalho fosse em dupla, quem escreveu o quê?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Sistema de controle de versão}
+  Guarda o histórico de um conjunto de arquivos. O que ele registra não é o
+  conteúdo atual: é a \textbf{sequência de estados} pela qual o conjunto passou,
+  com autoria, data e descrição em cada passo.
+
+  \vspace{0.5cm}
+  \begin{block}{Git}
+    Criado em 2005 por Linus Torvalds para o desenvolvimento do núcleo do Linux.
+    Software livre, sistema dominante hoje, e roda inteiramente na sua máquina.
+  \end{block}
+\end{frame}
+
+\begin{frame}{O que o Git resolve nesta disciplina}
+  \textbf{Histórico.} Você quebra o CSS às 22h e não faz ideia do que mexeu.
+  Compare o estado atual com o do último \textit{commit} e veja a linha
+  alterada.
+
+  \vspace{0.4cm}
+  \textbf{Duas máquinas.} Você começa o exercício no laboratório e termina em
+  casa. Sem repositório central, a sincronização vira \textit{pen drive} e anexo
+  de e-mail, e uma hora as duas cópias divergem.
+
+  \vspace{0.4cm}
+  \textbf{Entrega auditável.} O histórico mostra o que você entregou, quando e
+  \textbf{como} chegou lá. É por isso que o diário de bordo do trabalho prático
+  é avaliado.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git \ddash version}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git --version
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+git version 2.55.0
+  \end{minted}
+
+  Se o comando não for encontrado, instale a partir de
+
+  \begin{center}
+    \url{https://git-scm.com/downloads}
+  \end{center}
+
+  \vspace{0.3cm}
+  \begin{alertblock}{Windows}
+    O instalador oficial traz o \textbf{Git Bash}, um terminal onde todos os
+    comandos desta aula funcionam como escritos. Use-o. No PowerShell, alguns
+    exemplos se comportam de outro jeito.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git config}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git config --global user.name "Seu Nome Completo"
+git config --global user.email "seuemail@example.com"
+git config --global init.defaultBranch main
+    \end{minted}
+  \end{noterminal}
+
+  O autor de cada \textit{commit} vem daí, e não do serviço onde o repositório
+  está hospedado. Sem configuração, o Git inventa algo a partir do usuário do
+  sistema, e o histórico fica assinado por \texttt{aluno@lab-a15-pc07}.
+
+  \vspace{0.3cm}
+  \begin{alertblock}{Nos computadores do laboratório}
+    A máquina é de todo mundo. Execute os dois primeiros comandos
+    \textbf{sem} \texttt{\ddash global}, dentro de cada repositório clonado.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Onde cada valor de configuração foi parar}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git config --list --show-origin | grep -E "user|defaultBranch"
+    \end{minted}
+  \end{noterminal}
+
+  A saída mostra, para cada valor, o arquivo de onde ele veio. Três níveis
+  possíveis, do mais geral ao mais específico:
+
+  \begin{itemize}
+    \item do sistema, para todos os usuários da máquina;
+    \item do usuário, o que \texttt{\ddash global} escreve;
+    \item do repositório, dentro do próprio \texttt{.git/config}.
+  \end{itemize}
+
+  \vspace{0.2cm}
+  O mais específico vence. É por isso que a configuração local do laboratório
+  resolve.
+\end{frame}
+
+% ==========================================
+\section{Ciclo local}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{git init}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+mkdir catalogo
+cd catalogo
+git init
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+Initialized empty Git repository in /home/ana/catalogo/.git/
+  \end{minted}
+
+  Nenhuma pasta de destino, nenhum servidor, nenhuma conta. Tudo o que o Git fez
+  aconteceu dentro de \texttt{catalogo/}.
+\end{frame}
+
+\begin{frame}[fragile]{O repositório é a pasta \texttt{.git}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+ls -a
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+.  ..  .git
+  \end{minted}
+
+  Ali dentro mora o histórico inteiro: todas as versões de todos os arquivos,
+  todos os autores, todas as datas.
+
+  \begin{itemize}
+    \item Copiar a pasta \texttt{catalogo/} copia o repositório inteiro. Apagar
+          \texttt{.git} devolve uma pasta comum, sem histórico nenhum.
+    \item \textbf{O Git não precisa de rede.} Tudo até a seção do remoto
+          funciona com o cabo desconectado.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Repositório dentro de repositório}
+  \begin{alertblock}{Não execute \texttt{git init} dentro de um repositório}
+    Os dois passam a disputar os mesmos arquivos, e a confusão é difícil de
+    desfazer.
+  \end{alertblock}
+
+  \vspace{0.5cm}
+  Na dúvida sobre onde você está, \texttt{git status} antes de \texttt{git
+  init}. Se ele responder alguma coisa em vez de reclamar que não há
+  repositório, você já está dentro de um.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git status}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+echo '<h1>Catálogo de Produtos</h1>' > index.html
+git status
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	index.html
+
+nothing added to commit but untracked files present
+  \end{minted}
+
+  \textbf{Não rastreado} (\textit{untracked}): o Git nunca viu esse arquivo e
+  não vai gravá-lo sem ordem explícita.
+\end{frame}
+
+\begin{frame}{As três áreas}
+  \begin{center}
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        box/.style={draw, rounded corners, minimum width=2.9cm,
+                    minimum height=1.5cm, align=center, thick},
+        every node/.style={font=\scriptsize}
+      ]
+      \node[box, fill=blue!8]   (w) at (0,0)   {\textbf{Diretório}\\\textbf{de trabalho}\\\textit{working tree}};
+      \node[box, fill=orange!12](s) at (4.8,0) {\textbf{Área de}\\\textbf{preparação}\\\textit{staging area}};
+      \node[box, fill=green!10] (r) at (9.6,0) {\textbf{Repositório}\\\texttt{.git}};
+
+      \draw[-{Stealth[length=3mm]}, thick, blue]
+        (w.east) -- node[above, font=\scriptsize]{\texttt{git add}} (s.west);
+      \draw[-{Stealth[length=3mm]}, thick, green!50!black]
+        (s.east) -- node[above, font=\scriptsize]{\texttt{git commit}} (r.west);
+    \end{tikzpicture}}
+  \end{center}
+
+  \begin{itemize}
+    \item \textbf{Diretório de trabalho}: a pasta como o editor de texto a vê.
+    \item \textbf{Área de preparação}: a lista do que vai entrar no próximo
+          \textit{commit}.
+    \item \textbf{Repositório}: o histórico já gravado.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Para que serve a área de preparação}
+  É a parte que causa mais estranheza no primeiro contato, porque parece um
+  passo burocrático a mais.
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    Ela existe para você escolher \textbf{o que entra em cada commit}.
+  \end{block}
+
+  \vspace{0.4cm}
+  Você mexeu em cinco arquivos: dois resolvem um problema e três resolvem outro.
+  Dá para gravar dois \textit{commits} separados, cada um com sua mensagem, em
+  vez de um pacote único e ininteligível.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git add} e \texttt{git commit}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git add index.html
+git status
+git commit -m "Cria página inicial do catálogo"
+    \end{minted}
+  \end{noterminal}
+
+  Entre um comando e outro, leia: o \texttt{index.html} saiu de
+  \texttt{Untracked files} e apareceu sob \texttt{Changes to be committed}.
+
+  \begin{minted}{text}
+[main (root-commit) 5d09b83] Cria página inicial do catálogo
+ 1 file changed, 1 insertion(+)
+ create mode 100644 index.html
+  \end{minted}
+\end{frame}
+
+\begin{frame}{O que um commit guarda}
+  Um \textit{commit} é o registro de um \textbf{estado completo} do projeto, e
+  não a lista do que mudou. O Git guarda a fotografia de todos os arquivos
+  naquele instante.
+
+  \begin{itemize}
+    \item o conteúdo de todos os arquivos versionados;
+    \item o \textbf{autor}, com nome e e-mail;
+    \item a \textbf{data};
+    \item a \textbf{mensagem} que você escreveu;
+    \item o \textbf{commit anterior}, chamado de \textit{pai};
+    \item um \textbf{identificador} de 40 caracteres hexadecimais, o
+          \textit{hash}.
+  \end{itemize}
+
+  \vspace{0.2cm}
+  \footnotesize Internamente o Git evita duplicar o conteúdo de arquivos que não
+  mudaram, mas isso é otimização de armazenamento e não altera o modelo.
+\end{frame}
+
+\begin{frame}{O identificador é calculado a partir de todo o resto}
+  Conteúdo, autor, data, mensagem e pai entram na conta. Alterar qualquer um
+  produz um identificador diferente.
+
+  \vspace{0.4cm}
+  Daí vêm duas coisas:
+
+  \begin{itemize}
+    \item a \textbf{integridade} do histórico, já que não dá para trocar o
+          passado sem que os identificadores mudem;
+    \item o trabalho que dá reescrever o histórico de um repositório
+          compartilhado.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  O campo \textit{pai} é o que dá ao histórico a forma de corrente: cada
+  \textit{commit} aponta para o anterior, até o primeiro registro.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git log}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git log
+git log --oneline
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+commit 5d09b83191365b932a94e1c90b68b58d5fe12c55
+Author: Ana Souza <ana@example.com>
+Date:   Sat Aug 8 16:51:53 2026 -0300
+
+    Cria página inicial do catálogo
+  \end{minted}
+
+  Ninguém digita os 40 caracteres. Os sete primeiros bastam para identificar o
+  \textit{commit}, e é o que o \texttt{\ddash oneline} mostra.
+\end{frame}
+
+\begin{frame}[fragile]{Mensagens de commit}
+  A mensagem é o único campo que depende de você.
+
+  \begin{minted}{text}
+9b1c2d7 update
+4a8e330 asdf
+c1d0f92 correções
+  \end{minted}
+
+  \begin{minted}{text}
+9b1c2d7 Corrige alinhamento dos cards em telas estreitas
+4a8e330 Adiciona validação de e-mail no formulário de contato
+c1d0f92 Substitui imagens placeholder pelas fotos definitivas
+  \end{minted}
+
+  O segundo histórico permite achar quando algo entrou sem abrir um único
+  arquivo.
+\end{frame}
+
+\begin{frame}{Convenções para as entregas da disciplina}
+  \begin{itemize}
+    \item \textbf{Escreva o que o commit faz}, com verbo no início e no presente
+          do indicativo: ``Adiciona'', ``Corrige'', ``Remove'', ``Atualiza''.
+    \item \textbf{Uma linha de até cerca de 50 caracteres.} Precisando de mais,
+          o \texttt{git commit} sem \texttt{-m} abre um editor: título, linha em
+          branco, corpo.
+    \item \textbf{Um commit por alteração com sentido próprio.} Nem um
+          \textit{commit} por letra digitada, nem um \textit{commit} único no
+          fim da aula chamado \texttt{entrega}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Modificado contra não rastreado}
+  \begin{noterminal}
+    \begin{minted}{bash}
+echo '<p>Em construção.</p>' >> index.html
+echo 'body { font-family: sans-serif; }' > estilo.css
+git status
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes...)
+	modified:   index.html
+
+Untracked files:
+	estilo.css
+  \end{minted}
+
+  O Git já conhece o \texttt{index.html}, e percebeu que ele mudou. O arquivo
+  \texttt{estilo.css} ele nunca viu antes.
+\end{frame}
+
+\begin{frame}[fragile]{Preparar um arquivo só}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git add index.html
+git commit -m "Adiciona aviso de página em construção"
+git status --short
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+?? estilo.css
+  \end{minted}
+
+  \begin{alertblock}{}
+    Arquivo que não passou por \texttt{git add} não está no \textit{commit}.
+    Essa é a causa mais comum de ``entreguei e o professor disse que faltava
+    arquivo''.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git status \ddash short}}
+  Duas colunas: a primeira é a área de preparação, a segunda é o diretório de
+  trabalho. Abaixo, \texttt{\_} representa uma coluna em branco; no terminal
+  você verá um espaço.
+
+  \vspace{0.3cm}
+  \begin{center}
+    \begin{tabular}{ll}
+      \toprule
+      \textbf{Código} & \textbf{Significado} \\
+      \midrule
+      \texttt{??} & Arquivo não rastreado \\
+      \texttt{\_M} & Modificado, ainda não preparado \\
+      \texttt{M\_} & Modificado e preparado \\
+      \texttt{A\_} & Arquivo novo, já preparado \\
+      \texttt{MM} & Preparado e modificado de novo depois disso \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \texttt{git status} é o comando que você mais vai usar. Execute-o antes de
+  cada \texttt{add}, antes de cada \texttt{commit} e depois de cada
+  \texttt{push}.
+\end{frame}
+
+% ==========================================
+\section{Histórico}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{git show}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git show
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+commit 7f95d857f84c74ac5325759dcf0ac9de11ed1816
+Author: Ana Souza <ana@example.com>
+Date:   Sat Aug 8 16:52:03 2026 -0300
+
+    Adiciona aviso de página em construção
+
+diff --git a/index.html b/index.html
+index 434dae7..cede13d 100644
+--- a/index.html
++++ b/index.html
+@@ -1 +1,2 @@
+ <h1>Catálogo de Produtos</h1>
++<p>Em construção.</p>
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{O formato diff}
+  \begin{itemize}
+    \item linhas com \texttt{+} foram acrescentadas;
+    \item linhas com \texttt{-} foram removidas;
+    \item linhas sem marca são contexto, mostradas para você se localizar.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  A linha \texttt{@@ -1 +1,2 @@} é o cabeçalho do pedaço (\textit{hunk}) que vem
+  logo abaixo. Um arquivo com alterações em pontos distantes gera vários
+  pedaços, cada um com seu cabeçalho.
+
+  \begin{minted}{text}
+@@ -início,quantidade +início,quantidade @@
+  \end{minted}
+
+  O \texttt{-} se refere à versão antiga do arquivo, o \texttt{+} à nova.
+\end{frame}
+
+\begin{frame}[fragile]{Lendo \texttt{@@ -1 +1,2 @@}}
+  \begin{itemize}
+    \item \texttt{-1}: no arquivo antigo, o pedaço começa na linha 1 e tem 1
+          linha. Quando a quantidade é 1, o Git omite o número.
+    \item \texttt{+1,2}: no arquivo novo, o mesmo pedaço começa na linha 1 e
+          passou a ter 2 linhas.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  Em um arquivo maior você veria algo como \texttt{@@ -12,7 +12,9 @@}: sete
+  linhas a partir da linha 12 viraram nove linhas a partir da linha 12.
+
+  \vspace{0.4cm}
+  Os números localizam a alteração dentro do arquivo. Eles não contam quantas
+  linhas mudaram.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git diff} e \texttt{git diff \ddash staged}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+echo '<p>Segunda linha.</p>' >> index.html
+git diff
+git add index.html
+git diff
+git diff --staged
+    \end{minted}
+  \end{noterminal}
+
+  O segundo \texttt{git diff} não devolve nada. O \texttt{\ddash staged} mostra a
+  linha acrescentada.
+
+  \begin{itemize}
+    \item \texttt{git diff}: o que eu mexi e ainda não marquei.
+    \item \texttt{git diff \ddash staged}: o que vai entrar se eu der
+          \texttt{commit} agora.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Desfazer antes do commit}
+  Tirar da área de preparação, mantendo as alterações no diretório de trabalho:
+
+  \begin{minted}{bash}
+git restore --staged index.html
+  \end{minted}
+
+  Descartar as alterações e voltar ao estado do último \textit{commit}:
+
+  \begin{minted}{bash}
+git restore index.html
+  \end{minted}
+
+  \begin{alertblock}{\texttt{git restore} sem \texttt{\ddash staged} apaga o seu
+    trabalho e não tem desfazer}
+    O conteúdo descartado nunca foi gravado em nenhum \textit{commit}, então não
+    existe cópia em lugar nenhum. Confira com \texttt{git diff} antes.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Desfazer depois do commit}
+  Envolve comandos fora do escopo desta disciplina, como o \texttt{git revert} e
+  o \texttt{git reset}.
+
+  \vspace{0.5cm}
+  Saída suficiente para o nosso caso: faça um \textit{commit} novo que corrija o
+  problema.
+
+  \vspace{0.5cm}
+  O histórico registra o erro e a correção, o que é honesto e, num diário de
+  bordo, é exatamente o que se quer ver.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{.gitignore}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+echo 'minha-senha-secreta' > senha.txt
+git status --short
+printf 'senha.txt\n*.log\n' > .gitignore
+git status --short
+git check-ignore -v senha.txt
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+.gitignore:1:senha.txt	senha.txt
+  \end{minted}
+
+  O \texttt{check-ignore} responde qual linha de qual arquivo está escondendo o
+  arquivo. Senhas, temporários do editor, saída de compilação e bibliotecas
+  baixadas ficam de fora do repositório.
+\end{frame}
+
+\begin{frame}[fragile]{Duas ressalvas sobre o \texttt{.gitignore}}
+  \begin{itemize}
+    \item O próprio \texttt{.gitignore} deve ser versionado, para valer também
+          para quem clonar o repositório.
+    \item Ele só afeta arquivos \textbf{não rastreados}. Se você já deu
+          \texttt{git add} num arquivo, acrescentá-lo ao \texttt{.gitignore}
+          depois não o remove do repositório.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git add .gitignore
+git commit -m "Ignora arquivos de senha e de log"
+    \end{minted}
+  \end{noterminal}
+\end{frame}
+
+% ==========================================
+\section{Remoto}
+% ==========================================
+
+\begin{frame}[fragile]{Repositório remoto}
+  Uma cópia do repositório hospedada em outro lugar, que serve de ponto de
+  encontro entre as suas máquinas, e entre você e o professor.
+
+  \vspace{0.3cm}
+  \begin{center}
+    \small
+    \begin{tabular}{lll}
+      \toprule
+      \textbf{Comando} & \textbf{Direção} & \textbf{O que faz} \\
+      \midrule
+      \texttt{git clone URL} & remoto $\rightarrow$ local & cópia completa, com histórico \\
+      \texttt{git push} & local $\rightarrow$ remoto & envia o que só existe aqui \\
+      \texttt{git pull} & remoto $\rightarrow$ local & traz o que só existe lá e integra \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  Os três transferem \textbf{commits}, e não arquivos soltos. Só vai para o
+  servidor aquilo que passou por \texttt{git commit}.
+
+  \vspace{0.2cm}
+  \footnotesize \texttt{origin} é o apelido padrão do remoto principal. Não é
+  palavra reservada, é convenção.
+\end{frame}
+
+\begin{frame}{O endereço do remoto é uma URL, e o transporte é HTTP}
+  \begin{center}
+    \texttt{https://gitlab.com/ana/catalogo.git}
+  \end{center}
+
+  \vspace{0.3cm}
+  Esquema, host e caminho, a mesma estrutura vista na aula sobre HTTP. O
+  \texttt{git push} num remoto \texttt{https://} faz requisições HTTP, com
+  método, cabeçalhos e código de status.
+
+  \vspace{0.4cm}
+  Isso explica dois comportamentos que você vai encontrar:
+
+  \begin{itemize}
+    \item repositório inexistente ou privado devolve erro de autenticação, e o
+          Git pede usuário e senha;
+    \item rede do laboratório com a porta bloqueada faz o \texttt{push} falhar
+          por tempo esgotado, sem nada de errado no seu repositório.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Forjas}
+  Além do Git, um serviço de hospedagem oferece interface web, controle de
+  acesso, relatório de problemas e revisão de código. Esse tipo de serviço é
+  chamado de \textbf{forja} (\textit{forge}). GitHub, GitLab e Codeberg são
+  forjas.
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    Nenhum desses recursos faz parte do Git. O Git roda na sua máquina; a forja
+    é um serviço construído em volta dele. Trocar de forja não altera nenhum dos
+    comandos vistos até aqui.
+  \end{block}
+
+  \vspace{0.4cm}
+  Nesta disciplina usamos o \textbf{GitLab}: o plano gratuito permite
+  repositórios privados sem limite de quantidade.
+\end{frame}
+
+\begin{frame}{Conta no GitLab}
+  \begin{nonavegador}
+    \begin{enumerate}
+      \item \url{https://gitlab.com/users/sign_up}, com o \textbf{e-mail da
+            UFPR} e o seu \textbf{GRR como nome de usuário}, em minúsculas
+            (\texttt{grr20249999}). Confirme o e-mail que o GitLab envia;
+      \item em \textbf{Edit profile}, preencha o \textbf{nome completo}.
+    \end{enumerate}
+  \end{nonavegador}
+
+  \vspace{0.4cm}
+  O GRR no nome de usuário e o e-mail institucional resolvem a identificação:
+  o professor sabe de quem é cada repositório sem perguntar. Nome de usuário do
+  tipo \texttt{dark\_coder\_2007} não diz nada a quem corrige.
+
+  \vspace{0.3cm}
+  Quem já usa o GitLab, mantenha a conta pessoal como está e crie esta outra
+  para a disciplina. Os trabalhos ficam separados dos seus projetos.
+\end{frame}
+
+\begin{frame}{Grupo}
+  Um \textbf{grupo} reúne vários repositórios sob um mesmo controle de acesso.
+  Você cria o seu uma vez no semestre, e todas as tarefas vão para dentro dele.
+
+  \vspace{0.3cm}
+  \begin{nonavegador}
+    \begin{enumerate}
+      \item menu \textbf{+}, \textbf{New group}, \textbf{Create group};
+      \item \textbf{Group name}: \texttt{ds122-2026-2-turno-grr}, em minúsculas,
+            com \texttt{n} ou \texttt{t} no lugar de \texttt{turno}. Exemplo:
+            \texttt{ds122-2026-2-t-grr20261234};
+      \item \textbf{Visibility level}: \textbf{Private};
+      \item \textbf{Manage > Members > Invite members}: procure
+            \texttt{alexkutzke} e atribua o papel \textbf{Reporter}.
+    \end{enumerate}
+  \end{nonavegador}
+
+  \vspace{0.2cm}
+  \footnotesize O papel \texttt{Reporter} deixa o professor ler e comentar, sem
+  poder alterar o seu código.
+\end{frame}
+
+\begin{frame}{Fork}
+  Uma cópia de um repositório feita \textbf{no servidor}, sob a sua conta ou
+  grupo. O original continua onde estava, e você passa a ter um repositório
+  próprio, com o mesmo conteúdo e o mesmo histórico, sobre o qual tem permissão
+  de escrita.
+
+  \vspace{0.4cm}
+  É esse o mecanismo das entregas: o professor publica o repositório com o
+  enunciado, cada aluno faz o \textit{fork} para dentro do próprio grupo, e
+  resolve ali.
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    O \textit{fork} acontece no site. O \texttt{clone} acontece na sua máquina.
+    A sequência completa é \textit{fork}, \texttt{clone}, \texttt{add},
+    \texttt{commit}, \texttt{push}.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Fork da tarefa de hoje}
+  \begin{nonavegador}
+    \begin{enumerate}
+      \item abra o endereço do repositório da tarefa, publicado na UFPR Virtual;
+      \item clique em \textbf{Fork};
+      \item em \textbf{Project URL}, escolha \textbf{o seu grupo};
+      \item deixe a visibilidade em \textbf{Private} e clique em
+            \textbf{Fork project};
+      \item copie o endereço \textbf{HTTPS} do seu \textit{fork}.
+    \end{enumerate}
+  \end{nonavegador}
+
+  \vspace{0.4cm}
+  Trabalhando em dupla, apenas um dos dois faz o \textit{fork}, e adiciona o
+  colega ao repositório como \texttt{developer}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{git clone}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git clone https://gitlab.com/SEU-GRUPO/nome-da-tarefa.git
+cd nome-da-tarefa
+git remote -v
+git log --oneline
+git branch --show-current
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+origin	https://gitlab.com/ana/catalogo.git (fetch)
+origin	https://gitlab.com/ana/catalogo.git (push)
+  \end{minted}
+
+  O \texttt{origin} já aponta para o seu \textit{fork}, o histórico veio junto e
+  o ramo atual é \texttt{main}. Nada disso precisou de \texttt{git init} nem de
+  \texttt{git remote add}.
+\end{frame}
+
+\begin{frame}[fragile]{Primeiro \texttt{push}}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git config user.name "Seu Nome Completo"
+git config user.email "seuemail@example.com"
+git add README.md
+git commit -m "Registra os integrantes da dupla"
+git push
+    \end{minted}
+  \end{noterminal}
+
+  \vspace{0.3cm}
+  \begin{alertblock}{}
+    Abra o seu \textit{fork} no navegador e confirme que a alteração está lá.
+    Enquanto não aparecer na página do GitLab, a tarefa não foi entregue.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Quando o remoto ainda não conhece o seu ramo}
+  Num repositório criado do zero com \texttt{git init}, o primeiro \texttt{push}
+  precisa dizer para onde vai:
+
+  \begin{minted}{bash}
+git push -u origin main
+  \end{minted}
+
+  \begin{minted}{text}
+To https://gitlab.com/ana/catalogo.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+  \end{minted}
+
+  A opção \texttt{-u} grava a associação entre o seu \texttt{main} local e o
+  \texttt{main} do \texttt{origin}. Depois disso, \texttt{git push} e
+  \texttt{git pull} sem argumentos já sabem o destino.
+
+  \vspace{0.2cm}
+  \footnotesize Quem clonou não precisa disso: o \texttt{clone} já configurou a
+  associação.
+\end{frame}
+
+\begin{frame}[fragile]{Quando o push é recusado}
+  Você deu \texttt{push} de casa na quarta e, na sexta, no laboratório, está com
+  uma cópia antiga.
+
+  \begin{minted}{text}
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://gitlab.com/...'
+hint: Updates were rejected because the remote contains work
+hint: that you do not have locally.
+  \end{minted}
+
+  A recusa protege o histórico: aceitar o envio apagaria do servidor os
+  \textit{commits} que você não tem.
+
+  \begin{minted}{bash}
+git pull
+git push
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{divergent branches}}
+  Numa instalação nova, o \texttt{git pull} pode parar assim:
+
+  \begin{minted}{text}
+hint: You have divergent branches and need to specify how to
+hint: reconcile them.
+fatal: Need to specify how to reconcile divergent branches.
+  \end{minted}
+
+  O Git está perguntando como juntar as duas linhas do tempo. Escolha a
+  mesclagem, que é a opção adequada aqui:
+
+  \begin{minted}{bash}
+git config --global pull.rebase false
+git pull
+  \end{minted}
+
+  \vspace{0.2cm}
+  \begin{block}{Hábito que evita o problema}
+    \texttt{git pull} ao \textbf{começar} a trabalhar, antes de editar qualquer
+    arquivo. \texttt{git push} ao terminar.
+  \end{block}
+\end{frame}
+
+% ==========================================
+\section{Conflito}
+% ==========================================
+
+\begin{frame}{Quando o Git para e pergunta}
+  O \texttt{pull} anterior funcionou porque as duas máquinas mexeram em arquivos
+  diferentes.
+
+  \vspace{0.5cm}
+  \begin{block}{}
+    Quando as duas alteram \textbf{a mesma linha do mesmo arquivo}, o Git não
+    tem como decidir, e para.
+  \end{block}
+
+  \vspace{0.5cm}
+  Vamos provocar o caso de propósito, para você ver a mensagem em condições
+  controladas em vez de na véspera da entrega.
+\end{frame}
+
+\begin{frame}[fragile]{Provocar o conflito}
+  \begin{nonavegador}
+    No seu \textit{fork}, edite o \texttt{README.md} pelo próprio site (ícone de
+    lápis), altere a primeira linha e confirme a alteração.
+  \end{nonavegador}
+
+  \begin{noterminal}
+    \begin{minted}{bash}
+git commit -am "Altera o título pela máquina local"
+git pull
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Automatic merge failed; fix conflicts and then commit the result.
+  \end{minted}
+
+  Altere \textbf{a mesma linha} que você alterou no site, com outro texto.
+\end{frame}
+
+\begin{frame}[fragile]{Onde está o problema}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git status
+    \end{minted}
+  \end{noterminal}
+
+  \begin{minted}{text}
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both modified:   README.md
+  \end{minted}
+
+  O \texttt{git merge \ddash abort} desfaz a mesclagem inteira e devolve o
+  repositório ao estado anterior ao \texttt{pull}. É a saída de emergência.
+\end{frame}
+
+\begin{frame}[fragile]{Os marcadores dentro do arquivo}
+  Abra o \texttt{README.md} no editor. O Git escreveu as duas versões dentro
+  dele:
+
+  \begin{minted}{text}
+<<<<<<< HEAD
+# Catálogo Verde
+=======
+# Catálogo de Produtos da Ana
+>>>>>>> c34ab3031b9f162880e357de2a5bc27e68d9b6ca
+  \end{minted}
+
+  \begin{itemize}
+    \item entre \texttt{<<<<<<< HEAD} e \texttt{=======}: a \textbf{sua} versão
+          local;
+    \item entre \texttt{=======} e \texttt{>>>>>>>}: a versão que veio do
+          servidor, identificada pelo \textit{hash} do \textit{commit}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Resolver}
+  Editar o arquivo até ele ficar como deve ficar, o que inclui \textbf{apagar as
+  três linhas de marcador}. Você pode ficar com uma das versões, com a outra, ou
+  escrever uma terceira.
+
+  \begin{noterminal}
+    \begin{minted}{bash}
+git add README.md
+git commit
+git push
+    \end{minted}
+  \end{noterminal}
+
+  O \texttt{git commit} sem \texttt{-m}, aqui, abre o editor com uma mensagem de
+  mesclagem já preenchida. Basta salvar e sair.
+
+  \vspace{0.3cm}
+  \begin{block}{}
+    Conflito não é erro nem defeito do Git. É o Git recusando-se a escolher por
+    você entre duas alterações incompatíveis. O erro seria resolvê-lo apagando o
+    trabalho do colega sem ler.
+  \end{block}
+\end{frame}
+
+% ==========================================
+\section{Exercícios}
+% ==========================================
+
+\begin{frame}{Entrega}
+  \begin{block}{Estes exercícios valem nota}
+    Compõem o item \textit{Exercícios em sala} da média, e a entrega é até o
+    final do encontro de hoje.
+  \end{block}
+
+  \vspace{0.4cm}
+  A entrega é o próprio \textit{fork} no GitLab, com os \textit{commits} pedidos
+  e o \texttt{push} feito. \textbf{Não há link a enviar em lugar nenhum}: o
+  professor recolhe os repositórios pelo nome do grupo.
+
+  \vspace{0.4cm}
+  Três coisas precisam estar certas: o nome do grupo, o papel de
+  \texttt{reporter} do \texttt{alexkutzke} e o \textit{fork} dentro do grupo.
+  Grupo fora do padrão não é encontrado, e o que não é encontrado não é
+  corrigido.
+\end{frame}
+
+\begin{frame}{Como trabalhar}
+  Em dupla, no formato de \textbf{Mob Programming}: um dos dois faz o
+  \textit{fork} no próprio grupo e adiciona o colega ao repositório como
+  \texttt{developer}. Registrem no \texttt{README.md} o nome completo e o GRR
+  dos dois.
+
+  \vspace{0.4cm}
+  São cinco itens, e todos mexem em pouca coisa: editar o \texttt{README.md} e
+  criar alguns arquivos.
+
+  \vspace{0.4cm}
+  \begin{block}{}
+    O que está sendo avaliado é o \textbf{histórico} que vocês produzirem, e não
+    o conteúdo dos arquivos.
+  \end{block}
+
+  \vspace{0.3cm}
+  \footnotesize Ao usar IA generativa durante a aula, aplique o pré-prompt
+  sugerido no material da disciplina.
+\end{frame}
+
+\begin{frame}[fragile]{Exercícios 1 a 3}
+  \begin{enumerate}
+    \item \textit{Fork}, \texttt{clone} e configuração de \texttt{user.name} e
+          \texttt{user.email} dentro do repositório. No \texttt{README.md},
+          nome completo e GRR dos dois integrantes. Grave, envie e confira no
+          navegador.
+
+    \item Crie \texttt{anotacoes.md} com um resumo, em suas palavras, da
+          diferença entre diretório de trabalho, área de preparação e
+          repositório. \textit{Commit} separado, com mensagem descritiva.
+
+    \item Crie \texttt{contato.html} e \texttt{sobre.html} de uma vez, com uma
+          linha em cada. Prepare \textbf{apenas o \texttt{contato.html}} e
+          grave. Cole no \texttt{README.md} a saída de
+          \texttt{git status \ddash short} obtida logo depois, com uma frase
+          explicando por que o \texttt{sobre.html} ficou de fora. Grave o
+          segundo \textit{commit} e envie os dois.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Exercícios 4 e 5}
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Crie \texttt{rascunho.log} e um \texttt{.gitignore} que o esconda.
+          Cole no \texttt{README.md} a saída de
+          \texttt{git check-ignore -v rascunho.log}. Versione o
+          \texttt{.gitignore} e envie.
+
+    \item Provoque um conflito: edite o \texttt{README.md} pelo site do GitLab,
+          edite a mesma linha na sua máquina, e dê \texttt{git pull}. Resolva,
+          grave e envie. Ainda no \texttt{README.md}, descreva em até três
+          frases o que o Git mostrou e como vocês decidiram qual versão manter.
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  Ao terminar, abra o \textit{fork} no navegador e confirme que todos os
+  \textit{commits} estão lá. \textit{Commit} que não foi enviado não existe para
+  quem corrige.
+\end{frame}
+
+\begin{frame}[fragile]{Desafio}
+  Para quem terminar antes.
+
+  \vspace{0.4cm}
+  Um \textit{commit} guarda a fotografia completa do projeto, mas o Git não
+  duplica o conteúdo de arquivos que não mudaram. Descubra o que de fato muda,
+  na estrutura interna, entre dois \textit{commits} seguidos.
+
+  \begin{minted}{bash}
+git cat-file -p HEAD
+  \end{minted}
+
+  Siga os identificadores que aparecerem na saída, um a um, sempre com
+  \texttt{git cat-file -p}.
+\end{frame}
+
+% ==========================================
+\section*{Resumo}
+% ==========================================
+
+\begin{frame}{Resumo}
+  \small
+  \begin{itemize}
+    \item Controle de versão guarda a sequência de estados de um projeto, com
+          autoria, data e descrição em cada passo.
+    \item O repositório é a pasta \texttt{.git}. O Git funciona sem rede; o
+          remoto é opcional.
+    \item Um arquivo está no diretório de trabalho, na área de preparação ou no
+          repositório. O \texttt{add} avança uma área, o \texttt{commit} avança
+          a outra.
+    \item Arquivo que não passou por \texttt{git add} não entra no
+          \textit{commit}.
+    \item O \textit{commit} guarda a fotografia do projeto, o autor, a data, a
+          mensagem, o \textit{commit} pai e um identificador calculado a partir
+          de tudo isso.
+    \item \texttt{git status} responde onde você está; \texttt{git diff} e
+          \texttt{git diff \ddash staged} respondem o que mudou, em relação a áreas
+          diferentes.
+    \item \texttt{clone}, \texttt{push} e \texttt{pull} transferem
+          \textit{commits}, nunca arquivos soltos.
+    \item Conflito acontece quando duas alterações tocam a mesma linha. O Git
+          marca o arquivo e a decisão é sua.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bibliografia}
+  \begin{itemize}
+    \item CHACON, S.; STRAUB, B. \textbf{Pro Git}, 2ª ed., cap. 1, 2 e 5. \\
+          \url{https://git-scm.com/book/pt-br/v2}
+    \item DUDLER, R. \textbf{Guia rápido para o Git}. \\
+          \url{http://rogerdudler.github.io/git-guide/index.pt_BR.html}
+    \item GitLab. \textbf{Documentação}. \\
+          \url{https://docs.gitlab.com/}
+  \end{itemize}
+\end{frame}
+
+\end{document}
