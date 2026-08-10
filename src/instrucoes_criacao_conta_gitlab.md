@@ -74,15 +74,15 @@ personalize your experience*. Ela pede empresa, grupo, projeto e mais quatro
 informações, e não há como pular. O grupo criado aqui é o mesmo que você usaria
 para as tarefas, então vale preencher com cuidado:
 
-| Campo | O que preencher |
-|---|---|
-| **Company name** | `UFPR`. O campo é obrigatório, e o GitLab reclama se ficar vazio |
-| **Group name** | `ds122-2026-2-turno-grr`, todo em minúsculas, com `n` ou `t` no lugar de `turno` e o seu GRR no lugar de `grr`. Exemplo: `ds122-2026-2-n-grr20249999` |
-| **Project name** | `teste`. Este projeto não é usado na disciplina, e existe só porque o GitLab exige um |
-| **Role** | não há opção para estudante na lista. Escolha `Other` |
-| **Who will be using GitLab?** | `Just me`, e não `My team` |
-| **What's your reason for joining GitLab?** | `I want to learn the basics of Git` |
-| **Country or region** | `Brazil` |
+| Campo                                      | O que preencher                                                                                                                                          |
+|--------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Company name**                           | `UFPR`. O campo é obrigatório, e o GitLab reclama se ficar vazio                                                                                         |
+| **Group name**                             | `ds122-2026-2-turno-grr`, todo em minúsculas, com `n` ou `t` no lugar de `turno` e o seu GRR no lugar de `grr`. Exemplo: `ds122-2026-2-n-grr20249999` |
+| **Project name**                           | `teste`. Este projeto não é usado na disciplina, e existe só porque o GitLab exige um                                                                    |
+| **Role**                                   | não há opção para estudante na lista. Escolha `Software Developer`                                                                                      |
+| **Who will be using GitLab?**              | `Just me`, e não `My team`                                                                                                                               |
+| **What's your reason for joining GitLab?** | `I want to learn the basics of Git`                                                                                                                      |
+| **Country or region**                      | `Brazil`                                                                                                                                                 |
 
 Depois, o botão **Continue** no fim do formulário.
 
@@ -163,8 +163,7 @@ Antes de fechar o navegador, confirme:
 Change username**. Faça isso antes de criar qualquer *fork*, porque a troca
 altera o endereço de todos os repositórios.
 
-**Errei o nome do grupo na tela de boas-vindas.** O nome se troca em **Settings
-> General**, e o endereço em **Settings > General > Advanced > Change group
+**Errei o nome do grupo na tela de boas-vindas.** O nome se troca em **Settings > General**, e o endereço em **Settings > General > Advanced > Change group
 URL**. Os dois precisam ficar no padrão. Corrija antes de criar qualquer
 *fork* dentro do grupo.
 
