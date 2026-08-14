@@ -24,7 +24,9 @@ Ao final desta aula você deve ser capaz de:
 4. Escrever mensagens de *commit* que descrevam a alteração feita;
 5. Ler o histórico de um repositório com `git log`, `git show` e `git diff`;
 6. Resolver um conflito de mesclagem editando o arquivo marcado pelo Git;
-7. Entregar um exercício da disciplina pelo GitLab, do *fork* ao `push`.
+7. Autenticar-se no GitLab pelo caminho adequado à máquina em que está, e
+   explicar por que a senha da conta não serve;
+8. Entregar um exercício da disciplina pelo GitLab, do *fork* ao `push`.
 
 ---
 
@@ -555,8 +557,10 @@ método, cabeçalhos e código de status, como qualquer outra requisição.
 
 Isso explica dois comportamentos que você vai encontrar. Se o repositório não
 existir ou for privado, o servidor responde com um erro de autenticação e o Git
-pede usuário e senha. E se a rede do laboratório bloquear a porta, o `push`
-falha por tempo esgotado, sem que haja nada de errado com o seu repositório.
+para para pedir usuário e senha. A senha, aqui, não é a da sua conta no GitLab:
+é um **token de acesso pessoal**, e a seção 17 mostra como obter o seu. E se a
+rede do laboratório bloquear a porta, o `push` falha por tempo esgotado, sem que
+haja nada de errado com o seu repositório.
 
 O primeiro `push` de um ramo novo precisa dizer para onde vai:
 
@@ -772,7 +776,7 @@ tenha uma conta pessoal no GitLab:
    (`grr20249999`). Confirme o e-mail que o GitLab envia;
 2. Na tela **Welcome to GitLab**, que aparece logo depois, preencha `UFPR` em
    **Company name** e use o nome do grupo da disciplina em **Group name**
-   (próxima seção). O passo a passo campo a campo está em
+   (itens 4 e 5 abaixo). O passo a passo campo a campo está em
    [Criação da conta no GitLab](./instrucoes_criacao_conta_gitlab.md);
 3. Em **Edit profile**, confira o nome completo.
 
@@ -798,7 +802,45 @@ seguiu o passo a passo chega aqui com o grupo pronto e só confere os itens 4 e
 O papel `Reporter` deixa o professor ler e comentar, sem poder alterar o seu
 código.
 
-## 17. Fork, clone e push
+## 17. A credencial que o `push` vai pedir
+
+Daqui em diante o Git conversa com o servidor, e o servidor quer saber quem é
+você. A senha da sua conta não serve para isso: o GitLab exige um segundo fator
+em todo login feito com senha, e o `git push` não tem como parar para pedir um
+código.
+
+**No laboratório**, a credencial é um token de acesso pessoal, criado no começo
+da aula e revogado no fim dela. **No seu computador**, é uma chave SSH,
+configurada uma vez e válida o semestre inteiro. O passo a passo dos dois
+caminhos está em
+[Autenticação no GitLab](./instrucoes_autenticacao_git.md).
+
+O resumo do que fazer hoje, no laboratório:
+
+1. em uma janela anônima do navegador, entre no GitLab. Ele envia um código de
+   verificação para o seu e-mail da UFPR e o pede na tela;
+2. em **Edit profile > Access > Personal access tokens**, crie um token chamado
+   `laboratorio-DD-MM`, com a data de hoje, expiração no dia seguinte e apenas o
+   escopo `write_repository`. Copie o token: ele é exibido uma vez só;
+3. no Git Bash, antes de clonar qualquer coisa:
+
+```bash
+git config --global credential.helper ""
+```
+
+4. quando o `push` perguntar, o usuário é o seu GRR e a senha é o token.
+
+> **Por que o comando do item 3.** O Git for Windows salva as credenciais no
+> Gerenciador de Credenciais do Windows, que guarda uma lista por usuário do
+> sistema. Como toda a turma entra nestas máquinas com a conta `Laboratório`, o
+> seu token ficaria à disposição do próximo aluno que sentar aqui, com
+> permissão de escrita nos seus repositórios. O valor vazio desliga esse
+> armazenamento, e o Git passa a perguntar a senha a cada `push`.
+
+Antes de sair da máquina, revogue o token, apague a pasta do repositório clonado
+e saia da sua conta no navegador.
+
+## 18. Fork, clone e push
 
 Esta é a retomada do ciclo da seção 2, agora com um repositório remoto no meio.
 
@@ -837,7 +879,7 @@ git push
 
 Repita `add`, `commit` e `push` a cada item resolvido.
 
-## 18. Quando o push é recusado
+## 19. Quando o push é recusado
 
 Situação real: você deu `push` de casa na quarta e, na sexta, no laboratório,
 está com uma cópia antiga. O Git recusa o envio:
@@ -889,7 +931,7 @@ Agora o `git push` é aceito.
 **Hábito que evita o problema:** dê `git pull` ao **começar** a trabalhar, antes
 de editar qualquer arquivo, e `git push` ao terminar.
 
-## 19. Conflito de mesclagem
+## 20. Conflito de mesclagem
 
 O `pull` da seção anterior funcionou porque as duas máquinas mexeram em arquivos
 diferentes. Quando as duas alteram **a mesma linha do mesmo arquivo**, o Git não
@@ -956,7 +998,7 @@ preenchida. Basta salvar e sair.
 > você entre duas alterações incompatíveis. O erro seria resolvê-lo apagando o
 > trabalho do colega sem ler.
 
-## 20. Exercícios
+## 21. Exercícios
 
 **Estes exercícios valem nota** e compõem o item *Exercícios em sala* da média.
 **A entrega é até o final do encontro de hoje.**
@@ -1003,7 +1045,7 @@ segundo *commit* e envie os dois com `git push`.
 `README.md` a saída de `git check-ignore -v rascunho.log`. Versione o
 `.gitignore` e envie.
 
-**5.** Provoque um conflito seguindo a seção 19: edite o `README.md` pelo site
+**5.** Provoque um conflito seguindo a seção 20: edite o `README.md` pelo site
 do GitLab, edite **a mesma linha** na sua máquina, e dê `git pull`. Resolva o
 conflito, grave e envie. Ainda no `README.md`, descreva em até três frases o que
 o Git mostrou e como vocês decidiram qual versão manter.
@@ -1040,3 +1082,5 @@ identificadores que aparecerem.
   entrega possível sem dar acesso de escrita ao repositório do professor.
 * Conflito acontece quando duas alterações tocam a mesma linha. O Git marca o
   arquivo e a decisão é sua.
+* A senha da conta não autentica operações de Git. No laboratório vale um token
+  de acesso pessoal descartável; no seu computador, uma chave SSH.

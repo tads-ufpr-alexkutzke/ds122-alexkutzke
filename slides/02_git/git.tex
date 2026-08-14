@@ -725,7 +725,8 @@ git commit -m "Ignora arquivos de senha e de log"
 
   \begin{itemize}
     \item repositório inexistente ou privado devolve erro de autenticação, e o
-          Git pede usuário e senha;
+          Git para para pedir usuário e senha. A senha não é a da conta: é um
+          \textbf{token};
     \item rede do laboratório com a porta bloqueada faz o \texttt{push} falhar
           por tempo esgotado, sem nada de errado no seu repositório.
   \end{itemize}
@@ -851,6 +852,74 @@ git commit -m "Ignora arquivos de senha e de log"
   \vspace{0.4cm}
   Trabalhando em dupla, apenas um dos dois faz o \textit{fork}, e adiciona o
   colega ao repositório como \texttt{developer}.
+\end{frame}
+
+\begin{frame}{A senha da conta não autentica o \texttt{push}}
+  Desde abril de 2026 o GitLab exige um segundo fator em todo login feito com
+  senha, e o \texttt{git push} não tem como parar para pedir um código.
+
+  \vspace{0.4cm}
+  \begin{center}
+    \small
+    \begin{tabular}{lll}
+      \toprule
+      \textbf{Onde} & \textbf{Credencial} & \textbf{Endereço do remoto} \\
+      \midrule
+      Laboratório & token de um dia & \texttt{https://...} \\
+      Seu computador & chave SSH & \texttt{git@gitlab.com:...} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  Hoje, aqui, usamos o token. O caminho da chave SSH está no material, em
+  \textbf{Autenticação no GitLab}.
+\end{frame}
+
+\begin{frame}{Token do dia}
+  \begin{nonavegador}
+    \begin{enumerate}
+      \item em \textbf{janela anônima}, entre no GitLab. Ele envia um código
+            para o seu e-mail da UFPR e o pede na tela;
+      \item avatar, \textbf{Edit profile}, \textbf{Access > Personal access
+            tokens}, \textbf{Generate token};
+      \item \textbf{Token name}: \texttt{laboratorio-} e a data de hoje;
+      \item \textbf{Expiration date}: amanhã;
+      \item \textbf{Scopes}: apenas \texttt{write\_repository};
+      \item \textbf{Generate token}, e copie o que aparecer.
+    \end{enumerate}
+  \end{nonavegador}
+
+  \vspace{0.3cm}
+  \begin{alertblock}{}
+    O token é exibido \textbf{uma única vez}. Saiu da página, não há como
+    recuperá-lo.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Usar o token, e não deixá-lo na máquina}
+  \begin{noterminal}
+    \begin{minted}{bash}
+git config --global credential.helper ""
+    \end{minted}
+  \end{noterminal}
+
+  O valor vazio desliga o Gerenciador de Credenciais do Windows. Sem ele, o Git
+  pergunta a cada \texttt{push} e não grava nada em disco.
+
+  \begin{minted}{text}
+Username for 'https://gitlab.com': grr20249999
+Password for 'https://grr20249999@gitlab.com':
+  \end{minted}
+
+  Usuário é o GRR, senha é o token. Nada aparece enquanto você cola, e colar no
+  Git Bash é \texttt{Shift+Insert}.
+
+  \vspace{0.2cm}
+  \begin{alertblock}{Antes de sair}
+    Revogue o token, apague a pasta clonada e saia da conta no navegador. Toda a
+    turma entra nesta máquina como \texttt{Laboratório}.
+  \end{alertblock}
 \end{frame}
 
 \begin{frame}[fragile]{\texttt{git clone}}

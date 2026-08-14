@@ -62,6 +62,11 @@ o reenvio na tela de login.
 Pode aparecer uma verificação por telefone, com envio de código por SMS. É o
 sistema antifraude do GitLab, e informar o número resolve.
 
+A partir do primeiro login, o GitLab pede um **código de verificação** enviado
+para o seu e-mail da UFPR toda vez que você entrar com senha. É a autenticação
+em dois fatores, obrigatória no serviço desde abril de 2026. Mantenha o webmail
+da UFPR acessível quando for usar o GitLab, inclusive em aula.
+
 > Se alguma tela exigir **cartão de crédito** para continuar, pare e avise o
 > professor. O cartão só é pedido para usar os servidores de integração
 > contínua do GitLab, recurso que a disciplina não utiliza.
@@ -155,7 +160,9 @@ Antes de fechar o navegador, confirme:
 - [ ] o e-mail cadastrado é o da UFPR, e já foi confirmado;
 - [ ] o nome completo está preenchido no perfil;
 - [ ] o grupo `ds122-2026-2-turno-grr` existe, é **privado** e tem o
-      `alexkutzke` como `Reporter`.
+      `alexkutzke` como `Reporter`;
+- [ ] você consegue entrar na conta usando o código de verificação enviado para
+      o e-mail da UFPR.
 
 ## Problemas comuns
 

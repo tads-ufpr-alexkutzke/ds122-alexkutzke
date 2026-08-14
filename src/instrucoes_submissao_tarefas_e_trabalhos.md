@@ -41,7 +41,11 @@ Para mantermos uma organização das tarefas submetidas, siga os seguintes passo
 3. Vá na tela de membros do grupo e adicione o usuário `alexkutzke` (o primeiro da lista) com o perfil `reporter` ao seu novo grupo;
 4. Acesse o repositório da tarefa passado pelo professor;
 5. Faça um fork do repositório e indique ao Gitlab para armazená-lo no grupo criado;
-6. Realize a tarefa utilizando o repositório criado para alterar e salvar arquivos,
+6. Antes do primeiro `git clone`, prepare a credencial conforme
+   [Autenticação no GitLab](./instrucoes_autenticacao_git.md): um token de
+   acesso pessoal nos computadores do laboratório, uma chave SSH no seu
+   computador. A senha da conta não autentica operações de Git;
+7. Realize a tarefa utilizando o repositório criado para alterar e salvar arquivos,
 obedecendo prazo de entrega indicado pelo professor.
 
 O grupo deve ser criado apenas uma vez por aluno e deve conter todos os
