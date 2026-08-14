@@ -937,7 +937,7 @@ O `pull` da seção anterior funcionou porque as duas máquinas mexeram em arqui
 diferentes. Quando as duas alteram **a mesma linha do mesmo arquivo**, o Git não
 tem como decidir e para, pedindo que você decida.
 
-Provoque o caso. Na página do seu *fork*, no GitLab, edite o `README.md` pelo
+Provoque o caso. Na página do seu *fork*, no GitLab, edite o `respostas.md` pelo
 próprio site (ícone de lápis), altere a primeira linha e confirme a alteração.
 Na sua máquina, sem dar `pull`, altere **a mesma linha** para outra coisa e
 grave:
@@ -948,8 +948,8 @@ git pull
 ```
 
 ```
-Auto-merging README.md
-CONFLICT (content): Merge conflict in README.md
+Auto-merging respostas.md
+CONFLICT (content): Merge conflict in respostas.md
 Automatic merge failed; fix conflicts and then commit the result.
 ```
 
@@ -962,7 +962,7 @@ You have unmerged paths.
 
 Unmerged paths:
   (use "git add <file>..." to mark resolution)
-	both modified:   README.md
+	both modified:   respostas.md
 ```
 
 Abra o arquivo no editor. O Git escreveu as duas versões dentro dele, separadas
@@ -970,9 +970,9 @@ por marcadores:
 
 ```
 <<<<<<< HEAD
-# Catálogo Verde
+# Respostas, alterado na máquina local
 =======
-# Catálogo de Produtos da Ana
+# Respostas, alterado pelo site
 >>>>>>> c34ab3031b9f162880e357de2a5bc27e68d9b6ca
 ```
 
@@ -986,7 +986,7 @@ versões, com a outra, ou escrever uma terceira. Depois disso, marque como
 resolvido e grave:
 
 ```bash
-git add README.md
+git add respostas.md
 git commit
 git push
 ```

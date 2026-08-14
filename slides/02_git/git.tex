@@ -948,8 +948,8 @@ origin	https://gitlab.com/ana/catalogo.git (push)
     \begin{minted}{bash}
 git config user.name "Seu Nome Completo"
 git config user.email "seuemail@example.com"
-git add README.md
-git commit -m "Registra os integrantes da dupla"
+git add respostas.md
+git commit -m "Registra os integrantes"
 git push
     \end{minted}
   \end{noterminal}
@@ -1049,7 +1049,7 @@ git pull
 
 \begin{frame}[fragile]{Provocar o conflito}
   \begin{nonavegador}
-    No seu \textit{fork}, edite o \texttt{README.md} pelo próprio site (ícone de
+    No seu \textit{fork}, edite o \texttt{respostas.md} pelo próprio site (ícone de
     lápis), altere a primeira linha e confirme a alteração.
   \end{nonavegador}
 
@@ -1061,8 +1061,8 @@ git pull
   \end{noterminal}
 
   \begin{minted}{text}
-Auto-merging README.md
-CONFLICT (content): Merge conflict in README.md
+Auto-merging respostas.md
+CONFLICT (content): Merge conflict in respostas.md
 Automatic merge failed; fix conflicts and then commit the result.
   \end{minted}
 
@@ -1083,7 +1083,7 @@ You have unmerged paths.
 
 Unmerged paths:
   (use "git add <file>..." to mark resolution)
-	both modified:   README.md
+	both modified:   respostas.md
   \end{minted}
 
   O \texttt{git merge \ddash abort} desfaz a mesclagem inteira e devolve o
@@ -1091,14 +1091,14 @@ Unmerged paths:
 \end{frame}
 
 \begin{frame}[fragile]{Os marcadores dentro do arquivo}
-  Abra o \texttt{README.md} no editor. O Git escreveu as duas versões dentro
+  Abra o \texttt{respostas.md} no editor. O Git escreveu as duas versões dentro
   dele:
 
   \begin{minted}{text}
 <<<<<<< HEAD
-# Catálogo Verde
+# Respostas, alterado na máquina local
 =======
-# Catálogo de Produtos da Ana
+# Respostas, alterado pelo site
 >>>>>>> c34ab3031b9f162880e357de2a5bc27e68d9b6ca
   \end{minted}
 
@@ -1117,7 +1117,7 @@ Unmerged paths:
 
   \begin{noterminal}
     \begin{minted}{bash}
-git add README.md
+git add respostas.md
 git commit
 git push
     \end{minted}
@@ -1163,7 +1163,7 @@ git push
   \textbf{Mob Programming}.
 
   \vspace{0.4cm}
-  Registrem no \texttt{README.md} o nome completo e o GRR de cada integrante.
+  Registrem no \texttt{respostas.md} o nome completo e o GRR de cada integrante.
 
   \vspace{0.4cm}
   \begin{block}{}
@@ -1184,7 +1184,7 @@ git push
 
   \vspace{0.4cm}
   São cinco itens, mais um desafio para quem terminar antes. Todos mexem em
-  pouca coisa: editar o \texttt{README.md} e criar alguns arquivos.
+  pouca coisa: preencher o \texttt{respostas.md} e criar alguns arquivos.
 
   \vspace{0.4cm}
   \begin{alertblock}{}
