@@ -1157,14 +1157,13 @@ git push
 \end{frame}
 
 \begin{frame}{Como trabalhar}
-  Em dupla, no formato de \textbf{Mob Programming}: um dos dois faz o
-  \textit{fork} no próprio grupo e adiciona o colega ao repositório como
-  \texttt{developer}. Registrem no \texttt{README.md} o nome completo e o GRR
-  dos dois.
+  A tarefa pode ser feita \textbf{individualmente ou em dupla}. Em dupla, apenas
+  um dos dois faz o \textit{fork} no próprio grupo e adiciona o colega ao
+  repositório como \texttt{developer}, e a forma de trabalho sugerida é o
+  \textbf{Mob Programming}.
 
   \vspace{0.4cm}
-  São cinco itens, e todos mexem em pouca coisa: editar o \texttt{README.md} e
-  criar alguns arquivos.
+  Registrem no \texttt{README.md} o nome completo e o GRR de cada integrante.
 
   \vspace{0.4cm}
   \begin{block}{}
@@ -1177,60 +1176,22 @@ git push
   sugerido no material da disciplina.
 \end{frame}
 
-\begin{frame}[fragile]{Exercícios 1 a 3}
-  \begin{enumerate}
-    \item \textit{Fork}, \texttt{clone} e configuração de \texttt{user.name} e
-          \texttt{user.email} dentro do repositório. No \texttt{README.md},
-          nome completo e GRR dos dois integrantes. Grave, envie e confira no
-          navegador.
-
-    \item Crie \texttt{anotacoes.md} com um resumo, em suas palavras, da
-          diferença entre diretório de trabalho, área de preparação e
-          repositório. \textit{Commit} separado, com mensagem descritiva.
-
-    \item Crie \texttt{contato.html} e \texttt{sobre.html} de uma vez, com uma
-          linha em cada. Prepare \textbf{apenas o \texttt{contato.html}} e
-          grave. Cole no \texttt{README.md} a saída de
-          \texttt{git status \ddash short} obtida logo depois, com uma frase
-          explicando por que o \texttt{sobre.html} ficou de fora. Grave o
-          segundo \textit{commit} e envie os dois.
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}[fragile]{Exercícios 4 e 5}
-  \begin{enumerate}
-    \setcounter{enumi}{3}
-    \item Crie \texttt{rascunho.log} e um \texttt{.gitignore} que o esconda.
-          Cole no \texttt{README.md} a saída de
-          \texttt{git check-ignore -v rascunho.log}. Versione o
-          \texttt{.gitignore} e envie.
-
-    \item Provoque um conflito: edite o \texttt{README.md} pelo site do GitLab,
-          edite a mesma linha na sua máquina, e dê \texttt{git pull}. Resolva,
-          grave e envie. Ainda no \texttt{README.md}, descreva em até três
-          frases o que o Git mostrou e como vocês decidiram qual versão manter.
-  \end{enumerate}
-
-  \vspace{0.5cm}
-  Ao terminar, abra o \textit{fork} no navegador e confirme que todos os
-  \textit{commits} estão lá. \textit{Commit} que não foi enviado não existe para
-  quem corrige.
-\end{frame}
-
-\begin{frame}[fragile]{Desafio}
-  Para quem terminar antes.
+\begin{frame}{Exercícios}
+  \begin{block}{Onde está o enunciado}
+    O endereço do repositório da tarefa está na atividade da \textbf{UFPR
+    Virtual}. O enunciado completo é o \texttt{README.md} desse repositório.
+  \end{block}
 
   \vspace{0.4cm}
-  Um \textit{commit} guarda a fotografia completa do projeto, mas o Git não
-  duplica o conteúdo de arquivos que não mudaram. Descubra o que de fato muda,
-  na estrutura interna, entre dois \textit{commits} seguidos.
+  São cinco itens, mais um desafio para quem terminar antes. Todos mexem em
+  pouca coisa: editar o \texttt{README.md} e criar alguns arquivos.
 
-  \begin{minted}{bash}
-git cat-file -p HEAD
-  \end{minted}
-
-  Siga os identificadores que aparecerem na saída, um a um, sempre com
-  \texttt{git cat-file -p}.
+  \vspace{0.4cm}
+  \begin{alertblock}{}
+    Ao terminar, abra o seu \textit{fork} no navegador e confirme que todos os
+    \textit{commits} estão lá. \textit{Commit} que não foi enviado não existe
+    para quem corrige.
+  \end{alertblock}
 \end{frame}
 
 % ==========================================

@@ -1003,63 +1003,24 @@ preenchida. Basta salvar e sair.
 **Estes exercícios valem nota** e compõem o item *Exercícios em sala* da média.
 **A entrega é até o final do encontro de hoje.**
 
+O enunciado fica no `README.md` do repositório-modelo da tarefa, e o endereço
+desse repositório está na atividade correspondente na **UFPR Virtual**. É lá que
+o enunciado é mantido atualizado, e não aqui.
+
 A entrega é o próprio *fork* no GitLab, com os *commits* pedidos e o `push`
 feito. **Não há link a enviar em lugar nenhum**: o professor recolhe os
 repositórios pelo nome do grupo. O que precisa estar certo é o nome do grupo, o
 `alexkutzke` como `reporter` e o *fork* dentro do grupo.
 
-O endereço do repositório-modelo está na atividade da UFPR Virtual. Trabalhe em
-dupla no formato de [Mob Programming](./00_mob_programming.md): um dos dois faz
-o *fork* no próprio grupo e adiciona o colega ao repositório como `developer`.
-Registrem no `README.md` o nome completo e o GRR dos dois. Ao usar IA generativa
-durante a aula, aplique o
+A tarefa pode ser feita **individualmente ou em dupla**. Em dupla, apenas um dos
+dois faz o *fork* no próprio grupo e adiciona o colega ao repositório como
+`developer`, e a forma de trabalho sugerida é o
+[Mob Programming](./00_mob_programming.md). Ao usar IA generativa durante a
+aula, aplique o
 [pré-prompt sugerido](./00_pre_prompt_para_ia_gen_durante_aulas.md).
 
-São cinco itens, e todos mexem em pouca coisa: editar o `README.md` e criar
-alguns arquivos. O que está sendo avaliado é o **histórico** que vocês
-produzirem, e não o conteúdo dos arquivos.
-
-**1.** Faça o *fork* do repositório da tarefa, clone-o e configure `user.name` e
-`user.email` dentro dele. No `README.md`, escreva o nome completo e o GRR dos
-dois integrantes. Grave e envie:
-
-```bash
-git add README.md
-git commit -m "Registra os integrantes da dupla"
-git push
-```
-
-Confira no navegador que o *commit* apareceu no GitLab antes de seguir.
-
-**2.** Crie um arquivo `anotacoes.md` com um resumo, em suas palavras, da
-diferença entre o diretório de trabalho, a área de preparação e o repositório.
-Grave em um *commit* separado, com mensagem descritiva.
-
-**3.** Crie dois arquivos novos de uma vez, `contato.html` e `sobre.html`, com
-uma linha qualquer em cada. Prepare **apenas o `contato.html`** e grave o
-*commit*. Logo depois, cole no `README.md` a saída de `git status --short` e
-escreva uma frase explicando por que o `sobre.html` ficou de fora. Grave esse
-segundo *commit* e envie os dois com `git push`.
-
-**4.** Crie um arquivo `rascunho.log` e um `.gitignore` que o esconda. Cole no
-`README.md` a saída de `git check-ignore -v rascunho.log`. Versione o
-`.gitignore` e envie.
-
-**5.** Provoque um conflito seguindo a seção 20: edite o `README.md` pelo site
-do GitLab, edite **a mesma linha** na sua máquina, e dê `git pull`. Resolva o
-conflito, grave e envie. Ainda no `README.md`, descreva em até três frases o que
-o Git mostrou e como vocês decidiram qual versão manter.
-
-Ao terminar, abra o *fork* no navegador e confirme que todos os *commits* estão
-lá. Commit que não foi enviado não existe para quem corrige.
-
-### Desafio
-
-Para quem terminar antes. Um *commit* guarda a fotografia completa do projeto,
-mas o Git não duplica o conteúdo de arquivos que não mudaram. Descubra, usando
-`git cat-file -p` sobre o *hash* de dois *commits* seguidos, o que de fato muda
-entre eles na estrutura interna. Comece por `git cat-file -p HEAD` e siga os
-identificadores que aparecerem.
+O que está sendo avaliado é o **histórico** produzido, e não o conteúdo dos
+arquivos.
 
 ---
 
