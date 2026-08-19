@@ -23,4 +23,4 @@
 - [PHP e Formulários](./aula_12_php_forms.md)
 - [PHP e MySQL](./aula_13_php_mysql.md)
 - [Cookies e Sessions](./aula_14_cookies_session.md)
-- [Especificação do trabalho prático](./especificacao_trabalho_01_26.md)
+- [Especificação do trabalho prático](./especificacao_trabalho_02_26.md)
