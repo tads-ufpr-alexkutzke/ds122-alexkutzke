@@ -30,7 +30,7 @@ Prof. Alexander Robert Kutzke
 * [Apresentação e Ambiente de Desenvolvimento](src/aula_01.md)
 * [Git e Gitlab](src/aula_02_git.md)
 * [Protocolo HTTP](src/aula_03_http.md)
-* [HTML](src/aula_04_html.md)
+* [HTML5](src/aula_04_html.md)
 * [CSS](src/aula_05_css.md)
 * [Javascript](src/aula_06_00_js.md)
 * [Exercícios de Javascript](src/aula_06_01_js_exercicios.md)

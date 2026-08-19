@@ -9,7 +9,7 @@
 - [Apresentação e Ambiente de Desenvolvimento](./aula_01.md)
 - [Git e GitLab](./aula_02_git.md)
 - [Protocolo HTTP](./aula_03_http.md)
-- [HTML](./aula_04_html.md)
+- [HTML5](./aula_04_html.md)
 - [CSS](./aula_05_css.md)
 - [Javascript](./aula_06_00_js.md)
 - [Exercícios de Javascript](./aula_06_01_js_exercicios.md)

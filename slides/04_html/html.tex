@@ -1,0 +1,775 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+\newcommand{\ddash}{-\mbox{}-}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{04 - HTML5}
+\author{Prof. Alex Kutzke}
+\date{Agosto de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+  \begin{center}
+    \large{Setor de Educação Profissional e Tecnológica}\\
+    Tecnologia em Análise e Desenvolvimento de Sistemas\\
+    \vspace{1cm}
+    \small{DS122 - Desenvolvimento de Aplicações Web 1}
+  \end{center}
+  \titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+  Ao final desta aula você deve ser capaz de:
+  \begin{enumerate}
+    \item Escrever um documento HTML5 válido a partir do zero;
+    \item Escolher o elemento certo pelo significado do conteúdo, e não pela
+          aparência;
+    \item Explicar como o navegador transforma o arquivo na árvore que exibe;
+    \item Construir formulários e relacionar cada campo com a requisição HTTP;
+    \item Aplicar validação nativa e dizer por que ela não substitui o servidor;
+    \item Corrigir decisões de marcação que quebram a acessibilidade;
+    \item Validar o documento no W3C e interpretar os erros.
+  \end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+  \tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Fundamentos}
+% ==========================================
+
+\begin{frame}[fragile]{O que o navegador recebe}
+  Na aula passada, o corpo da resposta veio como texto:
+
+  \begin{minted}{text}
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html lang="pt-br">
+...
+  \end{minted}
+
+  \vspace{0.3cm}
+  O servidor manda \textbf{texto}. O navegador interpreta esse texto, monta uma
+  estrutura na memória e desenha a tela a partir dela.
+\end{frame}
+
+\begin{frame}{HyperText Markup Language}
+  \begin{block}{Linguagem de marcação}
+    O conteúdo continua sendo texto comum. As \textbf{marcas} dizem o que cada
+    trecho é: isto é um título, aquilo é um link, aquele outro é um parágrafo.
+  \end{block}
+
+  \vspace{0.5cm}
+  HTML descreve conteúdo e estrutura. Não há variável, condicional nem laço:
+  a linguagem anota um texto, e só.
+
+  \vspace{0.3cm}
+  O que o \texttt{Content-Type: text/html} faz é avisar o navegador de que aquele
+  corpo deve ser interpretado, e não exibido literalmente.
+\end{frame}
+
+\begin{frame}[fragile]{Elemento, tag e conteúdo}
+  \begin{minted}{html}
+<p>Este é um parágrafo.</p>
+  \end{minted}
+
+  \begin{itemize}
+    \item \texttt{<p>}: tag de abertura;
+    \item \texttt{</p>}: tag de fechamento;
+    \item entre as duas: o conteúdo do elemento.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Elementos \textbf{vazios} não têm conteúdo nem fechamento:
+
+  \begin{minted}{html}
+<img src="foto.jpg" alt="Bancada do laboratório">
+<br>
+<hr>
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Atributos}
+  \begin{minted}{html}
+<a href="https://www.ufpr.br" title="Página da UFPR">UFPR</a>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item ficam na tag de \textbf{abertura};
+    \item nome fixo, definido pela especificação;
+    \item valor entre \textbf{aspas duplas}.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Atributo inventado não gera erro. Simplesmente nada acontece.
+\end{frame}
+
+\begin{frame}[fragile]{Aninhamento}
+  \begin{minted}{html}
+<p>Um <strong>aviso <em>importante</em></strong> no texto.</p>
+  \end{minted}
+
+  \vspace{0.3cm}
+  O que abre por último fecha primeiro.
+
+  \vspace{0.5cm}
+  \begin{alertblock}{Marcação cruzada}
+    \texttt{<strong><em></strong></em>} está errado. O navegador
+    \textbf{não} recusa: ele adivinha e segue em frente.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{O navegador nunca reclama}
+  Diferente de um compilador, o navegador jamais recusa uma página. Diante de
+  marcação quebrada, aplica regras de recuperação de erro e exibe algo.
+
+  \vspace{0.5cm}
+  O resultado típico:
+  \begin{itemize}
+    \item funciona na sua máquina;
+    \item quebra na do colega;
+    \item fica ilegível para um leitor de tela.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  Por isso existe o validador do W3C, no fim da aula.
+\end{frame}
+
+% ==========================================
+\section{O documento}
+% ==========================================
+
+\begin{frame}[fragile]{Estrutura mínima}
+  \begin{minted}{html}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Catálogo de Produtos</title>
+</head>
+<body>
+  <h1>Catálogo de Produtos</h1>
+</body>
+</html>
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Cada linha do esqueleto tem função}
+  \begin{itemize}
+    \item \texttt{<!DOCTYPE html>}: sem ele, o navegador entra em modo de
+          compatibilidade com os anos 1990 e o layout muda;
+    \item \texttt{lang="pt-br"}: pronúncia do leitor de tela, classificação em
+          buscadores;
+    \item \texttt{charset="utf-8"}: sem isso, os acentos viram símbolos
+          estranhos;
+    \item \texttt{viewport}: sem isso, o celular finge ser um monitor e o site
+          aparece reduzido;
+    \item \texttt{<title>}: aba, favorito e resultado de busca.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{head}: informação sobre o documento. \quad \textbf{body}: o que aparece.
+\end{frame}
+
+\begin{frame}[fragile]{Do arquivo para a árvore}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{minted}{html}
+<body>
+  <h1>Produtos</h1>
+  <ul>
+    <li>Teclado</li>
+    <li>Monitor</li>
+  </ul>
+</body>
+      \end{minted}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{minted}{text}
+body
+|-- h1
+|   \-- "Produtos"
+\-- ul
+    |-- li
+    |   \-- "Teclado"
+    \-- li
+        \-- "Monitor"
+      \end{minted}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.4cm}
+  Essa árvore é o \textbf{DOM} (\textit{Document Object Model}).
+\end{frame}
+
+\begin{frame}{Por que a árvore importa desde já}
+  \begin{itemize}
+    \item o CSS estiliza a árvore, e o JavaScript manipula a árvore. Nenhum dos
+          dois enxerga o texto do seu arquivo;
+    \item aninhar errado desloca o galho inteiro;
+    \item as ferramentas do navegador mostram a árvore \textbf{já corrigida},
+          e por isso ela às vezes difere do que você escreveu.
+  \end{itemize}
+
+  \vspace{0.5cm}
+  O DOM volta em detalhe na aula de JavaScript.
+\end{frame}
+
+% ==========================================
+\section{Conteúdo}
+% ==========================================
+
+\begin{frame}[fragile]{Títulos}
+  \begin{minted}{html}
+<h1>Catálogo de Produtos</h1>
+<h2>Periféricos</h2>
+<h3>Teclados</h3>
+  \end{minted}
+
+  \vspace{0.3cm}
+  De \texttt{h1} a \texttt{h6}, em ordem de importância.
+
+  \begin{alertblock}{Não pule níveis}
+    Escolher \texttt{h3} porque a letra sai menor quebra o índice da página. O
+    tamanho se resolve no CSS, semana que vem.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Parágrafos, quebras e ênfase}
+  \begin{minted}{html}
+<p>Preço <strong>promocional</strong>, válido <em>hoje</em>.</p>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item o HTML ignora quebras de linha e espaços repetidos do arquivo. Quem
+          separa parágrafos é a marcação;
+    \item \texttt{<br>} serve para quebra que faz parte do conteúdo, como
+          endereço. Nunca para criar espaço vertical;
+    \item \texttt{<strong>} e \texttt{<em>} têm significado; \texttt{<b>} e
+          \texttt{<i>} só mudam a aparência.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Listas}
+  \begin{minted}{html}
+<ul>                          <ol>
+  <li>Teclado</li>              <li>Abrir o editor</li>
+  <li>Monitor</li>              <li>Criar o arquivo</li>
+</ul>                         </ol>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \texttt{ul} quando a ordem não importa, \texttt{ol} quando importa. Filho
+  direto de lista é sempre \texttt{li}.
+
+  \vspace{0.3cm}
+  Menu de navegação é uma lista de links, e deve ser marcado como tal.
+\end{frame}
+
+\begin{frame}[fragile]{Links e caminhos}
+  \begin{minted}{html}
+<a href="catalogo.html">Ver o catálogo</a>
+<a href="../index.html">Voltar</a>
+<a href="#contato">Ir para o contato</a>
+<a href="https://www.ufpr.br" target="_blank" rel="noopener">UFPR</a>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item relativo entre páginas do seu próprio site;
+    \item caminho do seu disco (\texttt{file:///C:/Users/...}) funciona só na sua
+          máquina;
+    \item o texto do link precisa dizer para onde ele leva. Dez links escritos
+          \textit{clique aqui} não informam nada a quem usa leitor de tela.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Imagens}
+  \begin{minted}{html}
+<img src="imagens/teclado.jpg"
+     alt="Teclado mecânico preto, vista superior">
+  \end{minted}
+
+  \vspace{0.3cm}
+  O \texttt{alt} é lido em voz alta, aparece quando a imagem falha e é indexado
+  por buscadores.
+
+  \begin{block}{Decoração}
+    \texttt{alt=""} vazio faz o leitor de tela ignorar a imagem. \textbf{Omitir}
+    o atributo faz ele ler o nome do arquivo.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Figura com legenda}
+  \begin{minted}{html}
+<figure>
+  <img src="imagens/teclado.jpg"
+       alt="Teclado mecânico preto, vista superior">
+  <figcaption>Teclado ABNT2, switches marrons.</figcaption>
+</figure>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \texttt{alt} descreve a imagem para quem não a vê. \texttt{figcaption} é a
+  legenda, lida por todos.
+\end{frame}
+
+\begin{frame}[fragile]{Tabelas}
+  \begin{minted}{html}
+<table>
+  <caption>Especificações</caption>
+  <thead>
+    <tr><th scope="col">Componente</th><th scope="col">Preço</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Processador</td><td>R$ 890,00</td></tr>
+  </tbody>
+  <tfoot>
+    <tr><td>Total</td><td>R$ 1.210,00</td></tr>
+  </tfoot>
+</table>
+  \end{minted}
+
+  \vspace{0.2cm}
+  \small \texttt{scope} permite ao leitor de tela anunciar
+  \textit{Processador, preço, 890 reais}.
+\end{frame}
+
+\begin{frame}{Tabela é para dado tabular}
+  \begin{alertblock}{}
+    Antes do CSS, o mercado inteiro usava tabela para posicionar coisas na tela.
+    Hoje isso é erro de acessibilidade: o leitor de tela anuncia linhas e colunas
+    que não existem.
+  \end{alertblock}
+
+  \vspace{0.5cm}
+  Layout se faz com CSS, na aula que vem.
+\end{frame}
+
+% ==========================================
+\section{Semântica e acessibilidade}
+% ==========================================
+
+\begin{frame}{Tudo poderia ser div}
+  \texttt{<div>} é um elemento genérico, sem significado nenhum. Uma página feita
+  só de \texttt{div} funciona.
+
+  \vspace{0.5cm}
+  E vira uma pilha de caixas indistinguíveis para quem não enxerga o layout: o
+  leitor de tela perde os pontos de referência, e o buscador não sabe o que é
+  conteúdo e o que é menu.
+\end{frame}
+
+\begin{frame}{Elementos estruturais}
+  \begin{itemize}
+    \item \texttt{<header>}: cabeçalho da página ou de uma seção;
+    \item \texttt{<nav>}: bloco de links de navegação;
+    \item \texttt{<main>}: conteúdo principal, único por página;
+    \item \texttt{<article>}: conteúdo que faz sentido sozinho;
+    \item \texttt{<section>}: agrupamento temático, com título próprio;
+    \item \texttt{<aside>}: conteúdo lateral, relacionado mas não essencial;
+    \item \texttt{<footer>}: rodapé da página ou da seção.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Uma página típica}
+  \begin{minted}{html}
+<body>
+  <header>
+    <h1>Catálogo</h1>
+    <nav><ul><li><a href="index.html">Início</a></li></ul></nav>
+  </header>
+  <main>
+    <section>
+      <h2>Destaques</h2>
+      <article><h3>Teclado mecânico</h3><p>ABNT2.</p></article>
+    </section>
+  </main>
+  <footer><p>Fulano de Tal, GRR20260000.</p></footer>
+</body>
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Como escolher o elemento}
+  Pergunte o que o bloco \textbf{é}, e não onde ele aparece na tela.
+
+  \vspace{0.4cm}
+  \begin{itemize}
+    \item recorto e publico sozinho? \texttt{article};
+    \item agrupa assuntos sob um título? \texttt{section};
+    \item nenhum elemento descreve o papel e eu só preciso de um agrupamento
+          para estilizar? aí sim \texttt{div}, ou \texttt{span} dentro de uma
+          linha de texto.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Acessibilidade: o que já resolve a maior parte}
+  \begin{itemize}
+    \item \texttt{lang} no elemento \texttt{html};
+    \item títulos em ordem, sem pular níveis;
+    \item \texttt{alt} em toda imagem;
+    \item texto de link que diz para onde leva;
+    \item \texttt{<label>} ligado a cada campo de formulário;
+    \item elementos estruturais no lugar de \texttt{div} genérico.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  Quase tudo sai de marcação correta, sem trabalho extra. Sites públicos no
+  Brasil são obrigados a isso pelo eMAG e pela Lei Brasileira de Inclusão.
+\end{frame}
+
+\begin{frame}{Teclado e ARIA}
+  \begin{block}{Teclado}
+    Link, botão e campo são alcançáveis por \texttt{Tab} porque são elementos
+    nativos. Uma \texttt{div} com clique preso por JavaScript não é, e quem usa
+    só teclado não consegue ativá-la.
+  \end{block}
+
+  \vspace{0.4cm}
+  \begin{block}{ARIA}
+    Atributos como \texttt{aria-label} e \texttt{role} complementam o significado
+    quando o HTML não dá conta. A primeira regra da especificação: não use ARIA
+    quando existe elemento HTML com aquele papel.
+  \end{block}
+
+  \vspace{0.3cm}
+  \small Teste barato: percorra a sua página só com \texttt{Tab}.
+\end{frame}
+
+% ==========================================
+\section{Formulários}
+% ==========================================
+
+\begin{frame}[fragile]{Formulário mínimo}
+  \begin{minted}{html}
+<form action="processa.php" method="post">
+  <label for="nome">Nome completo</label>
+  <input type="text" id="nome" name="nome" required>
+
+  <label for="email">E-mail</label>
+  <input type="email" id="email" name="email" required>
+
+  <button type="submit">Enviar</button>
+</form>
+  \end{minted}
+
+  \vspace{0.2cm}
+  \small Aqui a aula de HTTP encontra a de HTML.
+\end{frame}
+
+\begin{frame}{Os quatro atributos que importam}
+  \begin{itemize}
+    \item \texttt{action}: a URL que recebe os dados. Vazio, é a própria página;
+    \item \texttt{method}: com \texttt{get}, os dados vão na URL, à vista e no
+          histórico; com \texttt{post}, vão no corpo da requisição;
+    \item \texttt{name}: o nome do dado no envio. \textbf{Campo sem
+          \texttt{name} não é enviado};
+    \item \texttt{id}: identifica o elemento no documento e liga o
+          \texttt{<label>} ao campo pelo \texttt{for}.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  O que chega ao servidor é o par \texttt{name=valor}.
+\end{frame}
+
+\begin{frame}{Por que o label associado}
+  \begin{itemize}
+    \item o leitor de tela anuncia o rótulo ao chegar no campo;
+    \item o clique no texto move o foco para o campo, o que ajuda quem tem
+          dificuldade motora.
+  \end{itemize}
+
+  \vspace{0.5cm}
+  Rótulo solto num \texttt{<p>} ao lado não produz nenhum dos dois efeitos.
+
+  \vspace{0.5cm}
+  \texttt{placeholder} é exemplo dentro do campo, e some ao digitar. Não
+  substitui o \texttt{<label>}.
+\end{frame}
+
+\begin{frame}[fragile]{Tipos de campo}
+  \begin{minted}{html}
+<input type="text">      <input type="date">
+<input type="email">     <input type="tel">
+<input type="password">  <input type="url">
+<input type="number">    <input type="file">
+  \end{minted}
+
+  \vspace{0.3cm}
+  O \texttt{type} muda o teclado no celular, o controle exibido e a validação
+  aplicada.
+
+  \begin{alertblock}{password}
+    Esconde os caracteres na tela e nada mais. O valor viaja como os demais. Quem
+    protege o envio é o HTTPS.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{Escolha entre opções}
+  \begin{minted}{html}
+<fieldset>
+  <legend>Categoria</legend>
+  <input type="radio" id="p" name="categoria" value="perifericos">
+  <label for="p">Periféricos</label>
+  <input type="radio" id="c" name="categoria" value="componentes">
+  <label for="c">Componentes</label>
+</fieldset>
+
+<select id="uf" name="uf">
+  <option value="">Selecione...</option>
+  <option value="PR">Paraná</option>
+</select>
+  \end{minted}
+
+  \vspace{0.2cm}
+  \small Rádios do mesmo grupo compartilham o \texttt{name} e diferem no
+  \texttt{value}.
+\end{frame}
+
+\begin{frame}[fragile]{Caixa de seleção, área de texto e botões}
+  \begin{minted}{html}
+<input type="checkbox" id="ok" name="aceite" value="sim">
+<label for="ok">Aceito receber novidades</label>
+
+<textarea id="msg" name="mensagem" rows="5"></textarea>
+
+<button type="submit">Cadastrar</button>
+<button type="reset">Limpar</button>
+<button type="button">Só com JavaScript</button>
+  \end{minted}
+
+  \vspace{0.2cm}
+  \small Checkbox desmarcada não aparece na requisição. E o padrão de um
+  \texttt{<button>} dentro de formulário é \texttt{submit}: esquecer o
+  \texttt{type} recarrega a página sozinho.
+\end{frame}
+
+\begin{frame}[fragile]{Validação nativa}
+  \begin{minted}{html}
+<input type="text" name="sku" required
+       pattern="[A-Z]{3}[0-9]{4}"
+       title="Três letras maiúsculas e quatro números">
+
+<input type="number" name="quantidade" min="0" max="100" step="1">
+
+<input type="text" name="nome" minlength="3" maxlength="60">
+  \end{minted}
+
+  \vspace{0.2cm}
+  \small O \texttt{title} é o texto que o navegador mostra ao recusar o valor do
+  \texttt{pattern}.
+\end{frame}
+
+\begin{frame}{Validação no cliente não é segurança}
+  \begin{alertblock}{}
+    Toda essa checagem roda no navegador do usuário. Ele pode desativá-la pelas
+    ferramentas de desenvolvedor, ou nem usar navegador: um \texttt{curl} monta a
+    requisição à mão, com o conteúdo que quiser.
+  \end{alertblock}
+
+  \vspace{0.5cm}
+  A validação nativa existe para dar retorno imediato e poupar viagem ao
+  servidor.
+
+  \vspace{0.3cm}
+  O servidor \textbf{sempre} revalida tudo. Assunto da aula de PHP.
+\end{frame}
+
+\begin{frame}{O que o HTML não faz}
+  Aparência é CSS. Comportamento é JavaScript.
+
+  \vspace{0.4cm}
+  Por isso não se usa \texttt{<center>}, \texttt{<font>} nem \texttt{bgcolor},
+  todos obsoletos, e não se escolhe elemento pelo efeito visual que ele produz
+  por padrão.
+
+  \vspace{0.5cm}
+  \begin{block}{Teste de qualidade da marcação}
+    Desative o CSS e leia o que sobrou. Se o documento continua fazendo sentido
+    de cima a baixo, a estrutura está correta.
+  \end{block}
+\end{frame}
+
+% ==========================================
+\section{Prática}
+% ==========================================
+
+\begin{frame}{Sua primeira página}
+  \begin{enumerate}
+    \item crie a pasta do exercício e abra-a no VS Code;
+    \item crie \texttt{index.html} e digite o esqueleto \textbf{à mão};
+    \item acrescente um \texttt{h1} e um parágrafo;
+    \item salve e abra o arquivo no navegador. O endereço começa com
+          \texttt{file://};
+    \item editor e navegador lado a lado, \texttt{F5} a cada alteração.
+  \end{enumerate}
+
+  \vspace{0.3cm}
+  Crie também uma pasta \texttt{imagens/} ao lado do arquivo e referencie algo
+  dentro dela com \texttt{src="imagens/arquivo.jpg"}. Imagem que não aparece é
+  caminho errado.
+
+  \vspace{0.3cm}
+  \small No VS Code, \texttt{!} seguido de \texttt{Tab} gera o esqueleto. Use
+  depois de já saber escrevê-lo.
+\end{frame}
+
+\begin{frame}[fragile]{Inspecionar a árvore}
+  \texttt{F12}, aba \textbf{Elements} ou \textbf{Inspetor}.
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item passe o mouse pelos nós e veja o destaque na página;
+    \item dê duplo clique e altere um texto: a página muda, o arquivo não;
+    \item recarregue e a alteração some. Você editou a árvore em memória.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Experimento de recuperação de erro:
+
+  \begin{minted}{html}
+<p>Parágrafo <strong>com marcação <em>cruzada</strong> aqui</em>.</p>
+  \end{minted}
+
+  \small Compare o arquivo com a árvore exibida.
+\end{frame}
+
+\begin{frame}[fragile]{Formulário, e os dados na requisição}
+  \begin{minted}{html}
+<form action="https://postman-echo.com/get" method="get">
+  <label for="nome">Nome</label>
+  <input type="text" id="nome" name="nome" required>
+  <button type="submit">Enviar</button>
+</form>
+  \end{minted}
+
+  \vspace{0.2cm}
+  Três experimentos, um de cada vez:
+  \begin{enumerate}
+    \item remova o \texttt{name}: o valor some da URL;
+    \item troque para \texttt{post}: os dados saem da URL e vão para o corpo,
+          visível na aba \textbf{Network};
+    \item deixe o campo obrigatório vazio: nada chega à rede.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Validar no W3C}
+  \url{https://validator.w3.org/#validate_by_input}
+
+  \vspace{0.5cm}
+  Erros comuns nesta altura:
+  \begin{itemize}
+    \item falta de \texttt{<!DOCTYPE html>} ou de \texttt{charset};
+    \item \texttt{<img>} sem \texttt{alt};
+    \item tag não fechada;
+    \item \texttt{id} repetido no mesmo documento;
+    \item \texttt{<li>} fora de \texttt{ul} ou \texttt{ol}.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Corrija até passar sem erros e sem avisos.
+\end{frame}
+
+% ==========================================
+\section{Exercícios}
+% ==========================================
+
+\begin{frame}{Entrega}
+  \begin{block}{Estes exercícios valem nota}
+    Compõem o item \textit{Exercícios em sala} da média, e a entrega vai até
+    \textbf{27/08, às 23h59}, por \texttt{push} no GitLab.
+  \end{block}
+
+  \vspace{0.4cm}
+  A tarefa é maior do que o tempo de aula: comece hoje, com o professor por
+  perto, e termine durante a semana. A entrega é o próprio \textit{fork} no
+  GitLab, com os \textit{commits} e o \texttt{push} feitos. \textbf{Não há link a enviar em lugar nenhum}: o
+  professor recolhe os repositórios pelo nome do grupo.
+
+  \vspace{0.4cm}
+  Nome do grupo no padrão, \texttt{alexkutzke} como \texttt{reporter} e
+  \textit{fork} dentro do grupo. O que não é encontrado não é corrigido.
+\end{frame}
+
+\begin{frame}{Onde está o enunciado}
+  \begin{block}{}
+    O enunciado completo fica no \texttt{README.md} do repositório da tarefa, e o
+    endereço está na atividade correspondente na \textbf{UFPR Virtual}.
+  \end{block}
+
+  \vspace{0.4cm}
+  Individual ou em dupla. Em dupla, um faz o \textit{fork} no próprio grupo e
+  adiciona o colega como \texttt{developer}, com \textbf{Mob Programming} como
+  forma de trabalho sugerida.
+
+  \vspace{0.4cm}
+  \begin{alertblock}{Atividade avaliativa}
+    O uso de IA generativa para produzir o código \textbf{não é permitido},
+    conforme o plano de ensino. Consulte o material, a MDN e o professor.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{O que a tarefa de hoje prepara}
+  As páginas construídas hoje são a base da \textbf{Entrega 1 do trabalho
+  prático}, com prazo em \textbf{11/09}: catálogo de produtos em HTML5 e CSS3.
+
+  \vspace{0.5cm}
+  Semana que vem entra o CSS, e o que estiver bem estruturado hoje vai ser fácil
+  de estilizar depois.
+\end{frame}
+
+\begin{frame}{Resumo}
+  \begin{itemize}
+    \item o servidor envia texto; o navegador monta a árvore que exibe;
+    \item aninhamento errado não gera erro, gera árvore diferente da esperada;
+    \item escolha o elemento pelo significado. \texttt{div} é o que sobra;
+    \item a maior parte da acessibilidade vem de marcação correta;
+    \item em formulário, \texttt{name} vai para a requisição, \texttt{id} liga
+          o \texttt{label}, \texttt{method} decide entre URL e corpo;
+    \item validação nativa serve ao usuário. O servidor revalida;
+    \item sem CSS, o documento ainda precisa fazer sentido.
+  \end{itemize}
+\end{frame}
+
+\end{document}
