@@ -1015,9 +1015,12 @@ repositórios pelo nome do grupo. O que precisa estar certo é o nome do grupo, 
 A tarefa pode ser feita **individualmente ou em dupla**. Em dupla, apenas um dos
 dois faz o *fork* no próprio grupo e adiciona o colega ao repositório como
 `developer`, e a forma de trabalho sugerida é o
-[Mob Programming](./00_mob_programming.md). Ao usar IA generativa durante a
-aula, aplique o
-[pré-prompt sugerido](./00_pre_prompt_para_ia_gen_durante_aulas.md).
+[Mob Programming](./00_mob_programming.md).
+
+Esta é uma atividade avaliativa, e portanto **o uso de IA generativa para
+produzir o código não é permitido**, conforme as Formas de Avaliação do plano de
+ensino. Para consulta durante a tarefa: o material desta aula, a documentação do
+Git e o professor.
 
 O que está sendo avaliado é o **histórico** produzido, e não o conteúdo dos
 arquivos.

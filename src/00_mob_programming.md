@@ -17,4 +17,6 @@ A equipe atua com dois papéis estritos, que são alternados durante a aula:
 * **Rotação (Timer):** Um cronômetro de **7 minutos** será projetado na tela. Este é o tempo ideal para manter o foco e garantir que todos programem sem fadiga.
 * **A Troca:** Quando o alarme tocar, o Piloto solta o teclado imediatamente e torna-se um Navegador. O próximo aluno assume como Piloto. A troca deve ser rápida para não pausar o fluxo de raciocínio.
 
-**Sempre utilize o [Pré-prompt sugerido](./00_pre_prompt_para_ia_gen_durante_aulas.md) quando for fazer uso de IA generativa nas aulas da disciplina.**
+**Nas atividades avaliativas da disciplina (exercícios em sala, trabalho prático e provas), o uso de IA generativa para produzir código não é permitido**, conforme as Formas de Avaliação do plano de ensino. Discussão entre os integrantes, documentação e material da disciplina são as fontes de consulta.
+
+Fora das atividades avaliativas, ao estudar por conta própria, use o [Pré-prompt sugerido](./00_pre_prompt_para_ia_gen_durante_aulas.md).

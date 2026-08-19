@@ -176,54 +176,6 @@ O que continua permitido, e recomendado:
 
 ---
 
-## Questões Integradoras nas Provas (Exemplos)
-
-### Na Prova 1 (HTTP + HTML5 + CSS3)
-
-**Contexto:** O aluno tem acesso ao seu próprio repositório (código da Entrega 1).
-
-**Questão Integradora (5-6 pontos dos 25 da prova):**
-
-> **Parte A (3,0):** Com base no seu projeto, crie uma nova página `produto-destaque.html` que exiba um único produto com layout de "página de detalhes". A página deve conter: imagem grande do produto, nome, descrição completa, preço em destaque e um botão "Tenho interesse" que leva ao formulário de contato. Utilize **HTML5 semântico** e mantenha a **identidade visual** (CSS) do seu projeto.
->
-> **Parte B (2,0):** Adicione ao seu arquivo CSS uma regra de *media query* para dispositivos com largura máxima de 480px que reorganize a página de detalhes em coluna única.
->
-> **Parte C (1,0):** Identifique no seu código um ponto onde a semântica HTML5 poderia ser melhorada e reescreva o trecho.
-
----
-
-### Na Prova 2 (JavaScript)
-
-**Contexto:** O aluno tem acesso ao repositório com as Entregas 1 e 2.
-
-**Questão Integradora (5-6 pontos dos 25 da prova):**
-
-> **Parte A (3,0):** Implemente no seu catálogo um sistema de **ordenação de produtos**. Adicione um `<select>` com as opções: "Ordenar por preço (do menor para o maior)", "Ordenar por preço (do maior para o menor)", "Ordenar por nome (A-Z)". A ordenação deve ocorrer dinamicamente via JavaScript, manipulando o DOM, sem recarregar a página.
->
-> **Parte B (2,0):** Utilizando `localStorage`, implemente um contador de visualizações: cada vez que o usuário clica em um produto do catálogo para ver detalhes, incremente um contador para aquele produto. Exiba o contador ao lado do nome do produto no catálogo.
->
-> **Parte C (1,0):** Explique, em comentários no código, o funcionamento do `fetch()` utilizado no seu projeto: o que a função retorna, como os dados são processados e o que acontece em caso de erro.
-
----
-
-### Na Prova 3 (PHP + MySQL)
-
-**Contexto:** O aluno tem acesso ao repositório completo (todas as entregas).
-
-**Questão Integradora (5-6 pontos dos 25 da prova):**
-
-> **Parte A (3,0):** Adicione ao seu sistema uma nova funcionalidade: **cadastro de categorias de produtos**. Crie:
-> - A tabela `categorias` (id, nome, descricao) no MySQL.
-> - O formulário de cadastro de categoria na área administrativa.
-> - A listagem de categorias.
-> - Altere o formulário de cadastro/edição de produto para ter um `<select>` de categoria populado dinamicamente do banco.
->
-> **Parte B (2,0):** Implemente um **filtro por categoria** na página de catálogo pública. O filtro deve ser um `<select>` que, ao ser submetido via GET, recarrega a página exibindo apenas produtos da categoria selecionada. Use *prepared statements*.
->
-> **Parte C (1,0):** Identifique no seu código duas medidas de segurança implementadas e explique (em comentários) qual vulnerabilidade cada uma previne.
-
----
-
 ## Critérios de Avaliação do Trabalho
 
 | Critério | Peso |

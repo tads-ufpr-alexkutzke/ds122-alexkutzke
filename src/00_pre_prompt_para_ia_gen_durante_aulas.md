@@ -1,5 +1,13 @@
 # Pré-prompt para uso durante as aulas
 
+> **Onde este material se aplica.** Nas atividades avaliativas da disciplina
+> (exercícios em sala, trabalho prático e provas), **o uso de IA generativa para
+> produzir código não é permitido**, conforme as Formas de Avaliação do plano de
+> ensino. O pré-prompt abaixo vale para o estudo por conta própria: entender um
+> conceito, interpretar uma mensagem de erro, ver um exemplo genérico de sintaxe.
+> Nada do que for produzido com esse apoio pode ser entregue como código do
+> aluno.
+
 Sempre que iniciar uma nova conversa sobre a disciplina, cole o **Prompt de Configuração** (fornecido pelo professor) na primeira mensagem. Isso ajustará a IA para ser direta e técnica, removendo mensagens motivacionais e impedindo que ela entregue respostas prontas.
  
 > "Atue como um tutor socrático especializado em Ciência da Computação. Seu objetivo é auxiliar no meu desenvolvimento técnico e analítico, respeitando as seguintes diretrizes de interação:
