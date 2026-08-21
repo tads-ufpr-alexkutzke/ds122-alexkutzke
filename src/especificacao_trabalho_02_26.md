@@ -165,13 +165,13 @@ O motivo está no plano de ensino: esta é uma disciplina do segundo período, e
 Consequências:
 
 - Código que o aluno não souber explicar é tratado como não autoral, com as mesmas consequências do plágio: nota zero na entrega correspondente.
-- Cada prova contém uma questão integradora sobre o seu próprio projeto, em que o aluno modifica, estende ou explica o código entregue. É nessa questão que a autoria do trabalho é verificada.
+- Cada prova poderá conter uma questão integradora sobre o seu próprio projeto, em que o aluno modifica, estende ou explica o código entregue. É nessa questão que a autoria do trabalho é verificada.
 
 O que continua permitido, e recomendado:
 
 - Documentação oficial: MDN, php.net, dev.mysql.com.
 - Material da disciplina, livros da bibliografia e busca na internet.
-- Dúvidas com o professor, em aula ou no fórum da UFPR Virtual.
+- Dúvidas com o professor, em aula ou pelas formas de contato divulgadas na UFPR Virtual.
 - Uso de IA para **estudar**, fora das atividades avaliativas: pedir explicação de um conceito, interpretar uma mensagem de erro, gerar exemplos genéricos de sintaxe. Nunca para produzir o código que será entregue.
 
 ---
@@ -196,4 +196,4 @@ O que continua permitido, e recomendado:
 | Entrega 2 | JavaScript (Interatividade) | 09/10/2026 (sex) | 30% |
 | Entrega 3 | PHP + MySQL (Back-end completo) | 27/11/2026 (sex) | 40% |
 
-> **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Entregas com atraso terão desconto de 20% por dia útil.
+> **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Entregas com atraso terão desconto de 20% por dia.

@@ -412,10 +412,10 @@ você só precisa de um agrupamento para estilizar depois, aí sim use `<div>`, 
 
 Acessibilidade é a página funcionar para quem navega por leitor de tela, por
 teclado ou com baixa visão. No Brasil, sites de órgãos públicos são obrigados a
-seguir o eMAG e a Lei Brasileira de Inclusão. Fora isso, quase tudo o que se ganha
-aqui vem de marcação correta, sem trabalho extra.
+seguir o eMAG e a Lei Brasileira de Inclusão. Fora isso, quase tudo o que precisamos
+para tornar uma página acessível vem do simples uso de marcações corretas.
 
-O que já foi tratado e resolve a maior parte:
+O que já foi tratado:
 
 * `lang` no elemento `html`;
 * títulos em ordem, sem pular níveis;
@@ -442,8 +442,7 @@ foco.
 
 ## 11. Formulários
 
-Formulário é como o usuário envia dados ao servidor. Aqui a aula de HTTP encontra
-a de HTML.
+Formulário é como o usuário envia dados ao servidor.
 
 ```html
 <form action="processa.php" method="post">
