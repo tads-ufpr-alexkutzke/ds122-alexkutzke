@@ -1,0 +1,819 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+\newcommand{\ddash}{-\mbox{}-}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{05 - CSS3: fundamentos}
+\author{Prof. Alex Kutzke}
+\date{Agosto de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+  \begin{center}
+    \large{Setor de Educação Profissional e Tecnológica}\\
+    Tecnologia em Análise e Desenvolvimento de Sistemas\\
+    \vspace{1cm}
+    \small{DS122 - Desenvolvimento de Aplicações Web 1}
+  \end{center}
+  \titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+  Ao final desta aula você deve ser capaz de:
+  \begin{enumerate}
+    \item Ligar uma folha de estilo externa ao documento;
+    \item Escrever seletores de tipo, classe, \texttt{id}, descendente, atributo
+          e pseudo-classe;
+    \item Prever qual declaração vence um conflito;
+    \item Calcular a largura que um elemento ocupa na tela;
+    \item Escolher entre \texttt{px}, \texttt{rem}, \texttt{em} e \texttt{\%};
+    \item Declarar cores e verificar o contraste com o fundo;
+    \item Definir a tipografia da página;
+    \item Descobrir no inspetor por que uma regra não foi aplicada.
+  \end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+  \tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Fundamentos}
+% ==========================================
+
+\begin{frame}{A página que já tinha aparência}
+  A página da aula passada não tem CSS nenhum. Mesmo assim:
+
+  \begin{itemize}
+    \item o \texttt{<h1>} aparece grande e em negrito;
+    \item os itens de \texttt{<ul>} aparecem com marcador;
+    \item o link aparece azul e sublinhado.
+  \end{itemize}
+
+  \vspace{0.4cm}
+  Isso vem da \textbf{folha de estilo do agente de usuário}, que o navegador
+  aplica a todo documento para que ele seja legível sem CSS.
+
+  \vspace{0.3cm}
+  No inspetor (\texttt{F12}), as regras dela aparecem marcadas como
+  \emph{user agent stylesheet}.
+\end{frame}
+
+\begin{frame}{Escrever CSS é substituir aquelas decisões}
+  \begin{block}{O que muda com o CSS}
+    O navegador continua aplicando a folha dele para tudo o que você não disser.
+    Cada regra sua substitui uma decisão daquela folha.
+  \end{block}
+
+  \vspace{0.5cm}
+  CSS: \emph{Cascading Style Sheets}. A linguagem descreve a
+  \textbf{apresentação} de um documento HTML.
+
+  \vspace{0.3cm}
+  Estrutura e significado ficam no HTML. Aparência fica no CSS. Comportamento
+  fica no JavaScript, na segunda parte do semestre.
+\end{frame}
+
+\begin{frame}[fragile]{Onde o CSS entra: arquivo externo}
+  A forma usada na disciplina e em produção:
+
+  \begin{minted}{html}
+<head>
+  <meta charset="utf-8">
+  <title>Catálogo</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+  \end{minted}
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item o arquivo \texttt{.css} não tem nenhuma tag HTML dentro;
+    \item o \texttt{href} segue as regras de caminho relativo já conhecidas;
+    \item um arquivo atende o site inteiro, e fica em cache.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{As outras duas formas}
+  Elemento \texttt{<style>} no documento, para teste rápido:
+
+  \begin{minted}{html}
+<style>
+  p { color: #333333; }
+</style>
+  \end{minted}
+
+  \vspace{0.2cm}
+  Atributo \texttt{style} na tag:
+
+  \begin{minted}{html}
+<p style="color: red;">Texto</p>
+  \end{minted}
+
+  \vspace{0.2cm}
+  O atributo mistura apresentação e estrutura, obriga a repetir a declaração em
+  cada elemento e vence qualquer seletor da folha. Voltaremos a ele na
+  especificidade.
+\end{frame}
+
+\begin{frame}[fragile]{Anatomia de uma regra}
+  \begin{minted}{css}
+/* isto é um comentário, e é a única forma de comentar */
+h1 {
+  color: #1a3d6d;
+  font-size: 2rem;
+}
+  \end{minted}
+
+  \vspace{0.2cm}
+  \begin{itemize}
+    \item \texttt{h1}: o \textbf{seletor}, diz a quais elementos a regra se aplica;
+    \item entre chaves: o \textbf{bloco de declarações};
+    \item \texttt{color: \#1a3d6d;}: uma \textbf{declaração}, com
+          \textbf{propriedade}, dois pontos, \textbf{valor} e ponto e vírgula.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{CSS não avisa quando você erra}
+  \begin{alertblock}{Falha silenciosa}
+    Propriedade inexistente, valor inválido, chave faltando: o navegador
+    descarta o que não entendeu e segue adiante. Nenhuma mensagem aparece na
+    tela.
+  \end{alertblock}
+
+  \vspace{0.5cm}
+  Consequências para o dia a dia:
+
+  \begin{itemize}
+    \item ``não funcionou'' quase nunca significa que o navegador está errado;
+    \item o painel \textbf{Styles} do inspetor mostra o que foi aplicado e o que
+          foi descartado;
+    \item o validador do W3C aponta o nome digitado errado.
+  \end{itemize}
+\end{frame}
+
+% ==========================================
+\section{Seletores}
+% ==========================================
+
+\begin{frame}[fragile]{Tipo, classe e id}
+  \begin{minted}{css}
+/* tipo: todos os parágrafos */
+p { line-height: 1.6; }
+
+/* classe: todo elemento com class="destaque" */
+.destaque { background-color: #fff3cd; }
+
+/* id: o único elemento com id="rodape" */
+#rodape { font-size: 0.875rem; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  A classe se repete à vontade no documento. O \texttt{id} é único.
+\end{frame}
+
+\begin{frame}[fragile]{Universal, agrupamento e relação}
+  \begin{minted}{css}
+/* universal: qualquer elemento */
+* { box-sizing: border-box; }
+
+/* agrupamento: a mesma declaração para vários seletores */
+h1, h2, h3 { font-family: Georgia, serif; }
+
+/* descendente: um <a> em qualquer nível dentro do <nav> */
+nav a { text-decoration: none; }
+
+/* filho direto: um <li> filho imediato do <ul> */
+ul > li { margin-bottom: 0.5rem; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  O espaço entre dois seletores significa ``dentro de''.
+\end{frame}
+
+\begin{frame}[fragile]{Atributo, pseudo-classe e pseudo-elemento}
+  \begin{minted}{css}
+/* atributo */
+input[type="text"] { border: 1px solid #999999; }
+
+/* pseudo-classe: estado do elemento */
+a:hover { text-decoration: underline; }
+a:focus-visible { outline: 3px solid #1a73e8; }
+
+/* pseudo-elemento: parte do elemento, sem tag própria */
+p::first-line { font-variant: small-caps; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  Pseudo-classe: dois pontos, descreve estado. Pseudo-elemento: dois sinais de
+  dois pontos, alcança um pedaço do elemento.
+\end{frame}
+
+\begin{frame}[fragile]{O contorno de foco não se apaga}
+  \begin{alertblock}{Acessibilidade}
+    Quem navega por teclado enxerga onde está pelo contorno de foco.
+    \texttt{outline: none} deixa a pessoa perdida na página.
+  \end{alertblock}
+
+  \vspace{0.4cm}
+  Se o contorno padrão não combina com o visual, troque a aparência dele:
+
+  \begin{minted}{css}
+a:focus-visible {
+  outline: 3px solid #1a73e8;
+  outline-offset: 2px;
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Classe ou id?}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \textbf{Classe}
+    \begin{itemize}
+      \item reutilizável;
+      \item quantos elementos você quiser;
+      \item escolha padrão para estilo.
+    \end{itemize}
+
+    \column{0.48\textwidth}
+    \textbf{\texttt{id}}
+    \begin{itemize}
+      \item único no documento;
+      \item alvo de âncora (\texttt{href="\#rodape"});
+      \item usado pelo JavaScript.
+    \end{itemize}
+  \end{columns}
+
+  \vspace{0.6cm}
+  Para estilo, prefira classe. O \texttt{id} tem especificidade alta demais, e a
+  regra presa a ele fica difícil de sobrescrever depois. O próximo bloco mostra
+  isso em números.
+\end{frame}
+
+% ==========================================
+\section{Cascata}
+% ==========================================
+
+\begin{frame}[fragile]{Herança}
+  \begin{minted}{css}
+body {
+  font-family: Verdana, sans-serif;
+  color: #222222;
+}
+  \end{minted}
+
+  \vspace{0.3cm}
+  Todo o texto da página aparece em Verdana e cinza escuro, sem nenhuma regra
+  para \texttt{p}, \texttt{li} ou \texttt{td}.
+
+  \vspace{0.3cm}
+  Algumas propriedades passam do elemento para os descendentes. Outras não.
+\end{frame}
+
+\begin{frame}{O que herda e o que não herda}
+  \begin{center}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Herdam} & \textbf{Não herdam} \\
+    \midrule
+    \texttt{color} & \texttt{margin} \\
+    \texttt{font-family} & \texttt{padding} \\
+    \texttt{font-size} & \texttt{border} \\
+    \texttt{line-height} & \texttt{background} \\
+    \texttt{text-align} & \texttt{width}, \texttt{height} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  Propriedades de texto são herdadas. Propriedades de caixa não são, e é o
+  comportamento desejado: um \texttt{padding} no \texttt{body} não vira
+  \texttt{padding} em cada parágrafo.
+
+  \vspace{0.2cm}
+  A página da propriedade na MDN traz a linha \emph{Herdada: sim} ou
+  \emph{não}.
+\end{frame}
+
+\begin{frame}{A cascata resolve conflitos em três passos}
+  Duas regras dizem coisas diferentes sobre a mesma propriedade do mesmo
+  elemento. O navegador decide nesta ordem:
+
+  \begin{enumerate}
+    \item \textbf{Origem e importância}: o autor da página vence o navegador;
+          \texttt{!important} sobe acima de todas as declarações normais;
+    \item \textbf{Especificidade}: vence o seletor mais específico;
+    \item \textbf{Ordem de aparição}: no empate, vence a última.
+  \end{enumerate}
+
+  \vspace{0.4cm}
+  O passo 3 explica por que a ordem das regras no arquivo importa, e por que a
+  folha de um framework vem antes da sua no \texttt{<head>}.
+\end{frame}
+
+\begin{frame}{Especificidade: contagem em três casas}
+  \begin{center}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Seletor} & \textbf{A} & \textbf{B} & \textbf{C} \\
+    \midrule
+    \texttt{p} & 0 & 0 & 1 \\
+    \texttt{.texto} & 0 & 1 & 0 \\
+    \texttt{p.texto} & 0 & 1 & 1 \\
+    \texttt{.artigo p.destaque} & 0 & 2 & 1 \\
+    \texttt{\#noticia p} & 1 & 0 & 1 \\
+    \texttt{input[type="text"]:focus} & 0 & 2 & 1 \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.3cm}
+  \textbf{A}: \texttt{id}. \textbf{B}: classes, atributos e pseudo-classes.
+  \textbf{C}: tipos e pseudo-elementos. O \texttt{*} não conta nada.
+
+  \vspace{0.2cm}
+  Compara-se da esquerda para a direita: um \texttt{id} vence qualquer
+  quantidade de classes.
+\end{frame}
+
+\begin{frame}[fragile]{Qual cor vence?}
+  \begin{minted}{html}
+<div class="artigo" id="noticia">
+  <p class="texto destaque">O sistema entra em produção.</p>
+</div>
+  \end{minted}
+
+  \begin{minted}{css}
+p                   { color: blue; }
+.texto              { color: green; }
+.destaque           { color: orange; }
+.artigo p.destaque  { color: purple; }
+#noticia p          { color: red; }
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Vermelho}
+  \texttt{\#noticia p} tem A igual a 1, e nenhuma quantidade de classes alcança
+  isso.
+
+  \vspace{0.5cm}
+  Duas observações sobre o mesmo exemplo:
+
+  \begin{itemize}
+    \item entre \texttt{.texto} e \texttt{.destaque}, que empatam em (0,1,0),
+          venceria \texttt{.destaque}, por vir depois no arquivo;
+    \item a ordem das classes dentro do atributo \texttt{class} do HTML não
+          influencia nada.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Acima de tudo: o atributo style, e o !important}
+  O atributo \texttt{style} na tag vence qualquer seletor. É por isso que o
+  estilo \emph{inline} atrapalha: ele tira de você a chance de corrigir aquela
+  declaração pela folha.
+
+  \vspace{0.4cm}
+  \begin{alertblock}{Sobre o \texttt{!important}}
+    Ele funciona, e cria um problema maior do que resolveu: a única forma de
+    vencer um \texttt{!important} depois é outro \texttt{!important}. Considere-o
+    proibido nesta disciplina.
+  \end{alertblock}
+
+  \vspace{0.3cm}
+  Quando der vontade de usá-lo, o que falta é descobrir por que a sua regra
+  perdeu. Faremos isso no inspetor.
+\end{frame}
+
+\begin{frame}{Seletor simples é seletor que dá para corrigir}
+  \begin{block}{Regra de bolso}
+    Escreva o seletor mais simples que resolve o problema.
+  \end{block}
+
+  \vspace{0.5cm}
+  Uma folha construída sobre classes de um nível é fácil de ajustar depois.
+
+  \vspace{0.3cm}
+  Uma folha cheia de \texttt{\#menu .lista li a span} obriga cada correção
+  futura a ser mais específica que a anterior, e o arquivo cresce em espiral.
+\end{frame}
+
+% ==========================================
+\section{Caixa}
+% ==========================================
+
+\begin{frame}[fragile]{Todo elemento é uma caixa}
+  \begin{minted}{text}
++-------------------------------------------+
+|                  margin                   |
+|   +-----------------------------------+   |
+|   |              border               |   |
+|   |   +---------------------------+   |   |
+|   |   |         padding           |   |   |
+|   |   |   +-------------------+   |   |   |
+|   |   |   |     content       |   |   |   |
+|   |   |   +-------------------+   |   |   |
+|   |   +---------------------------+   |   |
+|   +-----------------------------------+   |
++-------------------------------------------+
+  \end{minted}
+
+  \vspace{0.2cm}
+  \texttt{padding} recebe a cor de fundo. \texttt{margin} é sempre transparente.
+\end{frame}
+
+\begin{frame}[fragile]{Formas abreviadas, no sentido horário}
+  \begin{minted}{css}
+padding: 10px;                /* os quatro lados */
+padding: 10px 20px;           /* topo e base | direita e esquerda */
+padding: 10px 20px 5px;       /* topo | direita e esquerda | base */
+padding: 10px 20px 5px 0;     /* topo | direita | base | esquerda */
+padding-left: 20px;           /* um lado só */
+
+border: 5px solid #000000;    /* espessura, estilo e cor */
+  \end{minted}
+
+  \vspace{0.2cm}
+  As mesmas formas valem para \texttt{margin} e para \texttt{border-width}.
+\end{frame}
+
+\begin{frame}[fragile]{A largura ocupada pela caixa}
+  \begin{minted}{css}
+.caixa {
+  width: 300px;
+  padding: 30px;
+  border: 5px solid #000000;
+}
+  \end{minted}
+
+  \vspace{0.3cm}
+  Largura ocupada na tela:
+
+  \begin{center}
+    \large 300 + 30 + 30 + 5 + 5 = \textbf{370px}
+  \end{center}
+
+  \vspace{0.3cm}
+  \texttt{width} dimensiona apenas o \texttt{content}. Duas colunas de
+  \texttt{width: 50\%} com \texttt{padding} somam mais que a largura disponível,
+  e a segunda desce para baixo da primeira.
+\end{frame}
+
+\begin{frame}[fragile]{box-sizing: border-box}
+  \begin{minted}{css}
+.caixa {
+  box-sizing: border-box;
+  width: 300px;
+  padding: 30px;
+  border: 5px solid #000000;
+}
+  \end{minted}
+
+  \vspace{0.3cm}
+  Agora a caixa ocupa \textbf{300px}, e o conteúdo é espremido para
+  $300 - 60 - 10 = 230$px.
+
+  \vspace{0.3cm}
+  Por isso a linha abaixo abre praticamente toda folha de estilo moderna:
+
+  \begin{minted}{css}
+* { box-sizing: border-box; }
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Colapso de margens verticais}
+  Primeira caixa com \texttt{margin-bottom: 30px}. Segunda com
+  \texttt{margin-top: 20px}. O espaço entre elas é de \textbf{30px}.
+
+  \vspace{0.4cm}
+  Margens verticais adjacentes se fundem, e a maior prevalece.
+
+  \begin{itemize}
+    \item acontece também entre um elemento e o pai, quando não há borda nem
+          padding separando os dois;
+    \item margens horizontais nunca colapsam;
+    \item dentro de Flexbox e Grid não há colapso, o que é um dos motivos de
+          esses modelos deixarem o espaçamento previsível.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Saída prática: espaçar sempre para o mesmo lado, usando só a margem de baixo
+  entre irmãos.
+\end{frame}
+
+\begin{frame}{display}
+  \begin{center}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Valor} & \textbf{Ocupa a linha} & \textbf{Aceita \texttt{width}} &
+    \textbf{Margem vertical} \\
+    \midrule
+    \texttt{block} & sim & sim & empurra \\
+    \texttt{inline} & não & não & não empurra \\
+    \texttt{inline-block} & não & sim & empurra \\
+    \texttt{none} & \multicolumn{3}{c}{o elemento some da página} \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+
+  \vspace{0.4cm}
+  \texttt{<div>}, \texttt{<p>}, \texttt{<h1>} e \texttt{<section>} são
+  \texttt{block}. \texttt{<a>}, \texttt{<span>}, \texttt{<strong>} e
+  \texttt{<img>} são \texttt{inline}.
+
+  \vspace{0.2cm}
+  \texttt{display: none} também tira o elemento do leitor de tela.
+\end{frame}
+
+\begin{frame}[fragile]{Link vira botão com inline-block}
+  \begin{minted}{css}
+.botao {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #1a3d6d;
+  color: #ffffff;
+  text-decoration: none;
+}
+  \end{minted}
+
+  \vspace{0.3cm}
+  Sem o \texttt{inline-block}, o \texttt{padding} vertical não afasta as linhas
+  vizinhas e \texttt{width} é ignorado, porque \texttt{<a>} é \texttt{inline}.
+\end{frame}
+
+% ==========================================
+\section{Unidades e cores}
+% ==========================================
+
+\begin{frame}[fragile]{Unidades de medida}
+  \begin{minted}{css}
+.exemplo {
+  width: 300px;    /* pixel CSS, medida absoluta */
+  width: 50%;      /* relativo ao elemento pai */
+  font-size: 1rem; /* relativo à fonte do <html> */
+  padding: 0.5em;  /* relativo à fonte do próprio elemento */
+  height: 100vh;   /* 100% da altura da janela */
+  width: 80vw;     /* 80% da largura da janela */
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Quando usar cada uma}
+  \begin{itemize}
+    \item \texttt{px}: bordas e detalhes que não devem escalar;
+    \item \texttt{rem}: texto e espaçamento. Apoia-se na fonte do \texttt{<html>},
+          que é a preferência configurada por quem lê;
+    \item \texttt{em}: se apoia na fonte do próprio elemento, e por isso acumula
+          em elementos aninhados. Útil no padding de botão;
+    \item \texttt{\%}: depende da propriedade. Em \texttt{width}, é a largura do
+          pai;
+    \item \texttt{vw} e \texttt{vh}: centésimos da janela, para seções de tela
+          cheia.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Não fixe o tamanho de fonte do html}
+  \begin{alertblock}{Linha a evitar}
+    \texttt{html \{ font-size: 16px; \}}
+  \end{alertblock}
+
+  \vspace{0.4cm}
+  Ela aparece em muito material antigo e anula o ajuste de tamanho de fonte de
+  quem enxerga pouco, uma das configurações de acessibilidade mais usadas.
+
+  \vspace{0.3cm}
+  O padrão do \texttt{<html>} já é a preferência da pessoa. Para deixar isso
+  explícito:
+
+  \begin{minted}{css}
+html { font-size: 100%; }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Notações de cor}
+  \begin{minted}{css}
+color: red;                     /* palavra-chave */
+color: #1a3d6d;                 /* hexadecimal RR GG BB */
+color: #fff;                    /* forma curta de #ffffff */
+color: rgb(26, 61, 109);        /* 0 a 255 em cada canal */
+color: rgba(26, 61, 109, 0.5);  /* o quarto valor é a opacidade */
+color: hsl(212, 61%, 26%);      /* matiz, saturação, luminosidade */
+  \end{minted}
+
+  \vspace{0.2cm}
+  O hexadecimal é o que aparece em qualquer paleta pronta. O \texttt{hsl()} é o
+  mais fácil de ajustar à mão: para o azul mais escuro do \texttt{:hover}, basta
+  reduzir o terceiro valor.
+\end{frame}
+
+\begin{frame}{Contraste mínimo entre texto e fundo}
+  Texto cinza claro sobre fundo branco fica ilegível para quem tem baixa visão,
+  para quem usa a tela sob luz forte e para parte das pessoas com daltonismo.
+
+  \vspace{0.4cm}
+  A WCAG define a razão mínima de contraste entre texto e fundo:
+
+  \begin{itemize}
+    \item \textbf{4.5:1} para texto normal;
+    \item \textbf{3:1} para texto grande, a partir de 24px, ou 18.66px em
+          negrito.
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Confira em \url{https://webaim.org/resources/contrastchecker/}, colando os dois
+  hexadecimais. O inspetor mostra a mesma razão ao lado da cor.
+
+  \vspace{0.2cm}
+  \small ODS 4 e ODS 10: contraste insuficiente exclui parte do público sem que
+  o autor perceba: no monitor dele, o texto está legível.
+\end{frame}
+
+% ==========================================
+\section{Tipografia}
+% ==========================================
+
+\begin{frame}[fragile]{font-family recebe uma lista}
+  \begin{minted}{css}
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+  \end{minted}
+
+  \vspace{0.3cm}
+  O navegador tenta a primeira, e passa à seguinte se ela não estiver instalada
+  na máquina.
+
+  \begin{itemize}
+    \item a lista termina em família genérica: \texttt{sans-serif},
+          \texttt{serif} ou \texttt{monospace};
+    \item nomes com espaço vão entre aspas.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Tamanho, peso e altura de linha}
+  \begin{minted}{css}
+body { font-size: 1rem; line-height: 1.6; }
+h1   { font-size: 2.5rem; font-weight: 700; }
+  \end{minted}
+
+  \vspace{0.3cm}
+  \texttt{line-height} \textbf{sem unidade}: o valor é herdado como fator, e cada
+  elemento o multiplica pelo próprio tamanho de fonte. Entre 1.4 e 1.6 para texto
+  corrido.
+
+  \vspace{0.3cm}
+  \texttt{font-weight}: \texttt{normal} é 400, \texttt{bold} é 700, e os
+  múltiplos de 100 valem quando a fonte tem esses cortes.
+\end{frame}
+
+\begin{frame}[fragile]{Fonte externa do Google Fonts}
+  No \texttt{<head>}, antes da sua folha:
+
+  \begin{minted}{html}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  \end{minted}
+
+  No CSS, mantendo a pilha de reserva:
+
+  \begin{minted}{css}
+body { font-family: Roboto, Arial, sans-serif; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  Cada peso pedido é um arquivo a mais para baixar. Peça dois, no máximo três.
+\end{frame}
+
+% ==========================================
+\section{Prática}
+% ==========================================
+
+\begin{frame}{Roteiro da prática}
+  Trabalhando sobre as páginas da tarefa de HTML:
+
+  \begin{enumerate}
+    \item criar \texttt{css/estilo.css} e ligá-lo pelo \texttt{<link>};
+    \item descobrir no inspetor por que uma regra não pegou;
+    \item medir a caixa no diagrama do painel \textbf{Computed};
+    \item verificar contraste e validar a folha no W3C.
+  \end{enumerate}
+
+  \vspace{0.4cm}
+  O texto completo do roteiro está no material da aula, na parte prática.
+\end{frame}
+
+\begin{frame}[fragile]{Por que a regra não pegou}
+  Com \texttt{class="menu"} no \texttt{<nav>}, e estas três regras nesta ordem:
+
+  \begin{minted}{css}
+nav a   { color: #1a3d6d; }
+a       { color: #cc0000; }
+.menu a { color: #008000; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  Decida a cor antes de recarregar. Depois, no painel \textbf{Styles}:
+
+  \begin{itemize}
+    \item as declarações perdedoras aparecem \textbf{riscadas};
+    \item ao lado de cada regra, o arquivo e a linha onde ela está;
+    \item a aba \textbf{Computed} mostra o valor final já resolvido.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Medir a caixa}
+  \begin{minted}{css}
+.caixa {
+  width: 300px; padding: 30px;
+  border: 5px solid #000000;
+  background-color: #ffd400;
+}
+.corrigida { box-sizing: border-box; }
+  \end{minted}
+
+  \vspace{0.2cm}
+  No fim do painel \textbf{Computed}, o diagrama do modelo de caixa traz os
+  quatro valores. Confirme: \textbf{370px} na primeira, \textbf{300px} na
+  segunda.
+\end{frame}
+
+\begin{frame}{Exercícios}
+  \begin{block}{Entrega}
+    Valem nota, no item \emph{Exercícios em sala}. Prazo: \textbf{03/09, às
+    23h59}, por \texttt{push} no GitLab.
+  \end{block}
+
+  \vspace{0.4cm}
+  \begin{itemize}
+    \item enunciado no \texttt{README.md} do repositório-modelo, com o endereço
+          na UFPR Virtual;
+    \item individual ou em dupla, com \emph{fork} dentro do grupo;
+    \item atividade avaliativa: sem IA generativa para produzir o código;
+    \item a folha que sair daqui recebe o layout no próximo encontro e vai na
+          Entrega 1 do trabalho, em 11/09.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{O que ainda falta para montar um layout}
+  Você controla a aparência de cada caixa. Falta posicionar as caixas umas em
+  relação às outras: menu na horizontal, três cartões lado a lado, coluna lateral
+  acompanhando a altura do conteúdo.
+
+  \vspace{0.4cm}
+  Próximo encontro: Flexbox, Grid e \emph{media queries}.
+
+  \vspace{0.3cm}
+  Os fundamentos de hoje continuam valendo lá dentro: a caixa que o Flexbox
+  posiciona é a mesma caixa desta aula.
+\end{frame}
+
+\begin{frame}{Resumo}
+  \begin{itemize}
+    \item toda página já vem estilizada pela folha do navegador;
+    \item conflito se resolve por origem, especificidade e ordem, nessa sequência;
+    \item um \texttt{id} vence qualquer quantidade de classes; prefira classe;
+    \item propriedades de texto são herdadas, as de caixa não;
+    \item \texttt{width} dimensiona só o conteúdo, até você escrever
+          \texttt{box-sizing: border-box};
+    \item margens verticais adjacentes colapsam;
+    \item \texttt{rem} para texto, e sem fixar a fonte do \texttt{<html>};
+    \item contraste de 4.5:1 é requisito;
+    \item CSS inválido não gera erro na tela: a resposta está no inspetor.
+  \end{itemize}
+\end{frame}
+
+\end{document}
