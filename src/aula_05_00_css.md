@@ -703,13 +703,13 @@ digitado errado aparece.
 
 ## Exercícios
 
-**Estes exercícios valem nota** e compõem o item *Exercícios em sala* da média.
-**A entrega vai até 03/09, às 23h59**, por `push` no GitLab. A tarefa é maior do
-que o tempo de aula: comece hoje, com o professor por perto para tirar dúvidas, e
-termine durante a semana.
+**Estes exercícios valem nota** e compõem o item *Exercícios em sala* da média. A
+tarefa é maior do que o tempo de aula: comece hoje, com o professor por perto
+para tirar dúvidas, e termine durante a semana.
 
-O enunciado fica no `README.md` do repositório-modelo da tarefa, e o endereço
-desse repositório está na atividade correspondente na **UFPR Virtual**.
+O enunciado fica no `README.md` do repositório-modelo da tarefa. O endereço desse
+repositório e o **prazo de entrega** estão na atividade correspondente na **UFPR
+Virtual**, que é onde os dois são mantidos atualizados.
 
 A entrega é o próprio *fork* no GitLab, com os *commits* e o `push` feitos. Não
 há link a enviar: o professor recolhe os repositórios pelo nome do grupo, com o

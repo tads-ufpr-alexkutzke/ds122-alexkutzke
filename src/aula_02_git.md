@@ -1001,11 +1001,10 @@ preenchida. Basta salvar e sair.
 ## 21. Exercícios
 
 **Estes exercícios valem nota** e compõem o item *Exercícios em sala* da média.
-**A entrega é até o final do encontro de hoje.**
 
-O enunciado fica no `README.md` do repositório-modelo da tarefa, e o endereço
-desse repositório está na atividade correspondente na **UFPR Virtual**. É lá que
-o enunciado é mantido atualizado, e não aqui.
+O enunciado fica no `README.md` do repositório-modelo da tarefa. O endereço desse
+repositório e o **prazo de entrega** estão na atividade correspondente na **UFPR
+Virtual**, que é onde os dois são mantidos atualizados.
 
 A entrega é o próprio *fork* no GitLab, com os *commits* pedidos e o `push`
 feito. **Não há link a enviar em lugar nenhum**: o professor recolhe os
