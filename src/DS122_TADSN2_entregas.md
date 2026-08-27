@@ -2,7 +2,7 @@
 
 - **Turma**: TADSN2
 - **Semestre**: 2026-02
-- **Última atualização**: 27/08/2026 13:49
+- **Última atualização**: 27/08/2026 14:48
 
 | GRR | prepare<br>27/08 | HTML<br>28/08 |
 | --- | :---: | :---: |
