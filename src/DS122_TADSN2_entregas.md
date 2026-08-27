@@ -2,7 +2,7 @@
 
 - **Turma**: TADSN2
 - **Semestre**: 2026-02
-- **Última atualização**: 27/08/2026 15:01
+- **Última atualização**: 27/08/2026 18:52
 
 | GRR | prepare<br>27/08 | HTML<br>28/08 |
 | --- | :---: | :---: |
@@ -23,10 +23,10 @@
 | GRR20261426 | ok | ok |
 | GRR20261526 | ok | ok |
 | GRR20261528 | ok | sem fork |
-| GRR20261725 | sem commit | sem commit |
+| GRR20261725 | sem commit (dupla) | sem commit |
 | GRR20261773 | sem commit | ok |
 | GRR20262101 | ok | ok |
-| GRR20262364 | ok | sem grupo |
+| GRR20262364 | ok (dupla) | sem grupo |
 | GRR20262611 | ok | ok |
 | GRR20262658 | ok | ok |
 | GRR20262792 | ok | ok |
@@ -43,8 +43,12 @@
 | GRR20265011 | sem fork | ok |
 
 Legenda: `ok` entregue no prazo; `fora do prazo` só há commits depois da data;
-`sem commit` fork criado sem trabalho do aluno; `sem fork` a tarefa não foi bifurcada;
-`sem grupo` o grupo não foi criado ou o professor não foi adicionado como reporter.
+`sem commit` fork criado sem trabalho do aluno (`fork vazio` nunca teve um
+commit, `ramo errado` tem commits fora do ramo padrão); `sem fork` a tarefa não
+foi bifurcada; `sem acesso` o grupo existe, mas o professor não foi adicionado
+como reporter; `sem grupo` o grupo não foi criado, ou foi criado privado sem
+compartilhar. O sufixo `(dupla)` marca entrega achada no fork do colega.
 
-Se a sua linha mostra `sem grupo`, confira em **Settings > General** se o
-grupo se chama `ds122-2026-2-n-grrxxxxxxxx` e se `alexkutzke` consta em **Members** como `reporter`.
+Se a sua linha mostra `sem grupo` ou `sem acesso`, confira em **Settings >
+General** se o grupo se chama `ds122-2026-2-n-grrxxxxxxxx`, se está compartilhado (não privado sem
+convite) e se `alexkutzke` consta em **Members** como `reporter`.
