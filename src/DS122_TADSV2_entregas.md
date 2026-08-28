@@ -2,7 +2,7 @@
 
 - **Turma**: TADSV2
 - **Semestre**: 2026-02
-- **Última atualização**: 28/08/2026 17:01
+- **Última atualização**: 28/08/2026 20:56
 
 | GRR | prepare<br>27/08 | HTML<br>27/08 | CSS<br>03/09 |
 | --- | :---: | :---: | :---: |
@@ -12,13 +12,13 @@
 | GRR20251898 | ok | ok | ok |
 | GRR20252578 | ok | sem fork | sem fork |
 | GRR20254382 | ok | ok (dupla) | ok (dupla) |
-| GRR20256530 | ok | ok (mexeu +1d) | sem commit |
+| GRR20256530 | ok | ok (mexeu +1d) | ok |
 | GRR20260611 | ok | ok | ok |
-| GRR20260686 | ok | ok | sem commit |
-| GRR20260800 | ok | ok | sem commit |
+| GRR20260686 | ok | ok | ok |
+| GRR20260800 | ok | ok | ok |
 | GRR20260851 | sem commit | ok | sem commit |
 | GRR20261050 | ok | ok | sem commit |
-| GRR20261324 | sem commit | ok | sem commit |
+| GRR20261324 | sem commit | ok | ok |
 | GRR20261421 | ok | ok | sem fork |
 | GRR20261919 | sem grupo | sem grupo | sem grupo |
 | GRR20262122 | ok | ok (dupla) | sem commit |
@@ -27,24 +27,24 @@
 | GRR20262461 | ok | ok (dupla) | sem commit |
 | GRR20262490 | sem fork | ok | sem fork |
 | GRR20262889 | sem fork | ok | sem fork |
-| GRR20263065 | ok (dupla) | ok | sem commit |
-| GRR20263132 | fora do prazo (+1d) | ok | sem commit |
-| GRR20263137 | sem fork | ok | sem fork |
+| GRR20263065 | ok (dupla) | ok | ok |
+| GRR20263132 | fora do prazo (+1d) | ok | ok |
+| GRR20263137 | sem fork | ok | ok |
 | GRR20263282 | ok | ok | sem fork |
-| GRR20263483 | ok | ok | sem commit |
-| GRR20263525 | sem commit | ok | sem commit |
+| GRR20263483 | ok | ok | ok |
+| GRR20263525 | sem commit | ok | ok |
 | GRR20263856 | ok | ok | ok |
 | GRR20263865 | ok | ok | sem fork |
-| GRR20263928 | sem grupo | ok (dupla) | sem grupo |
+| GRR20263928 | sem grupo | ok (dupla) | ok (dupla) |
 | GRR20263930 | ok | ok | sem commit |
 | GRR20264014 | ok | ok | ok (dupla) |
 | GRR20264192 | ok | ok | sem commit |
-| GRR20264280 | ok | ok | sem commit |
-| GRR20264587 | ok | ok (dupla) | sem commit (dupla) |
+| GRR20264280 | ok | ok | ok |
+| GRR20264587 | ok | ok (dupla) | ok (dupla) |
 | GRR20264888 | sem grupo | sem grupo | sem grupo |
-| GRR20265058 | sem commit | ok | sem commit |
+| GRR20265058 | sem commit | ok | ok |
 | GRR20265844 | ok | ok | sem commit |
-| GRR20265862 | ok | fora do prazo (+1d) | sem fork |
+| GRR20265862 | ok | fora do prazo (+1d) | ok (dupla) |
 | GRR20265942 | ok | ok | sem commit |
 | GRR20266188 | sem commit | sem fork | sem fork |
 | GRR20266284 | sem commit | ok (dupla) | sem commit (dupla) |
