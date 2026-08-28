@@ -22,6 +22,16 @@ O ramo de produtos do catálogo é de escolha do aluno, com preferência por tem
 
 ---
 
+## Repositório do Trabalho
+
+O trabalho parte de um repositório único: <https://gitlab.com/ds122-alexkutzke/ds122-project-2026-2>.
+
+Faça o **fork** desse repositório para o seu grupo do GitLab, pelo mesmo procedimento já usado nas tarefas da disciplina, descrito em [Instruções para submissão de tarefas](./instrucoes_submissao_tarefas_e_trabalhos.md). É um único fork para as três entregas: não crie um fork novo a cada entrega, o histórico de commits desse mesmo repositório é o que sustenta o diário de bordo.
+
+O `README.md` do fork já traz o modelo do diário de bordo a preencher.
+
+---
+
 ## Estrutura de Entregas
 
 ### Entrega 1: Front-end Estático (HTML5 + CSS3)
