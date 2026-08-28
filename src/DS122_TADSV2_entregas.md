@@ -2,7 +2,7 @@
 
 - **Turma**: TADSV2
 - **Semestre**: 2026-02
-- **Última atualização**: 27/08/2026 18:53
+- **Última atualização**: 28/08/2026 07:11
 
 | GRR | prepare<br>27/08 | HTML<br>27/08 |
 | --- | :---: | :---: |
@@ -12,7 +12,7 @@
 | GRR20251898 | ok | ok |
 | GRR20252578 | ok | sem fork |
 | GRR20254382 | ok | ok (dupla) |
-| GRR20256530 | sem grupo | sem grupo |
+| GRR20256530 | ok | ok (mexeu +1d) |
 | GRR20260611 | ok | ok |
 | GRR20260686 | ok | ok |
 | GRR20260800 | ok | ok |
