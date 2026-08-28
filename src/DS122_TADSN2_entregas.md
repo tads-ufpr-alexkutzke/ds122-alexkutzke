@@ -2,7 +2,7 @@
 
 - **Turma**: TADSN2
 - **Semestre**: 2026-02
-- **Última atualização**: 28/08/2026 07:10
+- **Última atualização**: 28/08/2026 17:00
 
 | GRR | prepare<br>27/08 | HTML<br>28/08 |
 | --- | :---: | :---: |
@@ -27,7 +27,7 @@
 | GRR20261773 | sem commit | ok |
 | GRR20262101 | ok | ok |
 | GRR20262364 | ok (dupla) | sem grupo |
-| GRR20262611 | ok | ok |
+| GRR20262611 | ok (mexeu +1d) | ok |
 | GRR20262658 | ok | ok |
 | GRR20262792 | ok | ok |
 | GRR20262853 | ok | sem commit |
