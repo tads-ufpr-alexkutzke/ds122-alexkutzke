@@ -2,7 +2,7 @@
 
 - **Turma**: TADSV2
 - **Semestre**: 2026-02
-- **Última atualização**: 04/09/2026 10:43
+- **Última atualização**: 04/09/2026 10:47
 
 | GRR | prepare<br>03/09 | HTML<br>03/09 | CSS<br>03/09 |
 | --- | :---: | :---: | :---: |
