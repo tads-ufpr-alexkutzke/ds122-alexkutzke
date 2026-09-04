@@ -1,0 +1,844 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+\newcommand{\ddash}{-\mbox{}-}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{05 - CSS3: layout e responsividade}
+\author{Prof. Alex Kutzke}
+\date{Setembro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Dizer o que muda nos filhos quando o pai recebe \texttt{display: flex}
+		      ou \texttt{display: grid};
+		\item Montar uma barra de navegação horizontal com Flexbox;
+		\item Montar uma grade de cartões com Grid e calcular quantas colunas ela
+		      terá em uma largura dada;
+		\item Escolher entre Flexbox e Grid justificando pela dimensão do problema;
+		\item Escrever \emph{media queries} em \emph{mobile-first};
+		\item Verificar a página a 320px e corrigir a rolagem horizontal;
+		\item Ler e alterar HTML que usa a grade e as utilitárias do Bootstrap 5;
+		\item Usar o inspetor de Flexbox e de Grid do navegador.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Fluxo}
+% ==========================================
+
+\begin{frame}{Onde a página parou}
+	O \texttt{catalogo.html} da tarefa passada tem borda, \texttt{padding} e cor
+	de fundo em cada cartão.
+
+	\vspace{0.3cm}
+	E os cartões continuam empilhados, um debaixo do outro, ocupando a largura
+	inteira.
+
+	\vspace{0.5cm}
+	Nada de errado aconteceu: isso é o \textbf{fluxo normal}.
+\end{frame}
+
+\begin{frame}[fragile]{Três declarações no inspetor}
+	Com \texttt{F12} aberto, na regra do elemento que contém os cartões:
+
+	\begin{minted}{css}
+display: flex;                        /* mesma linha */
+gap: 20px;                            /* afastados */
+
+display: grid;                        /* três colunas */
+grid-template-columns: repeat(3, 1fr);
+  \end{minted}
+
+	\vspace{0.2cm}
+	Depois, \texttt{Ctrl+Shift+M} liga o modo responsivo. Arraste até uma largura
+	de celular e observe o texto transbordar.
+\end{frame}
+
+\begin{frame}{O que apareceu na tela}
+	\begin{itemize}
+		\item o elemento onde você escreveu o \texttt{display} passou a mandar na
+		      posição dos filhos;
+		\item ao lado do seletor surgiu um distintivo \texttt{flex} ou
+		      \texttt{grid}, que liga um desenho por cima da página;
+		\item a largura da janela virou uma variável do problema.
+	\end{itemize}
+
+	\vspace{0.5cm}
+	A aula nomeia essas três coisas, e volta ao inspetor no fim.
+\end{frame}
+
+\begin{frame}{Por que os cartões empilham}
+	Fluxo normal: caixas \texttt{block} uma abaixo da outra, na ordem do
+	documento, ocupando toda a largura; caixas \texttt{inline} lado a lado,
+	quebrando quando falta espaço.
+
+	\vspace{0.3cm}
+	\texttt{<article>}, \texttt{<section>} e \texttt{<div>} são \texttt{block}.
+
+	\vspace{0.5cm}
+	Até meados dos anos 2010, pôr dois blocos lado a lado exigia \texttt{float},
+	criada para texto contornar imagem, ou tabelas de diagramação. As duas
+	soluções eram frágeis e exigiam remendos.
+\end{frame}
+
+\begin{frame}[fragile]{Contêiner e item}
+	\begin{minted}{html}
+<div class="grade">          <!-- contêiner -->
+  <article class="produto">  <!-- item -->
+    <h3>Café em grão</h3>    <!-- não é item -->
+    <p>Torra média.</p>
+  </article>
+  <article class="produto">  <!-- item -->
+  </article>
+</div>
+  \end{minted}
+
+	\vspace{0.2cm}
+	O \textbf{contêiner} recebe \texttt{display: flex} ou \texttt{display: grid}.
+	Os \textbf{itens} são os \textbf{filhos diretos} dele. Netos voltam ao fluxo
+	normal dentro do próprio pai.
+\end{frame}
+
+\begin{frame}{Duas famílias de propriedades}
+	Propriedades que se escrevem \textbf{no contêiner} e propriedades que se
+	escrevem \textbf{no item}.
+
+	\vspace{0.4cm}
+	\begin{block}{O erro mais comum}
+		\texttt{justify-content} dentro de \texttt{.produto} não faz nada, e o
+		navegador não avisa. CSS inválido ou inútil é descartado em silêncio.
+	\end{block}
+
+	\vspace{0.4cm}
+	Quando uma propriedade de layout parecer ignorada, a primeira pergunta é se
+	ela está no elemento certo.
+\end{frame}
+
+% ==========================================
+\section{Flexbox}
+% ==========================================
+
+\begin{frame}{Uma direção, e a sobra repartida}
+	O Flexbox distribui itens ao longo de \textbf{uma} direção, e reparte entre
+	eles o espaço que sobra ou que falta.
+
+	\vspace{0.5cm}
+	\begin{center}
+		\begin{tabular}{ll}
+			\toprule
+			\textbf{Propriedade}        & \textbf{Atua no eixo} \\
+			\midrule
+			\texttt{justify-content}    & principal             \\
+			\texttt{align-items}        & transversal           \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+
+	\vspace{0.4cm}
+	O eixo principal é definido por \texttt{flex-direction} (padrão
+	\texttt{row}). Com \texttt{column}, as duas propriedades trocam de sentido.
+	Guarde a relação pelo eixo, e não por horizontal e vertical.
+\end{frame}
+
+\begin{frame}[fragile]{Propriedades do contêiner}
+	\begin{minted}{css}
+.barra {
+  display: flex;
+  flex-direction: row;            /* row | column | ... */
+  justify-content: space-between; /* eixo principal */
+  align-items: center;            /* eixo transversal */
+  flex-wrap: wrap;                /* permite quebrar linha */
+  gap: 1rem;                      /* espaço entre itens */
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Os valores que aparecem na prática}
+	\begin{center}
+		\begin{tabular}{ll}
+			\toprule
+			\multicolumn{2}{c}{\textbf{justify-content}}                            \\
+			\midrule
+			\texttt{flex-start}    & itens no começo do eixo (padrão)               \\
+			\texttt{center}        & itens no meio                                  \\
+			\texttt{space-between} & pontas nas bordas, sobra dividida entre eles   \\
+			\texttt{space-evenly}  & espaços iguais, inclusive nas pontas           \\
+			\midrule
+			\multicolumn{2}{c}{\textbf{align-items}}                                \\
+			\midrule
+			\texttt{stretch}       & esticam até a altura do mais alto (padrão)     \\
+			\texttt{center}        & centralizados na altura                        \\
+			\texttt{flex-start}    & alinhados pelo topo                            \\
+			\texttt{baseline}      & alinhados pela linha de base do texto          \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+\end{frame}
+
+\begin{frame}{Duas armadilhas}
+	\begin{block}{\texttt{flex-wrap: nowrap} é o padrão}
+		Sem \texttt{wrap}, os itens nunca quebram para a linha de baixo: eles
+		encolhem até caber, e continuam encolhendo depois que o conteúdo já não
+		cabe mais. Em cartões de produto, quase sempre você quer \texttt{wrap}.
+	\end{block}
+
+	\vspace{0.4cm}
+	\begin{block}{\texttt{gap} não é \texttt{margin}}
+		\texttt{gap} vale só \emph{entre} os itens, e não sobra espaço nas pontas,
+		que é o que a margem faria. Funciona em Flexbox e em Grid.
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Propriedades do item}
+	\begin{minted}{css}
+.item {
+  flex-grow: 1;       /* fatia da sobra (padrão 0) */
+  flex-shrink: 1;     /* aceita encolher (padrão 1) */
+  flex-basis: auto;   /* tamanho de partida */
+  align-self: center; /* alinhamento só deste item */
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	A forma abreviada resolve quase tudo:
+
+	\begin{minted}{css}
+.busca { flex: 1; }  /* = 1 1 0%: ocupe toda a sobra */
+.logo  { flex: 0; }  /* tamanho do conteúdo */
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Uma barra com campo elástico}
+	\begin{minted}{css}
+.barra { display: flex; align-items: center; gap: 1rem; }
+
+.barra .logo   { flex: 0 0 auto; } /* não encolhe */
+.barra .busca  { flex: 1 1 auto; } /* absorve a sobra */
+.barra .entrar { flex: 0 0 auto; }
+  \end{minted}
+
+	\vspace{0.3cm}
+	Logotipo à esquerda, busca no meio ocupando o que sobrar, botão à direita.
+\end{frame}
+
+\begin{frame}[fragile]{O padrão da barra de navegação}
+	\begin{minted}{css}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.menu ul {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;  /* tira o marcador */
+  margin: 0;
+  padding: 0;        /* tira o recuo padrão da lista */
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	Só as duas primeiras declarações do \texttt{ul} mudam o layout. As outras três
+	a lista precisaria de qualquer forma.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{order} e a ordem de leitura}
+	\begin{minted}{css}
+.destaque { order: -1; }  /* aparece antes dos demais */
+  \end{minted}
+
+	\vspace{0.3cm}
+	A ordem \textbf{visual} muda. A ordem do \textbf{documento} não.
+
+	\vspace{0.3cm}
+	Quem navega com \texttt{Tab} e quem usa leitor de tela continua percorrendo os
+	elementos na ordem do HTML. Se as duas ordens discordarem, a pessoa vê o foco
+	pular de um canto a outro da tela.
+
+	\vspace{0.3cm}
+	WCAG 1.3.2 (sequência com significado) e 2.4.3 (ordem de foco). Quando a ordem
+	certa for outra, mude o HTML.
+\end{frame}
+
+% ==========================================
+\section{Grid}
+% ==========================================
+
+\begin{frame}[fragile]{Linhas e colunas ao mesmo tempo}
+	\begin{minted}{css}
+.grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* três colunas iguais */
+  gap: 20px;
+}
+  \end{minted}
+
+	\vspace{0.3cm}
+	\texttt{fr} é uma fração do espaço livre do contêiner, descontados o
+	\texttt{gap} e as colunas de tamanho fixo. Só existe dentro do Grid.
+
+	\begin{minted}{css}
+/* mesma coisa que 1fr 1fr 1fr */
+grid-template-columns: repeat(3, 1fr);
+
+/* lateral fixa de 250px, e o resto para o conteúdo */
+grid-template-columns: 250px 1fr;
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Um item que ocupa mais de uma célula}
+	\begin{minted}{css}
+.produto.destaque {
+  grid-column: span 2;  /* ocupa duas colunas */
+  grid-row: span 2;     /* e duas linhas */
+}
+  \end{minted}
+
+	\vspace{0.4cm}
+	É o recurso que o Flexbox não tem, e o motivo de o Grid existir.
+
+	\vspace{0.4cm}
+	\texttt{grid-template-rows} existe, mas raramente é necessária: as linhas que
+	faltarem são criadas automaticamente, com a altura do conteúdo.
+\end{frame}
+
+\begin{frame}[fragile]{Áreas nomeadas: o esqueleto da página}
+	\begin{minted}{css}
+.pagina {
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  grid-template-areas:
+    "cabecalho cabecalho"
+    "conteudo  lateral"
+    "rodape    rodape";
+  gap: 1rem;
+}
+
+header { grid-area: cabecalho; }
+main   { grid-area: conteudo; }
+aside  { grid-area: lateral; }
+footer { grid-area: rodape; }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{O mesmo layout na tela estreita}
+	Cada linha entre aspas é uma linha da grade. Nome repetido em células vizinhas
+	estende a área. Um ponto marca célula vazia.
+
+	\begin{minted}{css}
+grid-template-columns: 1fr;
+grid-template-areas:
+  "cabecalho"
+  "conteudo"
+  "lateral"
+  "rodape";
+  \end{minted}
+
+	\vspace{0.2cm}
+	Reescrever o layout é redesenhar o quadro.
+\end{frame}
+
+\begin{frame}[fragile]{A grade que se adapta sem media query}
+	\begin{minted}{css}
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+  \end{minted}
+
+	\vspace{0.3cm}
+	Em português: crie quantas colunas couberem, com no mínimo 240px cada uma, e
+	reparta a sobra igualmente entre elas.
+
+	\vspace{0.3cm}
+	Esta declaração resolve a grade de cartões do trabalho prático inteira.
+\end{frame}
+
+\begin{frame}{A conta, e a medição}
+	Com \texttt{gap} de 20px, cabem \texttt{n} colunas enquanto
+
+	\begin{center}
+		\large $n \times 240 + (n-1) \times 20 \leq$ largura do contêiner
+	\end{center}
+
+	\vspace{0.2cm}
+	Em 1000px: 4 colunas dariam $960 + 60 = 1020$, não cabe. 3 colunas dão
+	$720 + 40 = 760$, cabe. Cada uma recebe $(1000 - 40)/3 = 320$px.
+
+	\vspace{0.3cm}
+	\begin{center}
+		\begin{tabular}{lll}
+			\toprule
+			\textbf{Contêiner} & \textbf{Colunas} & \textbf{Cada uma} \\
+			\midrule
+			1000px             & 3                & 320px             \\
+			800px              & 3                & 253.33px          \\
+			600px              & 2                & 290px             \\
+			500px              & 2                & 240px             \\
+			400px              & 1                & 400px             \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+\end{frame}
+
+\begin{frame}{\texttt{auto-fit} e \texttt{auto-fill}}
+	\texttt{auto-fill} cria as colunas vazias em vez de descartá-las.
+
+	\vspace{0.4cm}
+	Com poucos itens e muito espaço:
+
+	\begin{itemize}
+		\item \texttt{auto-fill} deixa os cartões no tamanho mínimo e sobra vazio à
+		      direita;
+		\item \texttt{auto-fit} estica os cartões que existem.
+	\end{itemize}
+
+	\vspace{0.4cm}
+	Para catálogo, \texttt{auto-fit} costuma ser o que se quer.
+\end{frame}
+
+\begin{frame}{Flexbox ou Grid}
+	\begin{center}
+		\begin{tabular}{p{4.2cm}p{4.8cm}}
+			\toprule
+			\textbf{Flexbox quando}                      & \textbf{Grid quando}                                  \\
+			\midrule
+			os itens ficam em uma linha ou em uma coluna & há linhas e colunas ao mesmo tempo                    \\
+			\addlinespace
+			o tamanho de cada item vem do conteúdo dele  & o desenho da grade vem primeiro                       \\
+			\addlinespace
+			distribuir a sobra entre poucos itens        & alinhar itens de linhas diferentes                    \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+
+	\vspace{0.4cm}
+	Na página de catálogo: Grid no esqueleto e na grade de produtos; Flexbox no
+	cabeçalho, no menu e dentro do cartão. Um contêiner Flex pode conter um Grid,
+	e o contrário também.
+
+	\vspace{0.2cm}
+	Nos dois modelos, as margens verticais dos itens não colapsam.
+\end{frame}
+
+% ==========================================
+\section{Responsividade}
+% ==========================================
+
+\begin{frame}[fragile]{A meta viewport}
+	Sem esta linha no \texttt{<head>}, nada do que vem depois funciona no celular:
+
+	\begin{minted}[fontsize=\scriptsize]{html}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  \end{minted}
+
+	\vspace{0.3cm}
+	Sem ela, o navegador do celular finge uma janela de cerca de \textbf{980px},
+	desenha a página nela e reduz tudo por escala. Resultado: a página em
+	miniatura, texto ilegível, e nenhuma \emph{media query} de largura pequena
+	entra em ação.
+
+	\vspace{0.3cm}
+	\tcr{Não} acrescente \texttt{user-scalable=no} nem \texttt{maximum-scale=1}:
+	elas impedem o zoom com os dedos, e quem tem baixa visão depende disso.
+\end{frame}
+
+\begin{frame}[fragile]{Media queries}
+	\begin{minted}{css}
+/* estilo base: telas pequenas */
+.grade { grid-template-columns: 1fr; }
+
+@media (min-width: 768px) {
+  .grade { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grade { grid-template-columns: repeat(3, 1fr); }
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	Dentro do bloco vão regras CSS comuns, com os mesmos seletores.
+\end{frame}
+
+\begin{frame}{Media query não muda especificidade}
+	As regras de dentro do bloco vencem as de fora por virem \textbf{depois} no
+	arquivo, e não por serem mais específicas.
+
+	\vspace{0.4cm}
+	\begin{block}{Consequência prática}
+		As \emph{media queries} vão ao \textbf{final} da folha. Escritas antes das
+		regras que pretendem sobrescrever, elas perdem em silêncio.
+	\end{block}
+\end{frame}
+
+\begin{frame}{Mobile-first}
+	CSS base para a tela pequena, ampliado com \texttt{min-width}.
+
+	\vspace{0.4cm}
+	O caminho inverso, começar pelo desktop e cortar com \texttt{max-width},
+	também funciona, e produz folhas maiores: o layout simples costuma ser o da
+	tela estreita, e ele fica sendo o caso que não precisa de regra nenhuma.
+
+	\vspace{0.4cm}
+	Há também a razão de origem: a maior parte do acesso à web vem de telefone, e
+	frequentemente de aparelho modesto com conexão limitada.
+\end{frame}
+
+\begin{frame}{O ponto de quebra vem do conteúdo}
+	A tentação é copiar uma lista de larguras de aparelhos. Essa lista muda todo
+	ano e nunca esteve completa.
+
+	\vspace{0.4cm}
+	O critério prático: arraste a janela do estreito para o largo e observe onde o
+	layout fica ruim. Ali é o ponto de quebra.
+
+	\vspace{0.4cm}
+	Duas ou três quebras resolvem a maior parte das páginas desta disciplina.
+\end{frame}
+
+\begin{frame}[fragile]{Imagens e mídia fluidas}
+	Uma imagem de 1200px de largura natural estoura qualquer coluna estreita e
+	cria rolagem horizontal na página inteira.
+
+	\begin{minted}{css}
+img, video {
+  max-width: 100%;
+  height: auto;
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	\texttt{max-width: 100\%} impede a imagem de passar da largura do contêiner.
+	\texttt{height: auto} mantém a proporção enquanto ela encolhe.
+\end{frame}
+
+\begin{frame}{O teste dos 320px}
+	\begin{block}{WCAG 2.2, critério 1.4.10 (\emph{Reflow}, nível AA)}
+		A página deve continuar utilizável, sem rolagem horizontal, em uma largura
+		de \textbf{320 pixels CSS}.
+	\end{block}
+
+	\vspace{0.3cm}
+	Equivale a um celular pequeno, e ao que sobra quando alguém amplia a página em
+	400\% num monitor comum.
+
+	\vspace{0.3cm}
+	Modo responsivo, largura 320, rolar a página de cima a baixo. Se aparecer
+	barra horizontal, os suspeitos de sempre são imagem sem \texttt{max-width},
+	largura fixa em \texttt{px}, \texttt{white-space: nowrap} e tabela larga.
+\end{frame}
+
+\begin{frame}{Layout, acessibilidade e os ODS}
+	\begin{itemize}
+		\item grade que não se adapta obriga quem acessa pelo telefone a ampliar e
+		      arrastar a tela a cada linha de texto;
+		\item ordem visual em desacordo com a do documento desorienta quem navega
+		      por teclado;
+		\item página que só funciona em conexão rápida exclui quem não tem uma.
+	\end{itemize}
+
+	\vspace{0.4cm}
+	\textbf{ODS 4} e \textbf{ODS 10}: o acesso à informação depende de a página
+	funcionar no aparelho que a pessoa tem, e não no de quem a desenvolveu.
+	\textbf{ODS 8}: interface que funciona no dispositivo de quem opera o sistema
+	reduz retrabalho de quem trabalha com ela todo dia.
+\end{frame}
+
+% ==========================================
+\section{Bootstrap}
+% ==========================================
+
+\begin{frame}[fragile]{Um framework CSS}
+	Folha de estilo pronta, escrita por terceiros, usada pelas classes que ela
+	define. O Bootstrap é o mais difundido, e é o que a ementa pede que você
+	conheça.
+
+	\begin{minted}[fontsize=\tiny]{html}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous">
+  \end{minted}
+
+	\vspace{0.2cm}
+	\texttt{integrity} traz o resumo criptográfico do arquivo esperado. Se o que
+	chegar do CDN não corresponder, o navegador recusa o arquivo.
+\end{frame}
+
+\begin{frame}{A grade de 12 colunas}
+	\begin{center}
+		\includegraphics[width=0.95\textwidth]{../../src/images/bootstrap/colunas.png}
+	\end{center}
+
+	\vspace{0.3cm}
+	A largura é dividida em 12 colunas. Você declara quantas cada bloco ocupa, e a
+	soma de uma linha deve dar 12.
+\end{frame}
+
+\begin{frame}[fragile]{Grade e pontos de quebra}
+	\begin{minted}{html}
+<div class="container">
+  <div class="row">
+    <div class="col-md-8">Conteúdo principal</div>
+    <div class="col-md-4">Barra lateral</div>
+  </div>
+</div>
+  \end{minted}
+
+	\begin{center}
+		\begin{tabular}{ll}
+			\toprule
+			\textbf{Sufixo} & \textbf{A partir de} \\
+			\midrule
+			(nenhum)        & qualquer largura     \\
+			\texttt{sm}     & 576px                \\
+			\texttt{md}     & 768px                \\
+			\texttt{lg}     & 992px                \\
+			\texttt{xl}     & 1200px               \\
+			\texttt{xxl}    & 1400px               \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Classes utilitárias}
+	\begin{minted}[fontsize=\scriptsize]{html}
+<div class="d-flex justify-content-between
+            align-items-center p-3 mb-4 bg-light">
+  \end{minted}
+
+	\vspace{0.3cm}
+	\texttt{d-flex} é \texttt{display: flex}; \texttt{p-3} é um \texttt{padding}
+	da escala de espaçamento; \texttt{mb-4} é \texttt{margin-bottom};
+	\texttt{bg-light} é uma cor de fundo.
+
+	\vspace{0.3cm}
+	Por baixo, \texttt{.row} é um contêiner Flexbox e \texttt{.col-md-8} define
+	largura em porcentagem dentro de uma \emph{media query}. É o CSS desta aula,
+	empacotado.
+\end{frame}
+
+\begin{frame}{O que isso custa, e a posição da disciplina}
+	O \texttt{bootstrap.min.css} 5.3.8 tem \textbf{232.111 bytes}, cerca de
+	227\,KB, que chegam como cerca de 30\,KB comprimidos. A página carrega a folha
+	inteira, mesmo usando cinco classes dela. E o HTML acumula classes de
+	apresentação, que é o que a separação entre estrutura e estilo pretendia
+	evitar.
+
+	\vspace{0.4cm}
+	\begin{block}{Nesta disciplina}
+		O Bootstrap não é ferramenta obrigatória, e o trabalho prático é feito com
+		CSS escrito por você. Quem aprende \texttt{col-md-4} sem ter escrito uma
+		\emph{media query} fica sem saber o que fazer quando a grade do framework
+		não resolve o caso.
+
+		Você vai encontrá-lo em código de terceiros e em estágio: o que se espera
+		daqui é saber \textbf{ler}.
+	\end{block}
+\end{frame}
+
+% ==========================================
+\section{Prática}
+% ==========================================
+
+\begin{frame}{Roteiro da prática}
+	Trabalhando sobre as páginas da tarefa de CSS:
+
+	\begin{enumerate}
+		\item meta viewport nas três páginas, e o menu na horizontal;
+		\item a grade de produtos com \texttt{auto-fit} e \texttt{minmax};
+		\item o cartão por dentro, com o preço alinhado na base;
+		\item \emph{media queries} e o teste dos 320px.
+	\end{enumerate}
+
+	\vspace{0.4cm}
+	O texto completo do roteiro está no material da aula, na parte prática.
+\end{frame}
+
+\begin{frame}[fragile]{O menu na horizontal}
+	\begin{minted}{css}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.menu ul {
+  display: flex; gap: 1.5rem;
+  list-style: none; margin: 0; padding: 0;
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	Dois experimentos, um de cada vez: trocar \texttt{space-between} por
+	\texttt{center}; acrescentar \texttt{flex-direction: column} ao \texttt{ul}.
+\end{frame}
+
+\begin{frame}[fragile]{A grade de produtos}
+	\begin{minted}{css}
+.grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+img { max-width: 100%; height: auto; }
+  \end{minted}
+
+	\vspace{0.2cm}
+	Ligue o desenho da grade no inspetor e conte as colunas. Estreite a janela até
+	a grade passar para duas colunas, anote a largura e confira a conta.
+
+	\vspace{0.2cm}
+	Depois troque \texttt{240px} por \texttt{320px} e observe onde ela muda.
+\end{frame}
+
+\begin{frame}[fragile]{O cartão por dentro}
+	Descrições de tamanhos diferentes deixam o preço em altura diferente em cada
+	cartão.
+
+	\begin{minted}{css}
+.produto {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.produto .preco {
+  margin-top: auto;  /* absorve a sobra vertical */
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	\texttt{margin: auto} dentro de um contêiner Flex absorve o espaço livre
+	daquele lado. É a forma mais curta de empurrar um item para a ponta do eixo.
+\end{frame}
+
+\begin{frame}[fragile]{Media queries e o teste final}
+	\begin{minted}{css}
+header { flex-direction: column; }
+
+@media (min-width: 768px) {
+  header { flex-direction: row; }
+}
+  \end{minted}
+
+	\vspace{0.2cm}
+	Em cada uma das três páginas:
+
+	\begin{enumerate}
+		\item \texttt{Ctrl+Shift+M} para ligar o modo responsivo;
+		\item largura 320, e rolar a página de cima a baixo;
+		\item achar no inspetor o elemento desenhado além da borda direita;
+		\item repetir em 1200px e confirmar que o layout largo continua correto.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Exercícios}
+	\begin{block}{Entrega}
+		Valem nota, no item \emph{Exercícios em sala}. O \textbf{prazo} está na
+		atividade correspondente na \textbf{UFPR Virtual}, e a entrega é por
+		\texttt{push} no GitLab.
+	\end{block}
+
+	\vspace{0.4cm}
+	\begin{itemize}
+		\item enunciado no \texttt{README.md} do repositório-modelo, com o endereço
+		      na UFPR Virtual;
+		\item individual ou em dupla, com \emph{fork} dentro do grupo;
+		\item atividade avaliativa: sem IA generativa para produzir o código;
+		\item o que sair daqui é a \textbf{Entrega 1} do trabalho prático.
+	\end{itemize}
+
+	\vspace{0.3cm}
+	Para treinar fora da entrega, em português: Flexbox Froggy e Grid Garden.
+\end{frame}
+
+\begin{frame}{Resumo: Flexbox e Grid}
+	\begin{itemize}
+		\item os dois modelos entram quando o \textbf{pai} declara o
+		      \texttt{display}, e valem para os filhos diretos;
+		\item propriedade de contêiner escrita no item não faz nada e não gera erro;
+		\item \texttt{justify-content} no eixo principal, \texttt{align-items} no
+		      transversal, e \texttt{flex-direction} troca o sentido dos dois;
+		\item \texttt{flex-wrap: nowrap} é o padrão: sem \texttt{wrap} os itens
+		      encolhem em vez de quebrar a linha;
+		\item \texttt{repeat(auto-fit, minmax(240px, 1fr))} muda o número de colunas
+		      sozinho, sem \emph{media query};
+		\item Grid para o esqueleto e para grades, Flexbox para uma linha ou uma
+		      coluna de itens.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Resumo: responsividade}
+	\begin{itemize}
+		\item sem a meta viewport, o celular desenha numa janela fingida de 980px e
+		      nenhuma \emph{media query} estreita entra em ação;
+		\item em \emph{mobile-first}, as \emph{media queries} usam
+		      \texttt{min-width} e vão ao final da folha, porque não alteram
+		      especificidade;
+		\item o ponto de quebra sai de onde o layout fica ruim, e não de uma lista
+		      de aparelhos;
+		\item a 320px de largura não pode haver rolagem horizontal (WCAG 1.4.10);
+		\item Bootstrap: 12 colunas e utilitárias, ao custo de 227\,KB e de HTML
+		      cheio de classes de apresentação. Aqui, conteúdo de leitura.
+	\end{itemize}
+\end{frame}
+
+\end{document}
