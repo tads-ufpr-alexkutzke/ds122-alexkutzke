@@ -2,7 +2,7 @@
 
 - **Turma**: TADSV2
 - **Semestre**: 2026-02
-- **Última atualização**: 04/09/2026 10:47
+- **Última atualização**: 04/09/2026 11:02
 
 | GRR | prepare<br>03/09 | HTML<br>03/09 | CSS<br>03/09 |
 | --- | :---: | :---: | :---: |
@@ -16,7 +16,7 @@
 | GRR20260611 | ok | ok | ok |
 | GRR20260686 | ok | ok | ok |
 | GRR20260800 | ok | ok | ok |
-| GRR20260851 | sem commit | ok | sem commit |
+| GRR20260851 | sem commit | ok | ok (dupla) |
 | GRR20261050 | ok | ok | ok (mexeu +1d) |
 | GRR20261324 | sem commit | ok | ok |
 | GRR20261421 | ok | ok | ok |
@@ -47,7 +47,7 @@
 | GRR20265862 | ok | ok | ok (dupla) |
 | GRR20265942 | ok | ok | ok (mexeu +1d) |
 | GRR20266188 | sem commit | sem fork | sem fork |
-| GRR20266284 | sem commit | ok (dupla) | ok (mexeu +1d) (dupla) |
+| GRR20266284 | ok (dupla) | ok (dupla) | ok (mexeu +1d) (dupla) |
 | GRR20266508 | ok | ok | ok |
 
 Legenda: `ok` entregue no prazo; `fora do prazo` só há commits depois da data;
