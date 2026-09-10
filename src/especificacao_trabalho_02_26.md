@@ -35,7 +35,7 @@ O `README.md` do fork já traz o modelo do diário de bordo a preencher.
 ## Estrutura de Entregas
 
 ### Entrega 1: Front-end Estático (HTML5 + CSS3)
-**Prazo:** 11/09/2026, na aula anterior à Prova 1  
+**Prazo:** ~~11/09/2026~~ **13/09/2026 (domingo), prazo adiado a pedido da turma**  
 **Peso na nota do trabalho:** 30%
 
 **Requisitos mínimos:**
@@ -202,7 +202,7 @@ O que continua permitido, e recomendado:
 
 | Entrega | Conteúdo | Prazo | Peso |
 |---|---|---|---|
-| Entrega 1 | HTML5 + CSS3 (Front-end estático) | 11/09/2026 (sex) | 30% |
+| Entrega 1 | HTML5 + CSS3 (Front-end estático) | ~~11/09/2026 (sex)~~ **13/09/2026 (dom)** | 30% |
 | Entrega 2 | JavaScript (Interatividade) | 09/10/2026 (sex) | 30% |
 | Entrega 3 | PHP + MySQL (Back-end completo) | 27/11/2026 (sex) | 40% |
 
