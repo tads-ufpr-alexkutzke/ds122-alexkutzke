@@ -2,45 +2,43 @@
 
 - **Turma**: TADSN2
 - **Semestre**: 2026-02
-- **Última atualização**: 04/09/2026 11:02
+- **Última atualização**: 11/09/2026 08:32
 
-| GRR | prepare<br>03/09 | HTML<br>03/09 | CSS<br>03/09 |
-| --- | :---: | :---: | :---: |
-| GRR20214918 | ok | ok | sem fork |
-| GRR20243354 | ok | ok | sem fork |
-| GRR20250564 | ok | ok | ok |
-| GRR20252028 | sem commit | sem fork | sem fork |
-| GRR20253513 | sem commit | ok | sem fork |
-| GRR20260001 | ok | ok | sem fork |
-| GRR20260058 | sem fork | sem commit | sem fork |
-| GRR20260340 | ok | ok | ok |
-| GRR20260553 | ok | ok | ok |
-| GRR20260844 | ok | ok | ok |
-| GRR20260905 | ok | ok | ok |
-| GRR20261137 | ok | ok | ok |
-| GRR20261142 | ok | ok | ok |
-| GRR20261406 | sem grupo | ok (dupla) | ok (mexeu +1d) (dupla) |
-| GRR20261426 | ok | ok | sem fork |
-| GRR20261526 | ok | ok | ok |
-| GRR20261528 | ok | sem fork | sem fork |
-| GRR20261725 | sem commit (dupla) | ok (dupla) | sem fork |
-| GRR20261773 | sem commit | ok | sem fork |
-| GRR20262101 | ok | ok | ok |
-| GRR20262364 | ok (dupla) | sem grupo | sem grupo |
-| GRR20262611 | ok | ok | ok (mexeu +1d) |
-| GRR20262658 | ok | ok | ok |
-| GRR20262792 | ok | ok | ok |
-| GRR20262853 | ok | ok (dupla) | ok (dupla) |
-| GRR20263207 | ok | ok | sem fork |
-| GRR20263216 | ok | sem commit | sem commit |
-| GRR20263366 | ok | ok | ok |
-| GRR20263474 | ok | ok | ok |
-| GRR20263531 | ok | ok | ok |
-| GRR20263633 | ok | ok | ok (mexeu +1d) |
-| GRR20263709 | ok | ok | ok |
-| GRR20264165 | ok | ok | ok |
-| GRR20264820 | sem commit | ok | sem fork |
-| GRR20265011 | sem fork | ok | ok (mexeu +1d) |
+| GRR | prepare<br>03/09 | HTML<br>03/09 | CSS<br>03/09 | trabalho1<br>13/09 | Laboratório 1<br>17/09 |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| GRR20214918 | ok | ok | sem fork | sem fork | sem fork |
+| GRR20243354 | ok | ok | sem fork | sem fork | sem fork |
+| GRR20250564 | ok | ok | ok | sem commit | sem fork |
+| GRR20252028 | sem commit | sem fork | sem fork | sem fork | sem fork |
+| GRR20260001 | ok | ok (mexeu +1d) | sem fork | sem fork | sem fork |
+| GRR20260058 | sem fork | sem commit | sem fork | sem fork | sem fork |
+| GRR20260340 | ok | ok | ok | sem fork | sem fork |
+| GRR20260553 | ok | ok | ok | ok | sem fork |
+| GRR20260844 | ok | ok | ok | ok | sem fork |
+| GRR20260905 | ok | ok | ok | sem fork | sem fork |
+| GRR20261137 | ok | ok | ok (mexeu +5d) | sem commit | sem fork |
+| GRR20261142 | ok | ok | ok | sem commit | sem fork |
+| GRR20261406 | sem grupo | ok (dupla) | ok (mexeu +1d) (dupla) | sem grupo | sem grupo |
+| GRR20261426 | ok | ok | sem commit | sem fork | sem fork |
+| GRR20261526 | ok | ok | ok | ok | sem fork |
+| GRR20261528 | ok | sem fork | sem fork | sem fork | sem fork |
+| GRR20261725 | sem fork | sem commit | sem fork | sem fork | sem fork |
+| GRR20261773 | sem commit | ok | sem fork | sem fork | sem fork |
+| GRR20262101 | ok | ok | ok | sem commit | sem fork |
+| GRR20262364 | ok (dupla) | sem grupo | sem grupo | sem grupo | sem grupo |
+| GRR20262611 | ok | ok | ok (mexeu +1d) | sem fork | sem fork |
+| GRR20262658 | ok | ok | ok | sem fork | sem fork |
+| GRR20262792 | ok | ok | ok | ok | sem fork |
+| GRR20262853 | ok | ok (dupla) | ok (dupla) | sem commit (dupla) | sem fork |
+| GRR20263207 | ok | ok | sem fork | sem fork | sem fork |
+| GRR20263216 | ok | sem commit | fora do prazo (+3d) | sem fork | sem fork |
+| GRR20263366 | ok | ok | ok | ok | sem fork |
+| GRR20263474 | ok | ok | ok | sem fork | sem fork |
+| GRR20263531 | ok | ok | ok | ok | sem fork |
+| GRR20263633 | ok | ok | ok (mexeu +1d) | ok | sem fork |
+| GRR20263709 | ok | ok | ok | sem fork | sem fork |
+| GRR20264165 | ok | ok | ok | sem fork | sem fork |
+| GRR20265011 | sem fork | ok | ok (mexeu +1d) | ok | sem fork |
 
 Legenda: `ok` entregue no prazo; `fora do prazo` só há commits depois da data;
 `sem commit` fork criado sem trabalho do aluno (`fork vazio` nunca teve um
