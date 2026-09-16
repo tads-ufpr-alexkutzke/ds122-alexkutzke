@@ -2,7 +2,7 @@
 
 - **Turma**: TADSN2
 - **Semestre**: 2026-02
-- **Última atualização**: 14/09/2026 14:59
+- **Última atualização**: 16/09/2026 11:58
 
 | GRR | prepare<br>03/09 | HTML<br>03/09 | CSS<br>03/09 | trabalho1<br>13/09 | Laboratório 1<br>17/09 |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -14,13 +14,13 @@
 | GRR20260058 | sem fork | sem commit | sem fork | sem fork | sem fork |
 | GRR20260340 | ok | ok | ok | ok | sem fork |
 | GRR20260553 | ok | ok | ok | ok | sem commit |
-| GRR20260844 | ok | ok | ok | ok | sem commit |
+| GRR20260844 | ok | ok | ok | ok | ok |
 | GRR20260905 | ok | ok | ok | ok | sem fork |
 | GRR20261137 | ok | ok | ok (mexeu +5d) | ok | sem fork |
-| GRR20261142 | ok | ok | ok | ok | sem fork |
+| GRR20261142 | ok | ok | ok | ok | sem commit |
 | GRR20261406 | sem grupo | ok (dupla) | ok (mexeu +1d) (dupla) | sem grupo | sem grupo |
 | GRR20261426 | ok | ok | sem commit | sem fork | sem fork |
-| GRR20261526 | ok | ok | ok | ok | sem fork |
+| GRR20261526 | ok | ok | ok | ok | ok |
 | GRR20261528 | ok | sem fork | sem fork | sem fork | sem fork |
 | GRR20261725 | sem fork | sem commit | sem fork | sem fork | sem fork |
 | GRR20261773 | sem commit | ok | sem fork | sem fork | sem fork |
