@@ -116,9 +116,6 @@ document.querySelectorAll("article.produto").length
 	\vspace{0.3cm}
 	Desde 2009 o V8 também roda fora do navegador, no Node.js. Neste semestre o
 	servidor é PHP, e o JavaScript fica no cliente.
-
-	\vspace{0.3cm}
-	A sintaxe é a mesma nos dois lugares.
 \end{frame}
 
 \begin{frame}{ECMAScript e o que significa ES6}
@@ -127,7 +124,7 @@ document.querySelectorAll("article.produto").length
 
 	\vspace{0.4cm}
 	\textbf{ES6}, ou ES2015, reorganizou a linguagem: \texttt{let}, \texttt{const},
-	arrow functions, template strings, classes e promessas.
+	arrow functions, template strings, classes e promessas (\emph{promises}).
 
 	\vspace{0.4cm}
 	Desde 2015 sai uma versão por ano, com acréscimos menores.
@@ -187,8 +184,41 @@ document.querySelectorAll("article.produto").length
 	\end{enumerate}
 
 	\vspace{0.4cm}
-	Status \texttt{404} ali significa caminho errado, e ele é relativo ao arquivo
-	HTML.
+	Status \texttt{404} ali significa caminho errado.
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: o primeiro arquivo}
+	No \texttt{catalogo.html}, seu ou do pacote de exemplo da aula:
+
+	\begin{enumerate}
+		\item crie \texttt{js/app.js} com um \texttt{console.log} na primeira linha;
+		\item ligue o arquivo no \texttt{<head>}, com \texttt{defer};
+		\item recarregue e confira o console e a aba \textbf{Network};
+		\item troque o \texttt{src} por \texttt{js/apps.js}, recarregue e anote o
+		      que mudou.
+	\end{enumerate}
+
+	\vspace{0.4cm}
+	Tempo: 5 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: o primeiro arquivo}
+	\begin{minted}{javascript}
+// js/app.js
+console.log("app.js carregou");
+	\end{minted}
+
+	\begin{minted}{html}
+<link rel="stylesheet" href="css/estilo.css">
+<script src="js/app.js" defer></script>
+	\end{minted}
+
+	\vspace{0.2cm}
+	Com \texttt{js/apps.js}, a mensagem some do console e a aba
+	\textbf{Network} mostra \texttt{404} para o arquivo. A página abre igual.
+
+	\vspace{0.2cm}
+	Desfaça a troca antes de seguir.
 \end{frame}
 
 % ==========================================
@@ -348,7 +378,8 @@ nome.toLowerCase().includes(busca.toLowerCase())
 
 	\vspace{0.2cm}
 	O mesmo acontece em C, Java e Python: 0,1 não tem representação exata em
-	base 2.
+	base 2. Em valores monetários, arredonde na hora de mostrar ou guarde sempre
+	em centavos.
 
 	\begin{minted}{javascript}
 const total = 32.5 * 3;       // 97.5
@@ -510,8 +541,7 @@ dobro(4);    // undefined
 	expressão é devolvido.
 
 	\vspace{0.3cm}
-	É o defeito mais comum de quem está começando, e ele não gera erro nenhum no
-	console.
+	É um dos defeitos mais frequentes, e ele não gera erro nenhum no console.
 \end{frame}
 
 \begin{frame}[fragile]{Parâmetro com valor padrão}
@@ -565,6 +595,85 @@ precos.shift();       // remove do começo
 	\end{minted}
 \end{frame}
 
+\begin{frame}[fragile]{Objeto}
+	\begin{minted}{javascript}
+const produto = {
+  id: 1,
+  nome: "Café em grão",
+  categoria: "Bebidas",
+  preco: 32.5,
+  desconto: 0.15
+};
+
+produto.nome        // "Café em grão"
+produto["nome"]     // igual
+
+const campo = "preco";
+produto[campo]      // 32.5
+	\end{minted}
+
+	\vspace{0.2cm}
+	Colchete quando o nome da chave vem de uma variável.
+\end{frame}
+
+\begin{frame}[fragile]{Array de objetos}
+	É o formato em que os dados chegam de uma API, e o do seu catálogo.
+
+	\begin{minted}{javascript}
+const produtos = [
+  { id: 1, nome: "Café em grão",   preco: 32.5 },
+  { id: 2, nome: "Chá de hibisco", preco: 18   },
+  { id: 3, nome: "Mel silvestre",  preco: 24.9 }
+];
+
+produtos.length        // 3
+produtos[0].nome       // "Café em grão"
+
+for (const produto of produtos) {
+  console.log(produto.nome);
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: os produtos como dados}
+	\begin{enumerate}
+		\item crie \texttt{js/produtos.js} com um array \texttt{produtos}, um objeto
+		      por produto do catálogo, com \texttt{id}, \texttt{nome},
+		      \texttt{categoria}, \texttt{preco} e \texttt{desconto};
+		\item ligue esse arquivo \textbf{antes} do \texttt{app.js};
+		\item no \texttt{app.js}, imprima quantos produtos existem.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	O número tem que bater com o de cartões na página. No pacote de exemplo, são
+	seis; o desconto de cada um fica a seu critério.
+
+	\vspace{0.3cm}
+	Tempo: 8 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: os produtos como dados}
+	\begin{minted}[fontsize=\tiny]{javascript}
+const produtos = [
+  { id: 1, nome: "Café em grão", categoria: "Bebidas", preco: 32.5, desconto: 0.15 },
+  { id: 2, nome: "Chá de hibisco", categoria: "Bebidas", preco: 18, desconto: 0 },
+  { id: 3, nome: "Mel silvestre", categoria: "Mercearia", preco: 24.9, desconto: 0.1 },
+  { id: 4, nome: "Farinha de milho", categoria: "Mercearia", preco: 12, desconto: 0 },
+  { id: 5, nome: "Sabonete de argila", categoria: "Higiene", preco: 9.9, desconto: 0.2 },
+  { id: 6, nome: "Cesta de vime", categoria: "Utensílios", preco: 74.9, desconto: 0 }
+];
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+// app.js
+console.log(produtos.length);   // 6
+console.table(produtos);
+	\end{minted}
+
+	\texttt{console.table} monta uma linha por item e uma coluna por campo. É a
+	forma mais rápida de conferir um array de objetos.
+\end{frame}
+
 \begin{frame}[fragile]{Percorrer: \texttt{forEach}}
 	\begin{minted}{javascript}
 const produtos = ["Café", "Chá", "Mate"];
@@ -579,6 +688,31 @@ produtos.forEach((produto, indice) => {
 	\vspace{0.2cm}
 	Não devolve nada e não pode ser interrompido: \texttt{break} não funciona
 	dentro dele. Para parar antes do fim, \texttt{for...of}.
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: uma linha por produto}
+	Com \texttt{forEach}, imprima no console uma linha por produto, neste
+	formato:
+
+	\begin{minted}{text}
+Café em grão: R$ 32.50
+Chá de hibisco: R$ 18.00
+	\end{minted}
+
+	\vspace{0.3cm}
+	Tempo: 5 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: uma linha por produto}
+	\begin{minted}{javascript}
+produtos.forEach(produto => {
+  console.log(`${produto.nome}: R$ ${produto.preco.toFixed(2)}`);
+});
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{toFixed(2)} garante as duas casas: sem ele, o chá sairia como
+	\texttt{R\$ 18}.
 \end{frame}
 
 \begin{frame}[fragile]{Transformar: \texttt{map}}
@@ -598,6 +732,34 @@ precos;   // [32.5, 18, 74.9], inalterado
 	some na exibição, com \texttt{toFixed} ou \texttt{toLocaleString}.
 \end{frame}
 
+\begin{frame}[fragile]{Na prática: preço com desconto}
+	Com \texttt{map}, produza o array \texttt{precosFinais}: o preço de cada
+	produto com o desconto já aplicado.
+
+	\vspace{0.3cm}
+	O array \texttt{produtos} não pode mudar. Confira depois com
+
+	\texttt{console.table(produtos)}.
+
+	\vspace{0.3cm}
+	Tempo: 5 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: preço com desconto}
+	\begin{minted}{javascript}
+const precosFinais = produtos.map(
+  produto => produto.preco * (1 - produto.desconto)
+);
+// [27.625, 18, 22.41, 12, 7.920000000000001, 74.9]
+	\end{minted}
+
+	\vspace{0.2cm}
+	Confira o primeiro na calculadora: R\$ 32,50 com 15\% de desconto.
+
+	\vspace{0.2cm}
+	Produto com \texttt{desconto: 0} sai com o mesmo preço, e está correto.
+\end{frame}
+
 \begin{frame}[fragile]{Selecionar: \texttt{filter}}
 	Devolve um array novo com os elementos que passaram no teste.
 
@@ -612,6 +774,37 @@ const baratos = precos.filter(preco => preco < 30);
 	A função precisa devolver \texttt{true} ou \texttt{false}. Escrever a condição
 	entre chaves e esquecer o \texttt{return} devolve array vazio, porque
 	\texttt{undefined} é valor falso.
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: busca e filtro}
+	Com \texttt{filter}, escreva duas consultas:
+
+	\begin{enumerate}
+		\item produtos cujo nome contém um termo, sem diferenciar maiúsculas de
+		      minúsculas. Teste com \texttt{"ES"};
+		\item produtos com preço entre 20 e 50, incluindo os extremos.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	São dois requisitos da Entrega 2 do trabalho prático.
+
+	\vspace{0.3cm}
+	Tempo: 8 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: busca e filtro}
+	\begin{minted}{javascript}
+const termo = "ES";
+const encontrados = produtos.filter(
+  produto => produto.nome.toLowerCase().includes(termo.toLowerCase())
+);
+// Mel silvestre, Cesta de vime
+
+const naFaixa = produtos.filter(
+  produto => produto.preco >= 20 && produto.preco <= 50
+);
+// Café em grão, Mel silvestre
+	\end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Resumir: \texttt{reduce}}
@@ -631,6 +824,67 @@ const soma = precos.reduce(
 
 	\vspace{0.2cm}
 	Escreva sempre o valor inicial.
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: valor total}
+	Com \texttt{reduce}, some o preço de todos os produtos, sem desconto.
+
+	\vspace{0.3cm}
+	Tempo: 4 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: valor total}
+	\begin{minted}{javascript}
+const total = produtos.reduce(
+  (soma, produto) => soma + produto.preco,
+  0
+);
+// 172.20000000000002
+
+total.toFixed(2)   // "172.20"
+	\end{minted}
+
+	\vspace{0.2cm}
+	O acumulador começa em \texttt{0} e recebe um preço a cada volta.
+\end{frame}
+
+\begin{frame}[fragile]{Na prática: produtos por categoria}
+	Monte um objeto com a quantidade de produtos de cada categoria, percorrendo o
+	array com \texttt{for...of}:
+
+	\begin{minted}{javascript}
+// resultado esperado no pacote de exemplo
+{ Bebidas: 2, Mercearia: 2, Higiene: 1, Utensílios: 1 }
+	\end{minted}
+
+	\vspace{0.2cm}
+	Comece com \texttt{const contagem = \{\};} e use
+
+	\texttt{contagem[produto.categoria]}.
+
+	\vspace{0.3cm}
+	Tempo: 8 minutos.
+\end{frame}
+
+\begin{frame}[fragile]{Resposta: produtos por categoria}
+	\begin{minted}{javascript}
+const contagem = {};
+
+for (const produto of produtos) {
+  if (contagem[produto.categoria] === undefined) {
+    contagem[produto.categoria] = 0;
+  }
+  contagem[produto.categoria] = contagem[produto.categoria] + 1;
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	Colchete porque o nome da chave vem da variável. Na primeira vez que uma
+	categoria aparece, a chave ainda não existe e o valor lido é
+	\texttt{undefined}.
+
+	\vspace{0.2cm}
+	A mesma contagem feita com \texttt{reduce} está na seção 20 do texto da aula.
 \end{frame}
 
 \begin{frame}[fragile]{Procurar}
@@ -679,57 +933,17 @@ precos.sort((a, b) => b - a); // decrescente
 	\texttt{b} vem antes, zero quando tanto faz.
 \end{frame}
 
-\begin{frame}[fragile]{Objeto}
-	\begin{minted}{javascript}
-const produto = {
-  id: 1,
-  nome: "Café em grão",
-  categoria: "Bebidas",
-  preco: 32.5,
-  desconto: 0.15
-};
-
-produto.nome        // "Café em grão"
-produto["nome"]     // igual
-
-const campo = "preco";
-produto[campo]      // 32.5
-	\end{minted}
-
-	\vspace{0.2cm}
-	Colchete quando o nome da chave vem de uma variável.
-\end{frame}
-
-\begin{frame}[fragile]{Array de objetos}
-	É o formato em que os dados chegam de uma API, e o do seu catálogo.
-
-	\begin{minted}{javascript}
-const produtos = [
-  { id: 1, nome: "Café em grão",  preco: 32.5 },
-  { id: 2, nome: "Chá de hibisco", preco: 18  },
-  { id: 3, nome: "Mel silvestre",  preco: 24.9 }
-];
-
-produtos.map(p => p.nome);
-produtos.filter(p => p.preco < 30);
-produtos.find(p => p.id === 3);
-produtos.reduce((s, p) => s + p.preco, 0);
-	\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]{Desestruturação e \texttt{console.table}}
+\begin{frame}[fragile]{Desestruturação}
 	\begin{minted}{javascript}
 const { nome, preco } = produto;
 
 const linha = ({ nome, preco }) =>
   `${nome}: R$ ${preco.toFixed(2)}`;
-
-console.table(produtos);
 	\end{minted}
 
 	\vspace{0.3cm}
-	\texttt{console.table} monta uma linha por item e uma coluna por campo. É a
-	forma mais rápida de conferir se o filtro selecionou o que deveria.
+	As chaves do lado esquerdo criam uma constante para cada campo com o mesmo
+	nome. Na lista de parâmetros, fazem o mesmo com o objeto recebido.
 \end{frame}
 
 % ==========================================
@@ -785,21 +999,39 @@ console.log(produto.nome);
 	eventos.
 \end{frame}
 
-\begin{frame}{Parte prática}
-	Sobre as suas páginas, ou sobre o pacote de exemplo da aula:
+\begin{frame}[fragile]{Na prática: ler o erro}
+	Quebre o \texttt{app.js} de propósito, uma quebra por vez. Recarregue, anote o
+	tipo do erro e a linha, e desfaça:
 
 	\begin{enumerate}
-		\item criar \texttt{js/app.js} e ligá-lo com \texttt{defer};
-		\item escrever \texttt{js/produtos.js} com o catálogo em array de objetos;
-		\item formatar preço e imprimir uma linha por produto;
-		\item aplicar desconto;
-		\item busca por nome e filtro por faixa de preço, combináveis;
-		\item relatório com \texttt{reduce};
-		\item quebrar de propósito e ler o erro.
+		\item troque \texttt{produtos.filter} por \texttt{produtos.filtrar};
+		\item apague uma chave \texttt{\}} no meio do arquivo;
+		\item busque com \texttt{find} o \texttt{id} 999 e imprima o
+		      \texttt{.nome} do resultado;
+		\item escreva \texttt{const dobro = (v) => \{ v * 2 \};} e imprima
+		      \texttt{dobro(4)}.
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	Nada disso muda a página. Levar o resultado para a tela é o próximo encontro.
+	Tempo: 8 minutos.
+\end{frame}
+
+\begin{frame}{Resposta: ler o erro}
+	\begin{tabular}{ll}
+		\toprule
+		1 & \texttt{TypeError}: \texttt{produtos.filtrar is not a function} \\
+		2 & \texttt{SyntaxError}: nada do arquivo roda \\
+		3 & \texttt{TypeError}: \texttt{Cannot read properties of undefined} \\
+		4 & nenhum erro: imprime \texttt{undefined} \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.4cm}
+	No terceiro, a causa está na linha do \texttt{find}, uma acima da apontada.
+
+	\vspace{0.2cm}
+	O quarto é o retorno implícito com chaves. O console não denuncia, e o
+	defeito só aparece quando alguém confere o valor.
 \end{frame}
 
 \begin{frame}{Tarefa}
