@@ -1,4 +1,9 @@
-# Lista de Exercícios: Fundamentos de JavaScript (ES6+)
+# Exercícios de treino: JavaScript (ES6+)
+
+> Esta lista **não tem entrega e não vale nota**. Ela existe para quem quiser
+> mais repetição em laços, strings e arrays depois da
+> [aula de JavaScript](./aula_06_00_js.md). A tarefa avaliativa da aula é outra,
+> e o enunciado dela está no repositório-modelo indicado na UFPR Virtual.
 
 Os exercícios abaixo apresentam complexidade progressiva e devem ser resolvidos utilizando as práticas modernas da linguagem (declaração de variáveis com `let` e `const`, e utilização de *Arrow Functions* a partir do Exercício 3). 
 

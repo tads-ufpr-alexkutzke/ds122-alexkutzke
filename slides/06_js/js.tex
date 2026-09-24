@@ -1,0 +1,821 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{06 - JavaScript: sintaxe moderna (ES6+)}
+\author{Prof. Alex Kutzke}
+\date{Setembro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Executar uma expressão no console do navegador e ler a resposta;
+		\item Ligar um arquivo \texttt{.js} externo com \texttt{defer} e confirmar
+		      que ele executou;
+		\item Escolher entre \texttt{const} e \texttt{let}, e dizer por que
+		      \texttt{var} ficou de fora;
+		\item Prever o resultado de uma comparação com \texttt{==} e com
+		      \texttt{===};
+		\item Escrever uma função nas três formas de hoje e converter uma na outra;
+		\item Percorrer um array com \texttt{for...of} e com \texttt{forEach};
+		\item Produzir arrays novos com \texttt{map} e \texttt{filter}, e um valor
+		      único com \texttt{reduce};
+		\item Representar o catálogo como array de objetos e extrair um relatório;
+		\item Ler uma mensagem de erro do console e chegar à causa.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Console}
+% ==========================================
+
+\begin{frame}[fragile]{O console do navegador}
+	\texttt{F12}, aba \textbf{Console}. O mesmo painel do inspetor de CSS.
+
+	\begin{minted}{javascript}
+2 + 3
+"Loja" + " " + "Exemplo"
+document.title
+document.querySelectorAll("article.produto").length
+	\end{minted}
+
+	\vspace{0.3cm}
+	Uma linha, um resultado, sem recarregar nada.
+\end{frame}
+
+\begin{frame}{O que apareceu na última linha}
+	\begin{itemize}
+		\item o código tinha acesso ao conteúdo da página, sem nada salvo em
+		      arquivo;
+		\item \texttt{document} existia sem ter sido declarado;
+		\item \texttt{querySelectorAll} e \texttt{length} vieram junto com ele.
+	\end{itemize}
+
+	\vspace{0.5cm}
+	Esse acesso à página chama-se DOM, e é o assunto do próximo encontro.
+
+	\vspace{0.3cm}
+	Hoje o console é a calculadora onde o código é conferido antes de ir para o
+	arquivo.
+\end{frame}
+
+\begin{frame}{Onde o JavaScript roda}
+	Linguagem interpretada, de tipagem dinâmica, criada em 1995 para o navegador.
+
+	\vspace{0.3cm}
+	Cada navegador traz um motor: V8 (Chrome, Edge), SpiderMonkey (Firefox),
+	JavaScriptCore (Safari).
+
+	\vspace{0.3cm}
+	Desde 2009 o V8 também roda fora do navegador, no Node.js. Neste semestre o
+	servidor é PHP, e o JavaScript fica no cliente.
+
+	\vspace{0.3cm}
+	A sintaxe é a mesma nos dois lugares.
+\end{frame}
+
+\begin{frame}{ECMAScript e o que significa ES6}
+	A especificação se chama \textbf{ECMAScript}. JavaScript é a implementação
+	que os navegadores entregam.
+
+	\vspace{0.4cm}
+	\textbf{ES6}, ou ES2015, reorganizou a linguagem: \texttt{let}, \texttt{const},
+	arrow functions, template strings, classes e promessas.
+
+	\vspace{0.4cm}
+	Desde 2015 sai uma versão por ano, com acréscimos menores.
+
+	\vspace{0.4cm}
+	Tutorial anterior a 2015 usa \texttt{var} e outras construções já
+	substituídas. Reconhecer o estilo antigo evita copiá-lo.
+\end{frame}
+
+\begin{frame}[fragile]{O script na página}
+	\begin{minted}{html}
+<!-- 1. No atributo do elemento. Não use. -->
+<button onclick="alert('oi')">Clique</button>
+
+<!-- 2. Dentro da página. Só para teste rápido. -->
+<script>
+  console.log("rodou");
+</script>
+
+<!-- 3. Arquivo externo. É o que usamos. -->
+<script src="js/app.js" defer></script>
+	\end{minted}
+
+	\vspace{0.2cm}
+	Estrutura no HTML, aparência no CSS, comportamento no JavaScript.
+\end{frame}
+
+\begin{frame}[fragile]{Por que \texttt{defer}}
+	Sem atributo nenhum, o navegador para de montar a página, baixa o arquivo e
+	executa. O script roda antes de a página existir.
+
+	\vspace{0.3cm}
+	\texttt{defer}: baixa em paralelo, executa depois que a página está montada.
+
+	\begin{minted}{html}
+<head>
+  <link rel="stylesheet" href="css/estilo.css">
+  <script src="js/produtos.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+	\end{minted}
+
+	\vspace{0.2cm}
+	Vários scripts com \texttt{defer} executam na ordem em que aparecem.
+\end{frame}
+
+\begin{frame}{Confirmar que o arquivo carregou}
+	Caminho errado em \texttt{src} não aparece na tela: a página abre sem
+	comportamento nenhum.
+
+	\vspace{0.4cm}
+	\begin{enumerate}
+		\item a primeira linha do arquivo é um \texttt{console.log}, e a mensagem
+		      aparece ao recarregar;
+		\item na aba \textbf{Network}, existe uma linha para o arquivo com status
+		      \texttt{200}.
+	\end{enumerate}
+
+	\vspace{0.4cm}
+	Status \texttt{404} ali significa caminho errado, e ele é relativo ao arquivo
+	HTML.
+\end{frame}
+
+% ==========================================
+\section{Valores}
+% ==========================================
+
+\begin{frame}[fragile]{Tipagem dinâmica}
+	O tipo pertence ao valor, não à variável.
+
+	\begin{minted}{javascript}
+typeof "Café"      // "string"
+typeof 3.14        // "number"
+typeof false       // "boolean"
+typeof undefined   // "undefined"
+typeof [1, 2, 3]   // "object"
+typeof null        // "object"
+	\end{minted}
+
+	\vspace{0.2cm}
+	Array é um tipo de objeto. Para perguntar se um valor é array:
+	\texttt{Array.isArray(valor)}.
+
+	\vspace{0.2cm}
+	\texttt{typeof null} é defeito de 1995, nunca corrigido para não quebrar
+	código existente.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{undefined} e \texttt{null}}
+	\texttt{undefined} é o que o interpretador coloca. \texttt{null} é o que você
+	coloca.
+
+	\begin{minted}{javascript}
+let preco;
+console.log(preco);            // undefined
+
+const produto = { nome: "Café" };
+console.log(produto.desconto); // undefined
+
+let selecionado = null;        // ninguém selecionado
+	\end{minted}
+
+	\vspace{0.2cm}
+	Variável sem valor, propriedade que não existe e função sem \texttt{return}
+	devolvem \texttt{undefined}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{const} e \texttt{let}}
+	\texttt{const} por padrão. \texttt{let} quando o valor for reatribuído.
+
+	\begin{minted}{javascript}
+const taxa = 0.1;
+let total = 0;
+
+total = total + 100;   // válido
+taxa = 0.2;            // TypeError
+	\end{minted}
+
+	\vspace{0.3cm}
+	Escrever \texttt{preco = 10} sem declarar cria uma global silenciosa.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{const} com array e objeto}
+	\texttt{const} protege a ligação entre o nome e o valor, não o conteúdo.
+
+	\begin{minted}{javascript}
+const carrinho = ["café", "chá"];
+
+carrinho.push("mate");   // válido
+carrinho = ["outro"];    // TypeError
+	\end{minted}
+
+	\vspace{0.3cm}
+	Array declarado com \texttt{const} continua aceitando \texttt{push},
+	\texttt{pop} e atribuição por índice.
+\end{frame}
+
+\begin{frame}[fragile]{Escopo de bloco}
+	Bloco é qualquer trecho entre chaves.
+
+	\begin{minted}{javascript}
+let x = "fora";
+
+if (true) {
+  let x = "dentro";
+  console.log(x);     // dentro
+}
+
+console.log(x);       // fora
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Por que \texttt{var} ficou de fora}
+	\begin{minted}{javascript}
+function testa() {
+  for (var i = 0; i < 3; i++) {
+    // ...
+  }
+  console.log(i);   // 3, o i sobreviveu ao for
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item \texttt{var} tem escopo de função, e vaza para fora do bloco;
+		\item sofre \emph{hoisting}: lido antes da declaração, devolve
+		      \texttt{undefined} em vez de erro.
+	\end{itemize}
+
+	\vspace{0.2cm}
+	Aparece aqui para ser reconhecido em código alheio.
+\end{frame}
+
+\begin{frame}[fragile]{Template literals}
+	Crase, com \texttt{\$\{\}} em volta de cada expressão.
+
+	\begin{minted}{javascript}
+const nome = "Café em grão";
+const preco = 32.5;
+
+// concatenação, o jeito antigo
+console.log("O " + nome + " custa R$ " + preco + ".");
+
+// template literal
+console.log(`O ${nome} custa R$ ${preco}.`);
+
+// qualquer expressão serve
+console.log(`Com 10% off: R$ ${preco * 0.9}.`);
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Strings}
+	\begin{minted}{javascript}
+const termo = "  Café Em Grão  ";
+
+termo.trim()                       // "Café Em Grão"
+termo.trim().toLowerCase()         // "café em grão"
+"café em grão".includes("grão")    // true
+"café em grão".startsWith("café")  // true
+	\end{minted}
+
+	\vspace{0.2cm}
+	Strings são imutáveis: todo método devolve uma string nova, e o resultado
+	precisa ser guardado ou usado ali mesmo.
+
+	\vspace{0.2cm}
+	Busca que ignora maiúsculas e minúsculas:
+
+	\begin{minted}{javascript}
+nome.toLowerCase().includes(busca.toLowerCase())
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Números são ponto flutuante}
+	\begin{minted}{javascript}
+0.1 + 0.2        // 0.30000000000000004
+	\end{minted}
+
+	\vspace{0.2cm}
+	O mesmo acontece em C, Java e Python: 0,1 não tem representação exata em
+	base 2.
+
+	\begin{minted}{javascript}
+const total = 32.5 * 3;       // 97.5
+
+total.toFixed(2)              // "97.50", string
+Number(total.toFixed(2))      // 97.5
+
+(1890).toLocaleString("pt-BR",
+  { style: "currency", currency: "BRL" });
+// "R$ 1.890,00"
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Texto que vira número}
+	Campo de formulário devolve sempre string.
+
+	\begin{minted}{javascript}
+"10" + 5        // "105", concatenação
+"10" - 5        // 5, o - converte
+
+Number("10")          // 10
+Number("10,5")        // NaN
+Number("")            // 0
+parseFloat("10.5 reais")  // 10.5
+parseInt("42px")          // 42
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{NaN} é do tipo \texttt{number} e não é igual a si mesmo.
+
+	\vspace{0.1cm}
+	Teste com \texttt{Number.isNaN(valor)}.
+\end{frame}
+
+% ==========================================
+\section{Fluxo}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{===} e \texttt{==}}
+	\texttt{===} compara valor e tipo. \texttt{==} converte antes de comparar.
+
+	\begin{minted}{javascript}
+1 == "1"        // true
+1 === "1"       // false
+
+0 == false      // true
+0 === false     // false
+
+null == undefined    // true
+null === undefined   // false
+	\end{minted}
+
+	\vspace{0.2cm}
+	Use \texttt{===} e \texttt{!==} sempre.
+\end{frame}
+
+\begin{frame}[fragile]{Os seis valores falsos}
+	\begin{minted}{javascript}
+false
+0
+""          // string vazia
+null
+undefined
+NaN
+	\end{minted}
+
+	\vspace{0.2cm}
+	Todo o resto vira \texttt{true}, inclusive \texttt{"0"}, \texttt{"false"},
+	\texttt{[]} e \texttt{\{\}}.
+
+	\vspace{0.2cm}
+	Array vazio dentro de um \texttt{if} entra no bloco.
+\end{frame}
+
+\begin{frame}[fragile]{Decisão}
+	\begin{minted}{javascript}
+if (preco > 100) {
+  console.log("caro");
+} else if (preco > 20) {
+  console.log("médio");
+} else {
+  console.log("barato");
+}
+
+const frete = preco > 100 ? 0 : 15;
+
+if (preco >= 20 && preco <= 50) { /* ... */ }
+	\end{minted}
+
+	\vspace{0.2cm}
+	Operadores lógicos: \texttt{\&\&}, \texttt{||} e \texttt{!}.
+\end{frame}
+
+\begin{frame}[fragile]{Repetição}
+	\begin{minted}{javascript}
+const frutas = ["café", "chá", "mate"];
+
+// quando o índice importa
+for (let i = 0; i < frutas.length; i++) {
+  console.log(i, frutas[i]);
+}
+
+// quando só o valor importa
+for (const fruta of frutas) {
+  console.log(fruta);
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	O contador é \texttt{let} porque é reatribuído. A variável do
+	\texttt{for...of} recebe valor novo a cada volta, e pode ser \texttt{const}.
+\end{frame}
+
+% ==========================================
+\section{Funções}
+% ==========================================
+
+\begin{frame}[fragile]{Três formas de escrever}
+	\begin{minted}{javascript}
+// declaração
+function calculaTotal(preco, quantidade) {
+  return preco * quantidade;
+}
+
+// expressão de função
+const calculaTotal = function (preco, quantidade) {
+  return preco * quantidade;
+};
+
+// arrow function (ES6)
+const calculaTotal = (preco, quantidade) => {
+  return preco * quantidade;
+};
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Arrow function, formas curtas}
+	\begin{minted}{javascript}
+// corpo de uma expressão: chaves e return somem juntos
+const calculaTotal = (preco, qtd) => preco * qtd;
+
+// um parâmetro: parênteses opcionais
+const dobro = valor => valor * 2;
+
+// nenhum parâmetro: parênteses obrigatórios
+const agora = () => new Date();
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{A armadilha do retorno implícito}
+	\begin{minted}{javascript}
+const dobro = valor => { valor * 2 };
+
+dobro(4);    // undefined
+	\end{minted}
+
+	\vspace{0.3cm}
+	Com chaves, o \texttt{return} precisa estar escrito. Sem chaves, o valor da
+	expressão é devolvido.
+
+	\vspace{0.3cm}
+	É o defeito mais comum de quem está começando, e ele não gera erro nenhum no
+	console.
+\end{frame}
+
+\begin{frame}[fragile]{Parâmetro com valor padrão}
+	\begin{minted}{javascript}
+const calculaTotal = (preco, quantidade = 1) =>
+  preco * quantidade;
+
+calculaTotal(32.5);      // 32.5
+calculaTotal(32.5, 3);   // 97.5
+	\end{minted}
+
+	\vspace{0.2cm}
+	Chamar com menos argumentos do que os parâmetros não é erro: os que faltam
+	ficam \texttt{undefined}, e a conta devolveria \texttt{NaN}.
+\end{frame}
+
+\begin{frame}[fragile]{Função é um valor}
+	\begin{minted}{javascript}
+const aplicar = (valor, operacao) => operacao(valor);
+
+aplicar(4, dobro);               // 8
+aplicar(4, valor => valor + 1);  // 5
+	\end{minted}
+
+	\vspace{0.3cm}
+	Função guardada em variável, passada como argumento, devolvida por outra
+	função.
+
+	\vspace{0.3cm}
+	Função passada como argumento chama-se \emph{callback}, e é o que torna
+	possível o \texttt{forEach} da próxima seção.
+\end{frame}
+
+% ==========================================
+\section{Arrays e objetos}
+% ==========================================
+
+\begin{frame}[fragile]{Array}
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9, 12];
+
+precos[0]                   // 32.5
+precos.length               // 4
+precos[precos.length - 1]   // 12
+precos[10]                  // undefined
+
+precos.push(50);      // acrescenta no fim
+precos.pop();         // remove do fim
+precos.unshift(5);    // acrescenta no começo
+precos.shift();       // remove do começo
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Percorrer: \texttt{forEach}}
+	\begin{minted}{javascript}
+const produtos = ["Café", "Chá", "Mate"];
+
+produtos.forEach(produto => console.log(produto));
+
+produtos.forEach((produto, indice) => {
+  console.log(`${indice}: ${produto}`);
+});
+	\end{minted}
+
+	\vspace{0.2cm}
+	Não devolve nada e não pode ser interrompido: \texttt{break} não funciona
+	dentro dele. Para parar antes do fim, \texttt{for...of}.
+\end{frame}
+
+\begin{frame}[fragile]{Transformar: \texttt{map}}
+	Devolve um array \textbf{novo}, do mesmo tamanho.
+
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9];
+
+const comDesconto = precos.map(preco => preco * 0.9);
+// [29.25, 16.2, 67.41000000000001]
+
+precos;   // [32.5, 18, 74.9], inalterado
+	\end{minted}
+
+	\vspace{0.2cm}
+	A cauda de casas do terceiro valor é o ponto flutuante da seção anterior. Ela
+	some na exibição, com \texttt{toFixed} ou \texttt{toLocaleString}.
+\end{frame}
+
+\begin{frame}[fragile]{Selecionar: \texttt{filter}}
+	Devolve um array novo com os elementos que passaram no teste.
+
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9, 12];
+
+const baratos = precos.filter(preco => preco < 30);
+// [18, 12]
+	\end{minted}
+
+	\vspace{0.3cm}
+	A função precisa devolver \texttt{true} ou \texttt{false}. Escrever a condição
+	entre chaves e esquecer o \texttt{return} devolve array vazio, porque
+	\texttt{undefined} é valor falso.
+\end{frame}
+
+\begin{frame}[fragile]{Resumir: \texttt{reduce}}
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9, 12];
+
+const soma = precos.reduce(
+  (acumulado, preco) => acumulado + preco,
+  0
+);
+// 137.4
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{acumulado} é o que voltou da chamada anterior; na primeira volta, é o
+	segundo argumento.
+
+	\vspace{0.2cm}
+	Escreva sempre o valor inicial.
+\end{frame}
+
+\begin{frame}[fragile]{Procurar}
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9];
+
+precos.includes(18);                    // true
+precos.find(preco => preco > 30);       // 32.5
+precos.findIndex(preco => preco > 30);  // 0
+precos.some(preco => preco > 70);       // true
+precos.every(preco => preco > 10);      // true
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{find} devolve o elemento, ou \texttt{undefined}. \texttt{filter}
+	devolve sempre um array.
+\end{frame}
+
+\begin{frame}[fragile]{Encadear}
+	\begin{minted}{javascript}
+const total = precos
+  .filter(preco => preco < 50)   // [32.5, 18, 12]
+  .map(preco => preco * 0.9)     // [29.25, 16.2, 10.8]
+  .reduce((soma, p) => soma + p, 0);
+// 56.25
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{map} e \texttt{filter} devolvem arrays, então as chamadas se
+	encadeiam e a leitura é da esquerda para a direita.
+\end{frame}
+
+\begin{frame}[fragile]{Ordenar: \texttt{sort}}
+	\texttt{sort} altera o array original e, sem argumento, ordena como texto.
+
+	\begin{minted}{javascript}
+const precos = [32.5, 18, 74.9, 120];
+
+precos.sort();               // [120, 18, 32.5, 74.9]
+precos.sort((a, b) => a - b); // [18, 32.5, 74.9, 120]
+precos.sort((a, b) => b - a); // decrescente
+	\end{minted}
+
+	\vspace{0.2cm}
+	A comparação devolve negativo quando \texttt{a} vem antes, positivo quando
+	\texttt{b} vem antes, zero quando tanto faz.
+\end{frame}
+
+\begin{frame}[fragile]{Objeto}
+	\begin{minted}{javascript}
+const produto = {
+  id: 1,
+  nome: "Café em grão",
+  categoria: "Bebidas",
+  preco: 32.5,
+  desconto: 0.15
+};
+
+produto.nome        // "Café em grão"
+produto["nome"]     // igual
+
+const campo = "preco";
+produto[campo]      // 32.5
+	\end{minted}
+
+	\vspace{0.2cm}
+	Colchete quando o nome da chave vem de uma variável.
+\end{frame}
+
+\begin{frame}[fragile]{Array de objetos}
+	É o formato em que os dados chegam de uma API, e o do seu catálogo.
+
+	\begin{minted}{javascript}
+const produtos = [
+  { id: 1, nome: "Café em grão",  preco: 32.5 },
+  { id: 2, nome: "Chá de hibisco", preco: 18  },
+  { id: 3, nome: "Mel silvestre",  preco: 24.9 }
+];
+
+produtos.map(p => p.nome);
+produtos.filter(p => p.preco < 30);
+produtos.find(p => p.id === 3);
+produtos.reduce((s, p) => s + p.preco, 0);
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Desestruturação e \texttt{console.table}}
+	\begin{minted}{javascript}
+const { nome, preco } = produto;
+
+const linha = ({ nome, preco }) =>
+  `${nome}: R$ ${preco.toFixed(2)}`;
+
+console.table(produtos);
+	\end{minted}
+
+	\vspace{0.3cm}
+	\texttt{console.table} monta uma linha por item e uma coluna por campo. É a
+	forma mais rápida de conferir se o filtro selecionou o que deveria.
+\end{frame}
+
+% ==========================================
+\section{Erros}
+% ==========================================
+
+\begin{frame}[fragile]{A mensagem no console}
+	Diferente do CSS, que ignora em silêncio, o JavaScript interrompe e escreve.
+
+	\begin{minted}{text}
+Uncaught TypeError: produtos.filtrar is not a function
+    at app.js:14:20
+	\end{minted}
+
+	\vspace{0.3cm}
+	\begin{tabular}{ll}
+		\toprule
+		\texttt{SyntaxError}    & chave ou aspas sem fechar; nada roda \\
+		\texttt{ReferenceError} & nome não declarado, ou digitado errado \\
+		\texttt{TypeError}      & o valor existe, mas não é do tipo pedido \\
+		\bottomrule
+	\end{tabular}
+\end{frame}
+
+\begin{frame}[fragile]{O erro mais comum}
+	\begin{minted}{javascript}
+const produto = produtos.find(p => p.id === 99);
+console.log(produto.nome);
+// TypeError: Cannot read properties of undefined
+//   (reading 'nome')
+	\end{minted}
+
+	\vspace{0.3cm}
+	O \texttt{find} não encontrou e devolveu \texttt{undefined}. O erro só
+	apareceu na linha seguinte, quando alguém pediu \texttt{.nome} daquilo.
+
+	\vspace{0.3cm}
+	A causa costuma estar uma linha acima da linha apontada.
+\end{frame}
+
+\begin{frame}{Quando não há erro nenhum}
+	Resultado errado, console limpo. Três conferências:
+
+	\begin{enumerate}
+		\item \texttt{console.log} do valor antes e depois da operação suspeita;
+		\item \texttt{typeof valor}, para descobrir que o número era uma string;
+		\item painel \textbf{Sources}, ponto de parada na linha, página
+		      recarregada: a execução para ali e o painel mostra cada variável.
+	\end{enumerate}
+
+	\vspace{0.4cm}
+	O terceiro item é o depurador, e ele volta com mais uso quando entrarmos em
+	eventos.
+\end{frame}
+
+\begin{frame}{Parte prática}
+	Sobre as suas páginas, ou sobre o pacote de exemplo da aula:
+
+	\begin{enumerate}
+		\item criar \texttt{js/app.js} e ligá-lo com \texttt{defer};
+		\item escrever \texttt{js/produtos.js} com o catálogo em array de objetos;
+		\item formatar preço e imprimir uma linha por produto;
+		\item aplicar desconto;
+		\item busca por nome e filtro por faixa de preço, combináveis;
+		\item relatório com \texttt{reduce};
+		\item quebrar de propósito e ler o erro.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Nada disso muda a página. Levar o resultado para a tela é o próximo encontro.
+\end{frame}
+
+\begin{frame}{Tarefa}
+	Os exercícios valem nota e compõem o item \emph{Exercícios em sala}.
+
+	\vspace{0.3cm}
+	Enunciado no \texttt{README.md} do repositório-modelo; endereço e prazo na
+	UFPR Virtual.
+
+	\vspace{0.3cm}
+	Entrega pelo \emph{fork} no GitLab, individual ou em dupla, sem uso de IA
+	generativa para produzir o código.
+
+	\vspace{0.5cm}
+	A busca e o filtro de hoje são dois requisitos da Entrega 2 do trabalho
+	prático, que vence na aula anterior à Prova 2.
+\end{frame}
+
+\end{document}
