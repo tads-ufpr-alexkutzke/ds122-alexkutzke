@@ -42,11 +42,12 @@ Ao final desta aula você deve ser capaz de:
 
 ## Material de exemplo
 
-Os exemplos desta aula usam o `catalogo.html` do
-[pacote de exemplo desta aula](./exemplos/ds122_aula_06_ponto_de_partida.zip),
+Os exemplos desta aula usam o `catalogo.html` da pasta `base/` do
+[repositório da tarefa](https://gitlab.com/ds122-alexkutzke/ds122-js-assignment),
 que traz as três páginas da loja com o layout pronto e sem nenhuma linha de
-JavaScript. Baixe e descompacte o pacote antes de começar: a parte teórica usa
-essas páginas para testes no console, e a parte prática parte delas.
+JavaScript. Faça o *fork* e o clone do repositório antes de começar, conforme o
+`README.md` dele: a parte teórica usa essas páginas para testes no console, e a
+parte prática é feita dentro do seu *fork*.
 
 # Parte teórica
 
@@ -73,7 +74,7 @@ document.querySelectorAll("article.produto").length
 ```
 
 A última linha responde quantos elementos `<article class="produto">` existem na
-página aberta. No `catalogo.html` do pacote de exemplo, a resposta é `6`.
+página aberta. No `catalogo.html` da pasta `base/`, a resposta é `6`.
 
 Três coisas apareceram e ainda não têm nome:
 
@@ -1002,10 +1003,10 @@ o `app.js` cresce.
 
 # Parte prática
 
-Trabalhe sobre as suas páginas do catálogo, ou sobre o
-[pacote de exemplo desta aula](./exemplos/ds122_aula_06_ponto_de_partida.zip), que
-traz as três páginas com o layout já pronto, uma pasta `js/` vazia e nenhuma
-linha de JavaScript. Cada passo tem um resultado observável: confira no console
+Trabalhe no seu *fork* do
+[repositório da tarefa](https://gitlab.com/ds122-alexkutzke/ds122-js-assignment),
+sobre as suas páginas do catálogo ou sobre as da pasta `base/`, que traz as três
+páginas com o layout já pronto e nenhuma linha de JavaScript. Cada passo tem um resultado observável: confira no console
 antes de seguir para o próximo.
 
 Nada do que você escrever hoje muda a página. O código roda, calcula e imprime no
@@ -1046,8 +1047,8 @@ const produtos = [
 ];
 ```
 
-O trabalho prático pede ao menos oito produtos no catálogo; quem estiver usando o
-pacote de exemplo escreve os seis que estão lá.
+O trabalho prático pede ao menos oito produtos no catálogo; quem estiver usando as
+páginas da pasta `base/` escreve os seis que estão lá.
 
 Ligue esse arquivo **antes** do `app.js`, porque o `app.js` vai usar o que ele
 declara:

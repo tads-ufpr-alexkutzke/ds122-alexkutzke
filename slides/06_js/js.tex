@@ -30,6 +30,14 @@
 
 \setbeamertemplate{navigation symbols}{}
 
+% slides de prática e de resposta: fundo e título em cores próprias
+\newcommand{\estilopratica}{%
+  \setbeamercolor{frametitle}{fg=orange!85!black}%
+  \setbeamercolor{background canvas}{bg=orange!8}}
+\newcommand{\estiloresposta}{%
+  \setbeamercolor{frametitle}{fg=green!45!black}%
+  \setbeamercolor{background canvas}{bg=green!6}}
+
 \title{06 - JavaScript: sintaxe moderna (ES6+)}
 \author{Prof. Alex Kutzke}
 \date{Setembro de 2026}
@@ -187,8 +195,9 @@ document.querySelectorAll("article.produto").length
 	Status \texttt{404} ali significa caminho errado.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: o primeiro arquivo}
-	No \texttt{catalogo.html}, seu ou do pacote de exemplo da aula:
+{\estilopratica
+\begin{frame}[fragile]{Prática: o primeiro arquivo}
+	No seu \emph{fork} da tarefa, no \texttt{catalogo.html}, seu ou da pasta \texttt{base/}:
 
 	\begin{enumerate}
 		\item crie \texttt{js/app.js} com um \texttt{console.log} na primeira linha;
@@ -201,7 +210,9 @@ document.querySelectorAll("article.produto").length
 	\vspace{0.4cm}
 	Tempo: 5 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: o primeiro arquivo}
 	\begin{minted}{javascript}
 // js/app.js
@@ -220,6 +231,7 @@ console.log("app.js carregou");
 	\vspace{0.2cm}
 	Desfaça a troca antes de seguir.
 \end{frame}
+}
 
 % ==========================================
 \section{Valores}
@@ -635,7 +647,8 @@ for (const produto of produtos) {
 	\end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: os produtos como dados}
+{\estilopratica
+\begin{frame}[fragile]{Prática: os produtos como dados}
 	\begin{enumerate}
 		\item crie \texttt{js/produtos.js} com um array \texttt{produtos}, um objeto
 		      por produto do catálogo, com \texttt{id}, \texttt{nome},
@@ -645,13 +658,15 @@ for (const produto of produtos) {
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	O número tem que bater com o de cartões na página. No pacote de exemplo, são
-	seis; o desconto de cada um fica a seu critério.
+	O número tem que bater com o de cartões na página. Na pasta \texttt{base/},
+	são seis; o desconto de cada um fica a seu critério.
 
 	\vspace{0.3cm}
 	Tempo: 8 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: os produtos como dados}
 	\begin{minted}[fontsize=\tiny]{javascript}
 const produtos = [
@@ -673,6 +688,7 @@ console.table(produtos);
 	\texttt{console.table} monta uma linha por item e uma coluna por campo. É a
 	forma mais rápida de conferir um array de objetos.
 \end{frame}
+}
 
 \begin{frame}[fragile]{Percorrer: \texttt{forEach}}
 	\begin{minted}{javascript}
@@ -690,7 +706,8 @@ produtos.forEach((produto, indice) => {
 	dentro dele. Para parar antes do fim, \texttt{for...of}.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: uma linha por produto}
+{\estilopratica
+\begin{frame}[fragile]{Prática: uma linha por produto}
 	Com \texttt{forEach}, imprima no console uma linha por produto, neste
 	formato:
 
@@ -702,7 +719,9 @@ Chá de hibisco: R$ 18.00
 	\vspace{0.3cm}
 	Tempo: 5 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: uma linha por produto}
 	\begin{minted}{javascript}
 produtos.forEach(produto => {
@@ -714,6 +733,7 @@ produtos.forEach(produto => {
 	\texttt{toFixed(2)} garante as duas casas: sem ele, o chá sairia como
 	\texttt{R\$ 18}.
 \end{frame}
+}
 
 \begin{frame}[fragile]{Transformar: \texttt{map}}
 	Devolve um array \textbf{novo}, do mesmo tamanho.
@@ -732,7 +752,8 @@ precos;   // [32.5, 18, 74.9], inalterado
 	some na exibição, com \texttt{toFixed} ou \texttt{toLocaleString}.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: preço com desconto}
+{\estilopratica
+\begin{frame}[fragile]{Prática: preço com desconto}
 	Com \texttt{map}, produza o array \texttt{precosFinais}: o preço de cada
 	produto com o desconto já aplicado.
 
@@ -744,7 +765,9 @@ precos;   // [32.5, 18, 74.9], inalterado
 	\vspace{0.3cm}
 	Tempo: 5 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: preço com desconto}
 	\begin{minted}{javascript}
 const precosFinais = produtos.map(
@@ -759,6 +782,7 @@ const precosFinais = produtos.map(
 	\vspace{0.2cm}
 	Produto com \texttt{desconto: 0} sai com o mesmo preço, e está correto.
 \end{frame}
+}
 
 \begin{frame}[fragile]{Selecionar: \texttt{filter}}
 	Devolve um array novo com os elementos que passaram no teste.
@@ -776,7 +800,8 @@ const baratos = precos.filter(preco => preco < 30);
 	\texttt{undefined} é valor falso.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: busca e filtro}
+{\estilopratica
+\begin{frame}[fragile]{Prática: busca e filtro}
 	Com \texttt{filter}, escreva duas consultas:
 
 	\begin{enumerate}
@@ -791,7 +816,9 @@ const baratos = precos.filter(preco => preco < 30);
 	\vspace{0.3cm}
 	Tempo: 8 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: busca e filtro}
 	\begin{minted}{javascript}
 const termo = "ES";
@@ -806,6 +833,7 @@ const naFaixa = produtos.filter(
 // Café em grão, Mel silvestre
 	\end{minted}
 \end{frame}
+}
 
 \begin{frame}[fragile]{Resumir: \texttt{reduce}}
 	\begin{minted}{javascript}
@@ -826,13 +854,16 @@ const soma = precos.reduce(
 	Escreva sempre o valor inicial.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: valor total}
+{\estilopratica
+\begin{frame}[fragile]{Prática: valor total}
 	Com \texttt{reduce}, some o preço de todos os produtos, sem desconto.
 
 	\vspace{0.3cm}
 	Tempo: 4 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: valor total}
 	\begin{minted}{javascript}
 const total = produtos.reduce(
@@ -847,13 +878,15 @@ total.toFixed(2)   // "172.20"
 	\vspace{0.2cm}
 	O acumulador começa em \texttt{0} e recebe um preço a cada volta.
 \end{frame}
+}
 
-\begin{frame}[fragile]{Na prática: produtos por categoria}
+{\estilopratica
+\begin{frame}[fragile]{Prática: produtos por categoria}
 	Monte um objeto com a quantidade de produtos de cada categoria, percorrendo o
 	array com \texttt{for...of}:
 
 	\begin{minted}{javascript}
-// resultado esperado no pacote de exemplo
+// resultado esperado com as páginas de base/
 { Bebidas: 2, Mercearia: 2, Higiene: 1, Utensílios: 1 }
 	\end{minted}
 
@@ -865,7 +898,9 @@ total.toFixed(2)   // "172.20"
 	\vspace{0.3cm}
 	Tempo: 8 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}[fragile]{Resposta: produtos por categoria}
 	\begin{minted}{javascript}
 const contagem = {};
@@ -886,6 +921,7 @@ for (const produto of produtos) {
 	\vspace{0.2cm}
 	A mesma contagem feita com \texttt{reduce} está na seção 20 do texto da aula.
 \end{frame}
+}
 
 \begin{frame}[fragile]{Procurar}
 	\begin{minted}{javascript}
@@ -999,7 +1035,8 @@ console.log(produto.nome);
 	eventos.
 \end{frame}
 
-\begin{frame}[fragile]{Na prática: ler o erro}
+{\estilopratica
+\begin{frame}[fragile]{Prática: ler o erro}
 	Quebre o \texttt{app.js} de propósito, uma quebra por vez. Recarregue, anote o
 	tipo do erro e a linha, e desfaça:
 
@@ -1015,7 +1052,9 @@ console.log(produto.nome);
 	\vspace{0.3cm}
 	Tempo: 8 minutos.
 \end{frame}
+}
 
+{\estiloresposta
 \begin{frame}{Resposta: ler o erro}
 	\begin{tabular}{ll}
 		\toprule
@@ -1033,6 +1072,7 @@ console.log(produto.nome);
 	O quarto é o retorno implícito com chaves. O console não denuncia, e o
 	defeito só aparece quando alguém confere o valor.
 \end{frame}
+}
 
 \begin{frame}{Tarefa}
 	Os exercícios valem nota e compõem o item \emph{Exercícios em sala}.
