@@ -14,7 +14,7 @@
 - [CSS3: layout e responsividade](./aula_05_01_css_layout.md)
 - [JavaScript: sintaxe moderna (ES6+)](./aula_06_00_js.md)
 - [Exercícios de treino de JavaScript](./aula_06_01_js_exercicios.md)
-- [DOM](./aula_07_00_dom.md)
+- [JavaScript: DOM e eventos](./aula_07_00_dom.md)
 - [Exercícios de JS, DOM e Eventos](./aula_07_01_dom_exercicios.md)
 - [Fetch API e JSON](./aula_07_02_fetch_api.md)
 - [jQuery (descontinuada)](./aula_08_jquery.md)

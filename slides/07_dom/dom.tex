@@ -1,0 +1,896 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{array}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+% slides de prática e de resposta: fundo e título em cores próprias
+\newcommand{\estilopratica}{%
+  \setbeamercolor{frametitle}{fg=orange!85!black}%
+  \setbeamercolor{background canvas}{bg=orange!8}}
+\newcommand{\estiloresposta}{%
+  \setbeamercolor{frametitle}{fg=green!45!black}%
+  \setbeamercolor{background canvas}{bg=green!6}}
+
+\title{07 - JavaScript: DOM e eventos}
+\author{Prof. Alex Kutzke}
+\date{Outubro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Descrever o DOM e distinguir o arquivo HTML da página aberta;
+		\item Selecionar elementos com \texttt{querySelector} e
+		      \texttt{querySelectorAll};
+		\item Alterar texto, atributos e classes de um elemento;
+		\item Montar o catálogo na tela a partir do array de produtos;
+		\item Explicar o risco de \texttt{innerHTML} com dados do usuário;
+		\item Registrar ouvintes de evento com \texttt{addEventListener};
+		\item Ligar a busca e o filtro da aula anterior aos campos da página;
+		\item Validar um formulário e dar o retorno na própria página.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Árvore}
+% ==========================================
+
+\begin{frame}[fragile]{A página alterada pelo console}
+	\texttt{catalogo.html} aberto, \texttt{F12}, aba \textbf{Console}:
+
+	\begin{minted}{javascript}
+document.querySelector("h1").textContent = "Loja Alterada";
+document.querySelector(".produto").remove();
+document.querySelectorAll(".produto").length   // 5
+	\end{minted}
+
+	\vspace{0.3cm}
+	Título trocado, um cartão a menos, nenhum arquivo salvo.
+
+	\vspace{0.3cm}
+	Recarregue: tudo volta ao que estava.
+\end{frame}
+
+\begin{frame}{DOM}
+	\emph{Document Object Model}, modelo de objetos do documento.
+
+	\vspace{0.3cm}
+	O navegador lê o HTML e cria um objeto para cada elemento, com:
+	\begin{itemize}
+		\item propriedades: texto, atributos, classes;
+		\item métodos: acrescentar filho, remover-se, registrar evento.
+	\end{itemize}
+
+	\vspace{0.3cm}
+	A tela é desenhada a partir desses objetos, e redesenhada quando um deles
+	muda.
+
+	\vspace{0.3cm}
+	Especificação do WHATWG, o mesmo grupo do HTML. Igual em todos os navegadores
+	atuais.
+\end{frame}
+
+\begin{frame}[fragile]{Uma árvore de nós}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{minted}[fontsize=\scriptsize,frame=none]{text}
+document
+  html
+    head
+      meta
+      meta
+      title
+      link
+    body
+      header
+        h1
+        nav
+      main
+        section
+          h2
+          div.grade
+            article.produto
+            article.produto
+			\end{minted}
+		\end{column}
+		\begin{column}{0.45\textwidth}
+			Cada item é um \textbf{nó} (\emph{node}).
+
+			\vspace{0.3cm}
+			Filho é o que está dentro. O texto de um elemento também é um nó.
+
+			\vspace{0.3cm}
+			É a mesma árvore que o seletor \texttt{.produto h3} percorria na aula
+			de CSS.
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{O arquivo e a página aberta}
+	\begin{tabular}{p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.6\textwidth}}
+		\toprule
+		\texttt{Ctrl+U}       & o arquivo como chegou do servidor. Não muda. \\
+		\midrule
+		aba \textbf{Elements} & o DOM naquele instante. Mostra cada alteração
+		feita pelo JavaScript. \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.5cm}
+	Quando o catálogo for montado pelo JavaScript, os cartões vão estar na tela
+	e na aba \textbf{Elements}, e não no código-fonte.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o ambiente}
+	No seu \emph{fork} de \texttt{ds122-dom-assignment}:
+
+	\begin{enumerate}
+		\item copie suas páginas, \texttt{css/}, \texttt{imagens/} e
+		      \texttt{js/produtos.js}, ou mova o conteúdo de \texttt{base/} para a
+		      raiz;
+		\item crie \texttt{js/app.js} com \texttt{formataPreco},
+		      \texttt{buscaPorNome} e \texttt{filtraPorFaixa} da tarefa anterior;
+		\item ligue \texttt{produtos.js} e \texttt{app.js}, nesta ordem, com
+		      \texttt{defer};
+		\item no console, confira \texttt{produtos.length}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Tempo: 5 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o ambiente}
+	\begin{minted}{html}
+<link rel="stylesheet" href="css/estilo.css">
+<script src="js/produtos.js" defer></script>
+<script src="js/app.js" defer></script>
+	\end{minted}
+
+	\begin{minted}{javascript}
+produtos.length   // 6, com a pasta base/
+	\end{minted}
+
+	\vspace{0.2cm}
+	Sem erro vermelho no console. Com \texttt{app.js} antes de
+	\texttt{produtos.js}, o \texttt{app.js} não enxerga o array.
+\end{frame}
+}
+
+% ==========================================
+\section{Seleção}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{querySelector}}
+	O \textbf{primeiro} elemento que casa com um seletor CSS:
+
+	\begin{minted}{javascript}
+const titulo = document.querySelector("h1");
+const grade = document.querySelector(".grade");
+const campoNome = document.querySelector("#nome");
+const preco = document.querySelector(".produto .preco");
+	\end{minted}
+
+	\vspace{0.2cm}
+	Também existe em cada elemento, e aí busca só dentro dele:
+
+	\begin{minted}{javascript}
+const cartao = document.querySelector(".produto");
+cartao.querySelector("h3");
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{querySelectorAll}}
+	\textbf{Todos} os que casam, numa \texttt{NodeList}:
+
+	\begin{minted}{javascript}
+const cartoes = document.querySelectorAll(".produto");
+
+cartoes.length     // 6
+cartoes[0]         // o primeiro cartão
+cartoes.forEach((cartao) => console.log(cartao));
+	\end{minted}
+
+	\vspace{0.2cm}
+	Tem \texttt{forEach}. Não tem \texttt{map}, \texttt{filter} nem
+	\texttt{reduce}; para usá-los, \texttt{Array.from(cartoes)}.
+
+	\begin{minted}{javascript}
+cartoes.classList.add("destaque");
+// TypeError: Cannot read properties of undefined (reading 'add')
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{getElementById}}
+	A forma anterior, só para \texttt{id}, e ainda em uso:
+
+	\begin{minted}{javascript}
+document.getElementById("nome");     // sem o #
+document.querySelector("#nome");     // o mesmo elemento
+	\end{minted}
+
+	\vspace{0.3cm}
+	Nesta aula, \texttt{querySelector} em todos os casos.
+\end{frame}
+
+\begin{frame}[fragile]{Quando nada é encontrado}
+	\begin{minted}{javascript}
+const botao = document.querySelector("#enviar");  // null
+botao.addEventListener("click", enviar);
+// TypeError: Cannot read properties of null
+//            (reading 'addEventListener')
+	\end{minted}
+
+	\vspace{0.2cm}
+	O erro aponta a segunda linha. A causa está na primeira:
+	\begin{itemize}
+		\item \texttt{\#} ou \texttt{.} a menos no seletor;
+		\item \texttt{id} escrito diferente do HTML;
+		\item elemento que está em outra página;
+		\item script sem \texttt{defer}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Por que o script precisa de \texttt{defer}}
+	Sem \texttt{defer}, o script executa quando o navegador encontra a tag, no
+	\texttt{<head>}.
+
+	\vspace{0.3cm}
+	O \texttt{<body>} ainda não foi lido, e todo \texttt{querySelector} devolve
+	\texttt{null}.
+
+	\vspace{0.3cm}
+	Com \texttt{defer}, o script espera o documento inteiro entrar na árvore.
+\end{frame}
+
+% ==========================================
+\section{Alteração}
+% ==========================================
+
+\begin{frame}[fragile]{Texto e atributos}
+	\begin{minted}{javascript}
+const titulo = document.querySelector("main h2");
+titulo.textContent = `Produtos (${produtos.length})`;
+
+const imagem = document.querySelector(".produto img");
+imagem.src = "imagens/cafe.jpg";
+imagem.alt = "Pacote de café em grão de 500 g";
+
+const campoNome = document.querySelector("#nome");
+campoNome.value          // o que está digitado, sempre string
+campoNome.value = "";    // apaga
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{textContent} troca todo o conteúdo e não interpreta tags.
+\end{frame}
+
+\begin{frame}[fragile]{Classes: \texttt{classList}}
+	\begin{minted}{javascript}
+const aviso = document.querySelector(".aviso");
+
+aviso.classList.add("oculto");
+aviso.classList.remove("oculto");
+aviso.classList.toggle("oculto");
+aviso.classList.contains("oculto")   // true ou false
+	\end{minted}
+
+	\begin{minted}{css}
+.oculto {
+  display: none;
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	Mexe só na classe informada.\\
+	\texttt{class="produto"} vira \texttt{class="produto destaque"}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{style}, e por que preferir classe}
+	\begin{minted}{javascript}
+aviso.style.display = "none";
+cartao.style.borderColor = "gold";   // border-color
+	\end{minted}
+
+	\vspace{0.2cm}
+	Funciona, com desvantagens em relação à classe:
+	\begin{itemize}
+		\item a aparência fica em dois lugares, CSS e JavaScript;
+		\item desfazer exige saber o valor anterior;
+		\item media query não alcança o que o script escreveu;
+		\item a especificidade é a mais alta da cascata.
+	\end{itemize}
+
+	\vspace{0.2cm}
+	\texttt{style} para valor calculado na hora, como a largura de uma barra de
+	progresso.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: título e aviso}
+	No \texttt{app.js}:
+
+	\begin{enumerate}
+		\item o \texttt{<h2>} da lista passa a mostrar \texttt{Produtos (6)}, com
+		      o número vindo de \texttt{produtos.length};
+		\item a faixa \texttt{.aviso} some, por classe.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Depois compare o \texttt{<h2>} no \texttt{Ctrl+U} e na aba
+	\textbf{Elements}.
+
+	\vspace{0.3cm}
+	Tempo: 6 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: título e aviso}
+	\begin{minted}{javascript}
+const titulo = document.querySelector("main h2");
+titulo.textContent = `Produtos (${produtos.length})`;
+
+const aviso = document.querySelector(".aviso");
+aviso.classList.add("oculto");
+	\end{minted}
+
+	\begin{minted}{css}
+/* ---------- 8. Classes ligadas pelo JavaScript ---------- */
+.oculto {
+  display: none;
+}
+	\end{minted}
+
+	No \texttt{Ctrl+U}, o \texttt{<h2>} continua \texttt{Produtos}.
+\end{frame}
+}
+
+% ==========================================
+\section{Criação}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{createElement} e \texttt{append}}
+	\begin{minted}{javascript}
+// 1. cria, fora da página
+const aviso = document.createElement("p");
+
+// 2. configura
+aviso.textContent = "Frete grátis acima de R$ 100,00";
+aviso.classList.add("destaque");
+
+// 3. acrescenta como último filho
+document.querySelector("main section").append(aviso);
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{append} aceita vários nós, em ordem. Também: \texttt{prepend},
+	\texttt{remove}, e \texttt{appendChild} em código antigo.
+\end{frame}
+
+\begin{frame}[fragile]{Uma função que monta um cartão}
+	\begin{minted}{javascript}
+const criaCartao = (produto) => {
+  const cartao = document.createElement("article");
+  cartao.classList.add("produto");
+
+  const nome = document.createElement("h3");
+  nome.textContent = produto.nome;
+
+  const preco = document.createElement("p");
+  preco.classList.add("preco");
+  preco.textContent = formataPreco(produto.preco);
+
+  cartao.append(nome, preco);
+  return cartao;
+};
+	\end{minted}
+
+	Devolve o cartão; quem chama decide onde ele entra.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: um cartão}
+	\begin{enumerate}
+		\item acrescente o campo \texttt{imagem} aos objetos do
+		      \texttt{produtos.js} (em \texttt{base/} ele já existe);
+		\item escreva a \texttt{criaCartao} com \texttt{h3}, \texttt{img} com
+		      \texttt{alt}, \texttt{p.categoria} e \texttt{p.preco};
+		\item acrescente à \texttt{.grade} o cartão de \texttt{produtos[0]}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Resultado: um sétimo cartão, com o mesmo estilo dos outros.
+
+	\vspace{0.3cm}
+	Tempo: 8 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: um cartão}
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+const criaCartao = (produto) => {
+  const cartao = document.createElement("article");
+  cartao.classList.add("produto");
+  const nome = document.createElement("h3");
+  nome.textContent = produto.nome;
+  const imagem = document.createElement("img");
+  imagem.src = produto.imagem;
+  imagem.alt = `Imagem de ${produto.nome}`;
+  const categoria = document.createElement("p");
+  categoria.classList.add("categoria");
+  categoria.textContent = produto.categoria;
+  const preco = document.createElement("p");
+  preco.classList.add("preco");
+  preco.textContent = formataPreco(produto.preco);
+  cartao.append(nome, imagem, categoria, preco);
+  return cartao;
+};
+
+const grade = document.querySelector(".grade");
+grade.append(criaCartao(produtos[0]));
+	\end{minted}
+\end{frame}
+}
+
+\begin{frame}[fragile]{De um array para a tela}
+	\begin{minted}{javascript}
+const renderiza = (lista) => {
+  grade.replaceChildren();
+  lista.forEach((produto) => grade.append(criaCartao(produto)));
+};
+
+renderiza(produtos);
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{replaceChildren()} esvazia a grade. Sem ele, a segunda chamada
+	acrescenta cartões depois dos antigos. Em código antigo:
+	\texttt{grade.innerHTML = ""}.
+
+	\vspace{0.2cm}
+	A lista vem por parâmetro: a mesma função vai mostrar o resultado da busca.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{innerHTML}}
+	\begin{minted}{javascript}
+cartao.innerHTML = `
+  <h3>${produto.nome}</h3>
+  <p class="preco">${formataPreco(produto.preco)}</p>
+`;
+	\end{minted}
+
+	\vspace{0.2cm}
+	Mais curto, e interpreta como HTML tudo o que estiver no \texttt{\$\{\}}.
+
+	\vspace{0.2cm}
+	Nome cadastrado com tags vira parte da página de todo visitante. Um
+	\texttt{<img onerror="...">} executa JavaScript: \emph{cross-site
+	scripting}, XSS.
+
+	\vspace{0.2cm}
+	Na disciplina, \texttt{textContent} e \texttt{createElement} para
+	dados.\\ \texttt{innerHTML} só para trecho fixo, escrito no código.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o catálogo renderizado}
+	\begin{enumerate}
+		\item apague do \texttt{catalogo.html} todos os
+		      \texttt{<article class="produto">};
+		\item escreva a \texttt{renderiza} e chame
+		      \texttt{renderiza(produtos)};
+		\item na \texttt{criaCartao}, desconto de 10\% ou mais recebe a classe
+		      \texttt{destaque};
+		\item escreva a regra \texttt{.destaque} no CSS.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	O destaque condicional é requisito da Entrega 2.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o catálogo renderizado}
+	\begin{minted}{html}
+<div class="grade"></div>
+	\end{minted}
+
+	\begin{minted}{javascript}
+// dentro da criaCartao, antes do return
+if (produto.desconto >= 0.1) {
+  cartao.classList.add("destaque");
+}
+	\end{minted}
+
+	\begin{minted}{css}
+.destaque {
+  border: 3px solid #b8860b;
+}
+	\end{minted}
+
+	Na \texttt{base/}: café, mel e sabonete, com 15\%, 10\% e 20\%.
+\end{frame}
+}
+
+% ==========================================
+\section{Eventos}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{addEventListener}}
+	\begin{minted}{javascript}
+const botao = document.querySelector("#mostrar-promocoes");
+
+const mostraPromocoes = () => {
+  renderiza(produtos.filter((produto) => produto.desconto > 0));
+};
+
+botao.addEventListener("click", mostraPromocoes);
+	\end{minted}
+
+	\vspace{0.2cm}
+	Nome do evento e a função, chamada de ouvinte (\emph{listener}).
+
+	\vspace{0.2cm}
+	A linha do \texttt{addEventListener} executa uma vez e só registra. A
+	\texttt{mostraPromocoes} executa a cada clique.
+\end{frame}
+
+\begin{frame}[fragile]{Passar a função, não o resultado}
+	\begin{minted}{javascript}
+botao.addEventListener("click", mostraPromocoes);     // certo
+botao.addEventListener("click", mostraPromocoes());   // errado
+	\end{minted}
+
+	\vspace{0.3cm}
+	Com parênteses, a função executa ao carregar a página, e o ouvinte
+	registrado é o valor devolvido, \texttt{undefined}.
+
+	\vspace{0.3cm}
+	O efeito aparece uma vez sozinho, o clique não faz nada, e o console não
+	mostra erro.
+
+	\vspace{0.3cm}
+	\texttt{onclick="..."} no HTML também funciona, e mistura comportamento com
+	estrutura. Aqui os eventos ficam no script.
+\end{frame}
+
+\begin{frame}[fragile]{O objeto do evento}
+	\begin{minted}{javascript}
+botao.addEventListener("click", (evento) => {
+  console.log(evento.type);     // "click"
+  console.log(evento.target);   // o elemento clicado
+});
+	\end{minted}
+
+	\vspace{0.3cm}
+	O navegador passa o objeto ao ouvinte. O nome do parâmetro é livre:
+	\texttt{event}, \texttt{evt} e \texttt{e} são comuns.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{input} e \texttt{change}}
+	\begin{tabular}{l>{\raggedright\arraybackslash}p{0.7\textwidth}}
+		\toprule
+		\texttt{input}  & a cada alteração do valor: tecla, colagem, seta do
+		campo numérico \\
+		\texttt{change} & quando a alteração é confirmada: ao sair do campo, ou
+		ao escolher no \texttt{<select>} \\
+		\bottomrule
+	\end{tabular}
+
+	\begin{minted}{javascript}
+const campoBusca = document.querySelector("#busca");
+
+campoBusca.addEventListener("input", () => {
+  renderiza(buscaPorNome(produtos, campoBusca.value));
+});
+	\end{minted}
+
+	\texttt{buscaPorNome} é a da aula anterior, sem alteração.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: busca enquanto digita}
+	\begin{enumerate}
+		\item acima da grade, um formulário com um campo
+		      \texttt{type="search"}, \texttt{id="busca"}, e o seu
+		      \texttt{<label>};
+		\item ouvinte de \texttt{input} que chama a \texttt{renderiza} com o
+		      resultado da \texttt{buscaPorNome}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Teste com \texttt{de}, e depois apague o termo.
+
+	\vspace{0.3cm}
+	Tempo: 8 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: busca enquanto digita}
+	\begin{minted}{html}
+<form class="filtros" role="search">
+  <p>
+    <label for="busca">Buscar por nome</label>
+    <input type="search" id="busca">
+  </p>
+</form>
+	\end{minted}
+
+	\vspace{0.1cm}
+	Com \texttt{de}: chá de hibisco, farinha de milho, sabonete de argila, cesta
+	de vime.
+
+	\vspace{0.2cm}
+	Campo vazio: \texttt{includes("")} é \texttt{true} para qualquer nome, e todos
+	voltam.
+\end{frame}
+}
+
+\begin{frame}[fragile]{\texttt{value} é sempre string}
+	\begin{minted}{javascript}
+campoMax.value            // "50", mesmo em type="number"
+campoMax.value + 1        // "501"
+Number(campoMax.value)    // 50
+Number("")                // 0
+	\end{minted}
+
+	\vspace{0.3cm}
+	Converta antes de fazer conta.
+
+	\vspace{0.3cm}
+	Preço máximo vazio convertido direto vira \texttt{0}, e nenhum produto
+	passa.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: faixa de preço}
+	\begin{enumerate}
+		\item dois campos \texttt{type="number"}, \texttt{preco-min} e
+		      \texttt{preco-max}, com \texttt{<label>};
+		\item uma função \texttt{aplicaFiltros} que lê os três campos e aplica
+		      \texttt{buscaPorNome} e \texttt{filtraPorFaixa};
+		\item a mesma função como ouvinte de \texttt{input} nos três campos;
+		\item campo vazio não filtra nada.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Teste: \texttt{de} na busca, faixa de 10 a 30.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: faixa de preço}
+	\begin{minted}[fontsize=\tiny]{javascript}
+const campoMin = document.querySelector("#preco-min");
+const campoMax = document.querySelector("#preco-max");
+
+const aplicaFiltros = () => {
+  const minimo = campoMin.value === "" ? 0 : Number(campoMin.value);
+  const maximo = campoMax.value === "" ? Infinity : Number(campoMax.value);
+
+  const porNome = buscaPorNome(produtos, campoBusca.value);
+  renderiza(filtraPorFaixa(porNome, minimo, maximo));
+};
+
+campoBusca.addEventListener("input", aplicaFiltros);
+campoMin.addEventListener("input", aplicaFiltros);
+campoMax.addEventListener("input", aplicaFiltros);
+	\end{minted}
+
+	\texttt{Infinity} é maior que qualquer número. Resultado do teste: chá de
+	hibisco e farinha de milho.
+\end{frame}
+}
+
+% ==========================================
+\section{Formulários}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{submit} e \texttt{preventDefault}}
+	Envio do formulário: evento \texttt{submit} no \texttt{<form>}, depois a
+	requisição para o \texttt{action}, que carrega outra página.
+
+	\begin{minted}{javascript}
+const formulario = document.querySelector("form");
+
+formulario.addEventListener("submit", (evento) => {
+  evento.preventDefault();   // cancela o envio
+});
+	\end{minted}
+
+	\vspace{0.2cm}
+	Ouvinte no \texttt{<form>} com \texttt{submit}, e não no botão com
+	\texttt{click}: o \texttt{submit} só acontece quando o formulário vai mesmo
+	ser enviado.
+
+	\vspace{0.2cm}
+	Sem PHP ainda, o contato cancela sempre e responde na própria página.
+\end{frame}
+
+\begin{frame}[fragile]{Validação nativa e em JavaScript}
+	A nativa (\texttt{required}, \texttt{minlength}, \texttt{type}) executa
+	\textbf{antes} do \texttt{submit}. Campo obrigatório vazio: o ouvinte nem é
+	chamado.
+
+	\vspace{0.2cm}
+	O JavaScript cobre o que os atributos não expressam:
+
+	\begin{minted}{javascript}
+"   ".length            // 3: passa por minlength="3"
+"   ".trim().length     // 0
+
+if (campoNome.value.trim().length < 3) {
+  // recusa
+}
+	\end{minted}
+
+	Nenhuma das duas protege o servidor. Essa validação vem com o PHP.
+\end{frame}
+
+\begin{frame}[fragile]{Mensagem de erro no lugar do campo}
+	\begin{minted}{html}
+<input type="text" id="nome" name="nome" minlength="3" required>
+<span class="erro" id="erro-nome"></span>
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+formulario.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  erroNome.textContent = "";     // apaga a anterior
+
+  if (campoNome.value.trim().length < 3) {
+    erroNome.textContent = "Informe o nome, com pelo menos 3 letras.";
+  }
+});
+	\end{minted}
+
+	Perto do campo, e não num \texttt{alert}, que bloqueia a página e some ao
+	fechar.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: validação do contato}
+	Em \texttt{contato.html}, com \texttt{js/contato.js} ligado:
+
+	\begin{enumerate}
+		\item \texttt{preventDefault} no \texttt{submit};
+		\item nome com menos de 3 caracteres depois do \texttt{trim}: mensagem
+		      abaixo do nome;
+		\item mensagem com menos de 10: mensagem abaixo dela;
+		\item tudo certo: \texttt{Mensagem enviada com sucesso!} na página, e o
+		      formulário limpo.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Teste: três espaços no nome e \texttt{oi} na mensagem.
+
+	\vspace{0.3cm}
+	Tempo: 12 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: validação do contato}
+	\begin{minted}[fontsize=\tiny]{javascript}
+formulario.addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  erroNome.textContent = "";
+  erroMensagem.textContent = "";
+  sucesso.classList.add("oculto");
+  let valido = true;
+
+  if (campoNome.value.trim().length < 3) {
+    erroNome.textContent = "Informe o nome, com pelo menos 3 letras.";
+    valido = false;
+  }
+  if (campoMensagem.value.trim().length < 10) {
+    erroMensagem.textContent = "A mensagem precisa ter pelo menos 10 caracteres.";
+    valido = false;
+  }
+  if (valido) {
+    sucesso.classList.remove("oculto");
+    formulario.reset();
+  }
+});
+	\end{minted}
+\end{frame}
+}
+
+\begin{frame}{Quando dá errado}
+	\small
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.45\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}}
+		\toprule
+		Sintoma & Causa provável \\
+		\midrule
+		\texttt{Cannot read properties of null} & seletor sem resultado, ou
+		script sem \texttt{defer} \\ \midrule
+		\texttt{(reading 'add')} numa lista & \texttt{classList} direto na
+		\texttt{NodeList} \\ \midrule
+		clique não faz nada, efeito ao abrir & função chamada no
+		\texttt{addEventListener} \\ \midrule
+		soma dá \texttt{"501"} & \texttt{value} sem \texttt{Number} \\ \midrule
+		cartões repetidos a cada filtro & contêiner não esvaziado \\ \midrule
+		página recarrega no envio & \texttt{preventDefault} ausente \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.3cm}
+	Os quatro últimos não aparecem no console. \texttt{console.log} dentro do
+	ouvinte confirma se ele foi chamado, e com que valores.
+\end{frame}
+
+\begin{frame}{Tarefa}
+	Os exercícios valem nota e compõem o item \emph{Exercícios em sala}.
+
+	\vspace{0.3cm}
+	Enunciado no \texttt{README.md} de \texttt{ds122-dom-assignment}; prazo na
+	UFPR Virtual.
+
+	\vspace{0.3cm}
+	Entrega pelo \emph{fork} no GitLab, individual ou em dupla, sem uso de IA
+	generativa para produzir o código.
+
+	\vspace{0.5cm}
+	Busca, faixa de preço, destaque e validação são requisitos da Entrega 2. O
+	que falta, carregar os produtos de um JSON com \texttt{fetch}, é o assunto do
+	próximo encontro.
+\end{frame}
+
+\end{document}
