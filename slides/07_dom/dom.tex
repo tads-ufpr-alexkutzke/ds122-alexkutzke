@@ -359,13 +359,14 @@ cartao.style.borderColor = "gold";   // border-color
 	No \texttt{app.js}:
 
 	\begin{enumerate}
-		\item o \texttt{<h2>} da lista passa a mostrar \texttt{Produtos (6)}, com
-		      o número vindo de \texttt{produtos.length};
-		\item a faixa \texttt{.aviso} some, por classe.
+		\item altere o \texttt{<h2>} da lista para \texttt{Produtos (6)}, com o
+		      número vindo de \texttt{produtos.length};
+		\item esconda a faixa \texttt{.aviso} acrescentando a classe
+		      \texttt{oculto}.
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	Depois compare o \texttt{<h2>} no \texttt{Ctrl+U} e na aba
+	Depois, compare o \texttt{<h2>} no \texttt{Ctrl+U} e na aba
 	\textbf{Elements}.
 
 	\vspace{0.3cm}
@@ -448,7 +449,7 @@ const criaCartao = (produto) => {
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	Resultado: um sétimo cartão, com o mesmo estilo dos outros.
+	Confira que aparece um sétimo cartão, com o mesmo estilo dos outros.
 
 	\vspace{0.3cm}
 	Tempo: 8 minutos.
@@ -529,8 +530,8 @@ cartao.innerHTML = `
 		      \texttt{<article class="produto">};
 		\item escreva a \texttt{renderiza} e chame
 		      \texttt{renderiza(produtos)};
-		\item na \texttt{criaCartao}, desconto de 10\% ou mais recebe a classe
-		      \texttt{destaque};
+		\item na \texttt{criaCartao}, acrescente a classe \texttt{destaque} aos
+		      produtos com desconto de 10\% ou mais;
 		\item escreva a regra \texttt{.destaque} no CSS.
 	\end{enumerate}
 
@@ -644,11 +645,11 @@ campoBusca.addEventListener("input", () => {
 {\estilopratica
 \begin{frame}[fragile]{Prática: busca enquanto digita}
 	\begin{enumerate}
-		\item acima da grade, um formulário com um campo
-		      \texttt{type="search"}, \texttt{id="busca"}, e o seu
+		\item acima da grade, crie um formulário com um campo
+		      \texttt{type="search"} e \texttt{id="busca"}, com o seu
 		      \texttt{<label>};
-		\item ouvinte de \texttt{input} que chama a \texttt{renderiza} com o
-		      resultado da \texttt{buscaPorNome}.
+		\item registre no campo um ouvinte de \texttt{input} que chama a
+		      \texttt{renderiza} com o resultado da \texttt{buscaPorNome}.
 	\end{enumerate}
 
 	\vspace{0.3cm}
@@ -699,16 +700,17 @@ Number("")                // 0
 {\estilopratica
 \begin{frame}[fragile]{Prática: faixa de preço}
 	\begin{enumerate}
-		\item dois campos \texttt{type="number"}, \texttt{preco-min} e
-		      \texttt{preco-max}, com \texttt{<label>};
-		\item uma função \texttt{aplicaFiltros} que lê os três campos e aplica
-		      \texttt{buscaPorNome} e \texttt{filtraPorFaixa};
-		\item a mesma função como ouvinte de \texttt{input} nos três campos;
-		\item campo vazio não filtra nada.
+		\item crie dois campos \texttt{type="number"}, \texttt{preco-min} e
+		      \texttt{preco-max}, cada um com o seu \texttt{<label>};
+		\item escreva a função \texttt{aplicaFiltros}, que lê os três campos e
+		      aplica \texttt{buscaPorNome} e \texttt{filtraPorFaixa};
+		\item registre essa função como ouvinte de \texttt{input} nos três
+		      campos;
+		\item trate o campo vazio, para que ele não filtre nada.
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	Teste: \texttt{de} na busca, faixa de 10 a 30.
+	Teste com \texttt{de} na busca e a faixa de 10 a 30.
 
 	\vspace{0.3cm}
 	Tempo: 10 minutos.
@@ -807,19 +809,20 @@ formulario.addEventListener("submit", (evento) => {
 
 {\estilopratica
 \begin{frame}[fragile]{Prática: validação do contato}
-	Em \texttt{contato.html}, com \texttt{js/contato.js} ligado:
+	Crie o \texttt{js/contato.js}, ligue-o ao \texttt{contato.html} e, nele:
 
 	\begin{enumerate}
-		\item \texttt{preventDefault} no \texttt{submit};
-		\item nome com menos de 3 caracteres depois do \texttt{trim}: mensagem
-		      abaixo do nome;
-		\item mensagem com menos de 10: mensagem abaixo dela;
-		\item tudo certo: \texttt{Mensagem enviada com sucesso!} na página, e o
-		      formulário limpo.
+		\item cancele o envio com \texttt{preventDefault} no \texttt{submit};
+		\item se o nome tiver menos de 3 caracteres depois do \texttt{trim},
+		      mostre uma mensagem abaixo do nome;
+		\item se a mensagem tiver menos de 10 caracteres, mostre uma mensagem
+		      abaixo dela;
+		\item se os dois estiverem certos, mostre \texttt{Mensagem enviada com
+		      sucesso!} na página e limpe o formulário.
 	\end{enumerate}
 
 	\vspace{0.3cm}
-	Teste: três espaços no nome e \texttt{oi} na mensagem.
+	Teste com três espaços no nome e \texttt{oi} na mensagem.
 
 	\vspace{0.3cm}
 	Tempo: 12 minutos.
