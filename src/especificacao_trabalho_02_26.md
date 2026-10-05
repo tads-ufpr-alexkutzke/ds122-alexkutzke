@@ -70,7 +70,7 @@ O `README.md` do fork já traz o modelo do diário de bordo a preencher.
 ---
 
 ### Entrega 2: Interatividade com JavaScript
-**Prazo:** 09/10/2026, na aula anterior à Prova 2  
+**Prazo:** 11/10/2026 (domingo), prorrogado da aula de 09/10, antes da Prova 2  
 **Peso na nota do trabalho:** 30%
 
 **Requisitos mínimos:**
@@ -203,7 +203,7 @@ O que continua permitido, e recomendado:
 | Entrega | Conteúdo | Prazo | Peso |
 |---|---|---|---|
 | Entrega 1 | HTML5 + CSS3 (Front-end estático) | ~~11/09/2026 (sex)~~ **13/09/2026 (dom)** | 30% |
-| Entrega 2 | JavaScript (Interatividade) | 09/10/2026 (sex) | 30% |
+| Entrega 2 | JavaScript (Interatividade) | 11/10/2026 (dom) | 30% |
 | Entrega 3 | PHP + MySQL (Back-end completo) | 27/11/2026 (sex) | 40% |
 
 > **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Entregas com atraso terão desconto de 20% por dia.
