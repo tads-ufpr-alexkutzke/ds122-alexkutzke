@@ -380,13 +380,12 @@ página aberta do disco na seção 3.
 | `SyntaxError` ao ler o JSON | vírgula sobrando, aspas simples ou comentário no arquivo (seção 2.2) |
 | `TypeError: ... .forEach is not a function` | `await` esquecido antes de `resposta.json()` (seção 5.3) |
 | `await is only valid in async functions` | `await` fora de uma função `async` (seção 4) |
-| a página fica vazia e não há erro no console | 404 sem conferir `response.ok` (seção 5.2) |
+| `SyntaxError: Unexpected token '<'`, com status 404 na aba **Network** | arquivo não encontrado, sem conferir `response.ok`: o `json()` tentou ler a página de erro do servidor (seção 5.2) |
 | a lista aparece, mas um total ou contagem fica zerado | código que usa os dados fora da função, antes de eles chegarem (seção 5.5) |
 | soma de preços dá `"032.518"` | números entre aspas no JSON (seção 2.2) |
 
-Os três últimos não geram erro no console. A aba **Network** ajuda nos dois
-primeiros deles: mostra se o arquivo foi pedido, com que status voltou, e o
-corpo que chegou.
+Os dois últimos não geram erro no console. Para os demais, a aba **Network**
+mostra se o arquivo foi pedido, com que status voltou, e o corpo que chegou.
 
 ## 8. Para ler depois
 

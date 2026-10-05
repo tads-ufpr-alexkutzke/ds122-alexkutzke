@@ -1,0 +1,710 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{array}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+% slides de prática e de resposta: fundo e título em cores próprias
+\newcommand{\estilopratica}{%
+  \setbeamercolor{frametitle}{fg=orange!85!black}%
+  \setbeamercolor{background canvas}{bg=orange!8}}
+\newcommand{\estiloresposta}{%
+  \setbeamercolor{frametitle}{fg=green!45!black}%
+  \setbeamercolor{background canvas}{bg=green!6}}
+
+\title{07 - Fetch API e JSON}
+\author{Prof. Alex Kutzke}
+\date{Outubro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Escrever dados em JSON, e apontar o que muda em relação a um objeto
+		      JavaScript;
+		\item Converter entre texto JSON e valor com \texttt{JSON.parse} e
+		      \texttt{JSON.stringify};
+		\item Servir as páginas por um servidor local, e explicar por que o
+		      \texttt{fetch} falha em \texttt{file://};
+		\item Descrever o que \texttt{fetch} devolve, e usar \texttt{await} dentro
+		      de uma função \texttt{async};
+		\item Conferir \texttt{response.ok} e explicar por que um 404 não cai no
+		      \texttt{catch};
+		\item Carregar o catálogo de um arquivo JSON;
+		\item Consultar uma API pública e tratar a resposta de erro dela.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Requisição}
+% ==========================================
+
+\begin{frame}[fragile]{Uma requisição pelo console}
+	\texttt{https://viacep.com.br} aberto, \texttt{F12}, aba \textbf{Network}
+	aberta, depois aba \textbf{Console}:
+
+	\begin{minted}{javascript}
+const resposta = await fetch("https://viacep.com.br/ws/80060000/json/");
+resposta.status        // 200
+const dados = await resposta.json();
+dados.logradouro       // "Rua XV de Novembro"
+dados.localidade       // "Curitiba"
+	\end{minted}
+
+	\vspace{0.3cm}
+	A página não recarregou.
+\end{frame}
+
+\begin{frame}{O que apareceu na aba Network}
+	Uma linha nova, com:
+	\begin{itemize}
+		\item o endereço pedido;
+		\item o método \texttt{GET};
+		\item o status \texttt{200};
+		\item na aba \textbf{Resposta}, um texto entre chaves, com pares de nome e
+		      valor.
+	\end{itemize}
+
+	\vspace{0.3cm}
+	O JavaScript fez uma requisição HTTP, como as da aula de HTTP, e transformou
+	o corpo da resposta em objeto.
+
+	\vspace{0.3cm}
+	Nesta aula: de onde a página pode fazer requisições, o formato do corpo, por
+	que o \texttt{await}, e o \texttt{fetch} em si.
+\end{frame}
+
+% ==========================================
+\section{Servidor}
+% ==========================================
+
+\begin{frame}[fragile]{Página aberta do disco}
+	Dois cliques no \texttt{catalogo.html}: o endereço começa com
+	\texttt{file://}. Sem servidor e sem HTTP.
+
+	\vspace{0.3cm}
+	Para HTML, CSS e imagens, basta. Para o \texttt{fetch}, o navegador bloqueia:
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+Access to fetch at 'file:///.../produtos.json' from origin 'null'
+has been blocked by CORS policy: Cross origin requests are only
+supported for protocol schemes: chrome, chrome-extension,
+chrome-untrusted, data, http, https, isolated-app.
+	\end{minted}
+
+	\vspace{0.2cm}
+	A partir desta aula, as páginas são abertas por um servidor local, em
+	\texttt{http://localhost}.
+\end{frame}
+
+\begin{frame}[fragile]{Servidor local}
+	Duas opções:
+
+	\begin{itemize}
+		\item VS Code: extensão \textbf{Live Server}, botão \emph{Go Live} no canto
+		      inferior direito. Recarrega a página a cada alteração salva.
+		\item Terminal, dentro da pasta do repositório:
+	\end{itemize}
+
+	\begin{minted}{bash}
+python3 -m http.server 8000
+	\end{minted}
+
+	\quad e no navegador:
+
+	\quad\texttt{http://localhost:8000/catalogo.html}
+
+	\quad \texttt{Ctrl+C} encerra o servidor.
+
+	\vspace{0.3cm}
+	A aba \textbf{Network} passa a mostrar cada arquivo da página como uma
+	requisição, com o status de cada um.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o ambiente}
+	No seu \emph{fork} de \texttt{ds122-lab-02-assignment}:
+
+	\begin{enumerate}
+		\item copie suas páginas, \texttt{css/}, \texttt{imagens/},
+		      \texttt{js/produtos.js} e \texttt{js/app.js} da tarefa de DOM, ou
+		      mova o conteúdo de \texttt{base/} para a raiz;
+		\item inicie o servidor local;
+		\item abra o catálogo por \texttt{http://localhost};
+		\item na aba \textbf{Network}, confira o status de cada arquivo.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Tempo: 5 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o ambiente}
+	Os cartões aparecem, e a aba \textbf{Network} lista:
+
+	\begin{minted}{text}
+catalogo.html     200
+estilo.css        200
+produtos.js       200
+app.js            200
+produto.svg       200
+	\end{minted}
+
+	\vspace{0.2cm}
+	Um arquivo com \texttt{404} é um caminho errado no HTML.
+\end{frame}
+}
+
+% ==========================================
+\section{JSON}
+% ==========================================
+
+\begin{frame}[fragile]{JSON}
+	\emph{JavaScript Object Notation}: formato de texto para dados, lido e escrito
+	por praticamente qualquer linguagem.
+
+	\begin{minted}[fontsize=\scriptsize]{json}
+[
+  {
+    "id": 1,
+    "nome": "Café em grão",
+    "preco": 32.5,
+    "disponivel": true,
+    "tags": ["orgânico", "torra média"]
+  }
+]
+	\end{minted}
+
+	Um único valor: objeto, array, string, número, \texttt{true},
+	\texttt{false} ou \texttt{null}, um dentro do outro.
+\end{frame}
+
+\begin{frame}{O que muda em relação a um objeto JavaScript}
+	\small
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.45\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}}
+		\toprule
+		No JavaScript & No JSON \\
+		\midrule
+		nome do campo com ou sem aspas & sempre entre aspas duplas \\ \midrule
+		aspas simples, duplas ou crase & só aspas duplas \\ \midrule
+		vírgula depois do último item & erro \\ \midrule
+		comentários & não há \\ \midrule
+		\texttt{const produtos =} antes & só o valor \\ \midrule
+		funções, \texttt{undefined} & não existem \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.3cm}
+	\texttt{"preco": "32.5"} é uma string. \texttt{"preco": 32.5} é um número, e
+	só ele soma.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{JSON.parse} e \texttt{JSON.stringify}}
+	O JSON chega pela rede como texto.
+
+	\begin{minted}{javascript}
+const texto = '{"nome": "Café em grão", "preco": 32.5}';
+
+const produto = JSON.parse(texto);
+produto.preco * 2;     // 65
+
+JSON.stringify({ nome: "Mel", preco: 24.9 });
+// '{"nome":"Mel","preco":24.9}'
+	\end{minted}
+
+	\vspace{0.2cm}
+	Texto com erro de sintaxe lança \texttt{SyntaxError}. Teste:
+
+	\begin{minted}{javascript}
+JSON.parse("{'nome': 'Mel'}");
+	\end{minted}
+
+	\vspace{0.2cm}
+	Na prática, o \texttt{response.json()} faz essa conversão por nós.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: os produtos em JSON}
+	\begin{enumerate}
+		\item crie o \texttt{produtos.json} na raiz, com os produtos do
+		      \texttt{js/produtos.js};
+		\item acrescente a cada produto o campo \texttt{descricao};
+		\item abra \texttt{http://localhost:8000/produtos.json} no Firefox e
+		      confira que ele mostra os dados formatados;
+		\item apague o \texttt{js/produtos.js} e a tag \texttt{<script>} dele.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Confira que a grade ficou vazia, com um erro no console.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: os produtos em JSON}
+	\begin{minted}[fontsize=\scriptsize]{json}
+[
+  {
+    "id": 1,
+    "nome": "Café em grão",
+    "descricao": "Grãos de torra média, de produção familiar.",
+    "categoria": "Bebidas",
+    "preco": 32.5,
+    "desconto": 0.15,
+    "imagem": "imagens/produto.svg"
+  }
+]
+	\end{minted}
+
+	\begin{minted}{text}
+ReferenceError: produtos is not defined
+	\end{minted}
+
+	O \texttt{renderiza(produtos)} do fim do \texttt{app.js} ainda procura o
+	array.
+\end{frame}
+}
+
+% ==========================================
+\section{Assíncrono}
+% ==========================================
+
+\begin{frame}{Operações assíncronas}
+	Uma requisição leva tempo: milissegundos no servidor local, segundos numa
+	conexão ruim.
+
+	\vspace{0.3cm}
+	Se o JavaScript parasse até a resposta chegar, a página congelaria: sem
+	rolar, sem responder a cliques.
+
+	\vspace{0.3cm}
+	Por isso o \texttt{fetch} dispara a requisição e devolve, na hora, uma
+	\emph{Promise} (promessa): um objeto que representa um resultado que ainda
+	vai chegar.
+\end{frame}
+
+\begin{frame}[fragile]{Promise}
+	\begin{minted}{javascript}
+const p = fetch("https://viacep.com.br/ws/80060000/json/");
+p   // Promise {<pending>}
+	\end{minted}
+
+	\vspace{0.2cm}
+	Três estados:
+	\begin{itemize}
+		\item pendente (\emph{pending}): a resposta ainda não chegou;
+		\item cumprida (\emph{fulfilled}): a resposta está dentro;
+		\item rejeitada (\emph{rejected}): a requisição falhou, e o erro está
+		      dentro.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{await}}
+	\texttt{await} antes de uma \emph{Promise} espera que ela se resolva e
+	devolve o valor que está dentro:
+
+	\begin{minted}{javascript}
+const resposta = await fetch("https://viacep.com.br/ws/80060000/json/");
+resposta   // Response {status: 200, ok: true, ...}
+	\end{minted}
+
+	\vspace{0.3cm}
+	Fora do console, \texttt{await} só pode ser usado dentro de uma função
+	marcada com \texttt{async}.
+\end{frame}
+
+% ==========================================
+\section{Fetch}
+% ==========================================
+
+\begin{frame}{O objeto \texttt{Response}}
+	\small
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.35\textwidth}>{\raggedright\arraybackslash}p{0.55\textwidth}}
+		\toprule
+		Propriedade ou método & O que é \\
+		\midrule
+		\texttt{resposta.status} & código de status HTTP, como \texttt{200} ou
+		\texttt{404} \\ \midrule
+		\texttt{resposta.ok} & \texttt{true} com status entre 200 e 299 \\
+		\midrule
+		\texttt{resposta.json()} & lê o corpo e converte de JSON; devolve uma
+		\emph{Promise} \\ \midrule
+		\texttt{resposta.text()} & lê o corpo como texto; devolve uma
+		\emph{Promise} \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.3cm}
+	O endereço pode ser completo, como o do ViaCEP, ou relativo à página, como
+	\texttt{"produtos.json"}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{response.ok} e o 404}
+	O \texttt{fetch} só rejeita quando a requisição não acontece: sem rede,
+	servidor fora do ar, domínio que não existe, bloqueio do navegador.
+
+	\vspace{0.2cm}
+	Um 404 é uma resposta HTTP completa:
+
+	\begin{minted}{javascript}
+const r = await fetch("nao-existe.json");
+r.status   // 404
+r.ok       // false
+	\end{minted}
+
+	\vspace{0.2cm}
+	Nenhum erro vermelho. Todo \texttt{fetch} confere \texttt{response.ok} antes
+	de usar o corpo.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{response.json()}}
+	Ler o corpo também é assíncrono: \texttt{json()} devolve outra
+	\emph{Promise}.
+
+	\begin{minted}{javascript}
+const resposta = await fetch("produtos.json");
+const produtos = await resposta.json();
+produtos.length   // 6
+	\end{minted}
+
+	\vspace{0.3cm}
+	Sem o segundo \texttt{await}, \texttt{produtos} é uma \emph{Promise}:
+
+	\begin{minted}{text}
+TypeError: produtos.forEach is not a function
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Uma função \texttt{async} com \texttt{try} e \texttt{catch}}
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+const carregaProdutos = async () => {
+  try {
+    const resposta = await fetch("produtos.json");
+    if (!resposta.ok) {
+      throw new Error(`Erro HTTP: ${resposta.status}`);
+    }
+    const produtos = await resposta.json();
+    renderiza(produtos);
+  } catch (erro) {
+    console.error(erro);
+    const aviso = document.createElement("p");
+    aviso.classList.add("erro");
+    aviso.textContent = "Não foi possível carregar os produtos.";
+    grade.replaceChildren(aviso);
+  }
+};
+
+carregaProdutos();
+	\end{minted}
+\end{frame}
+
+\begin{frame}{Linha a linha}
+	\begin{itemize}
+		\item \texttt{async} marca a função como assíncrona e permite
+		      \texttt{await} dentro dela;
+		\item o \texttt{try} contém o caminho normal; qualquer erro desvia para o
+		      \texttt{catch};
+		\item \texttt{throw new Error(...)} lança um erro de propósito, e o 404
+		      cai no mesmo \texttt{catch} que a falha de rede;
+		\item o \texttt{catch} registra no console e avisa na página, porque o
+		      visitante não abre o console;
+		\item \texttt{renderiza} é a da aula de DOM, e não sabe de onde a lista
+		      veio.
+	\end{itemize}
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o catálogo pelo \texttt{fetch}}
+	\begin{enumerate}
+		\item no fim do \texttt{app.js}, troque \texttt{renderiza(produtos);} por
+		      uma \texttt{carregaProdutos} com \texttt{fetch}, \texttt{await} e
+		      \texttt{response.ok}, ainda sem \texttt{try}/\texttt{catch};
+		\item na \texttt{criaCartao}, acrescente um
+		      \texttt{<p class="descricao">} logo depois da imagem;
+		\item acrescente um sétimo produto ao \texttt{produtos.json}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Confira que os cartões voltam com a descrição, que o sétimo aparece sem
+	mexer no JavaScript, e que a aba \textbf{Network} mostra o
+	\texttt{produtos.json} com \texttt{200}.
+
+	\vspace{0.3cm}
+	Tempo: 15 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o catálogo pelo \texttt{fetch}}
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+const carregaProdutos = async () => {
+  const resposta = await fetch("produtos.json");
+  if (!resposta.ok) {
+    throw new Error(`Erro HTTP: ${resposta.status}`);
+  }
+  const produtos = await resposta.json();
+  renderiza(produtos);
+};
+
+carregaProdutos();
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+// na criaCartao, depois da imagem
+const descricao = document.createElement("p");
+descricao.classList.add("descricao");
+descricao.textContent = produto.descricao;
+cartao.append(descricao);
+	\end{minted}
+\end{frame}
+}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: a mensagem de erro}
+	\begin{enumerate}
+		\item envolva o corpo da \texttt{carregaProdutos} em
+		      \texttt{try}/\texttt{catch};
+		\item no \texttt{catch}, mostre
+		      \texttt{Não foi possível carregar os produtos.} em um
+		      \texttt{<p class="erro">} dentro da grade;
+		\item troque \texttt{"produtos.json"} por \texttt{"produto.json"} no
+		      \texttt{fetch} e recarregue.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Confira a mensagem na página, o erro no console e o \texttt{404} na aba
+	\textbf{Network}. Desfaça a troca.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: a mensagem de erro}
+	O código do slide \emph{Uma função \texttt{async} com \texttt{try} e
+	\texttt{catch}}.
+
+	\vspace{0.3cm}
+	Com \texttt{"produto.json"}:
+
+	\begin{minted}{text}
+Network:  produto.json   404
+Console:  Error: Erro HTTP: 404
+Página:   Não foi possível carregar os produtos.
+	\end{minted}
+
+	\vspace{0.2cm}
+	Sem o \texttt{if (!resposta.ok)}, o \texttt{json()} tenta ler a página de
+	erro do servidor como JSON, e o \texttt{catch} recebe um
+	\texttt{SyntaxError} que não diz que o arquivo não foi encontrado.
+\end{frame}
+}
+
+\begin{frame}[fragile]{A ordem de execução}
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+let produtos = [];
+
+const carrega = async () => {
+  const resposta = await fetch("produtos.json");
+  produtos = await resposta.json();
+  console.log("2. dados chegaram:", produtos.length);
+};
+
+carrega();
+console.log("1. logo depois da chamada:", produtos.length);
+	\end{minted}
+
+	\begin{minted}{text}
+1. logo depois da chamada: 0
+2. dados chegaram: 6
+	\end{minted}
+
+	No primeiro \texttt{await}, a função devolve o controle. O que usa os dados
+	vai \textbf{dentro} dela, depois do \texttt{await}.
+\end{frame}
+
+% ==========================================
+\section{API}
+% ==========================================
+
+\begin{frame}[fragile]{Uma API pública: ViaCEP}
+	API, na web: um endereço que responde dados em vez de páginas, em geral em
+	JSON.
+
+	\begin{minted}{text}
+https://viacep.com.br/ws/80060000/json/
+	\end{minted}
+
+	\small
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.38\textwidth}>{\raggedright\arraybackslash}p{0.12\textwidth}>{\raggedright\arraybackslash}p{0.35\textwidth}}
+		\toprule
+		Pedido & Status & Corpo \\
+		\midrule
+		\texttt{123}, formato inválido & 400 & página de erro em HTML \\ \midrule
+		\texttt{99999999}, não existe & 200 &
+		\texttt{\{ "erro": "true" \}} \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.3cm}
+	No segundo caso, \texttt{response.ok} é \texttt{true}. O erro está no
+	conteúdo, e a documentação da API diz como.
+\end{frame}
+
+\begin{frame}[fragile]{Formato do CEP e CORS}
+	O formato pode ser conferido antes da requisição:
+
+	\begin{minted}{javascript}
+const cep = campoCep.value.replace("-", "");
+if (cep.length !== 8 || Number.isNaN(Number(cep))) {
+  // mostra a mensagem e não faz o fetch
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	O navegador só entrega a resposta de outro site se o servidor permitir, pelo
+	cabeçalho \texttt{Access-Control-Allow-Origin}. É o CORS
+	(\emph{Cross-Origin Resource Sharing}), o mesmo mecanismo que bloqueia
+	\texttt{file://}. O ViaCEP permite qualquer site.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o endereço pelo CEP}
+	\begin{enumerate}
+		\item no \texttt{contato.html}, acrescente os campos \texttt{cep},
+		      \texttt{rua}, \texttt{bairro} e \texttt{cidade}, e um
+		      \texttt{<p id="erro-cep" class="erro">};
+		\item crie o \texttt{js/contato.js}, ligado com \texttt{defer};
+		\item escreva a \texttt{buscaCep}, chamada no \texttt{blur} do
+		      \texttt{cep}, que confere o formato, faz o \texttt{fetch} e preenche
+		      os três campos.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Confira com \texttt{80060000}, \texttt{123} e \texttt{99999999}.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o endereço pelo CEP}
+	\begin{minted}[fontsize=\scriptsize]{javascript}
+const campoCep = document.querySelector("#cep");
+const erroCep = document.querySelector("#erro-cep");
+const buscaCep = async () => {
+  erroCep.textContent = "";
+  const cep = campoCep.value.replace("-", "");
+  if (cep.length !== 8 || Number.isNaN(Number(cep))) {
+    erroCep.textContent = "Digite um CEP com oito números.";
+    return;
+  }
+  const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+  const dados = await resposta.json();
+  document.querySelector("#rua").value = dados.logradouro;
+  document.querySelector("#bairro").value = dados.bairro;
+  document.querySelector("#cidade").value = dados.localidade;
+};
+campoCep.addEventListener("blur", buscaCep);
+	\end{minted}
+
+	Com \texttt{99999999}, os campos ficam com \texttt{undefined}. O tratamento
+	do \texttt{erro} e o \texttt{try}/\texttt{catch} ficam para a tarefa.
+\end{frame}
+}
+
+\begin{frame}{Quando dá errado}
+	\small
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.45\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}}
+		\toprule
+		Sintoma & Causa provável \\
+		\midrule
+		\texttt{blocked by CORS policy}, com \texttt{file://} & página sem
+		servidor local \\ \midrule
+		\texttt{SyntaxError} ao ler o JSON & vírgula sobrando, aspas simples,
+		comentário \\ \midrule
+		\texttt{.forEach is not a function} & \texttt{await} esquecido no
+		\texttt{json()} \\ \midrule
+		\texttt{await is only valid in async functions} & \texttt{await} fora
+		de função \texttt{async} \\ \midrule
+		\texttt{Unexpected token \textquotesingle<\textquotesingle}, com 404 & \texttt{json()} lendo a página de
+		erro, sem conferir \texttt{response.ok} \\ \midrule
+		total ou contagem zerados & dados usados fora da função \\ \midrule
+		soma dá \texttt{"032.518"} & números entre aspas no JSON \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.2cm}
+	Os dois últimos não aparecem no console. A aba \textbf{Network} mostra o
+	status e o corpo que chegou.
+\end{frame}
+
+\begin{frame}{Tarefa}
+	Os exercícios valem nota e compõem o item \emph{Exercícios em sala}.
+
+	\vspace{0.3cm}
+	Enunciado no \texttt{README.md} de \texttt{ds122-lab-02-assignment}; prazo
+	na UFPR Virtual. As paradas desta aula cobrem os exercícios 1 a 4; o
+	exercício 5 é de revisão para a Prova 2.
+
+	\vspace{0.3cm}
+	Entrega pelo \emph{fork} no GitLab, individual ou em dupla, sem uso de IA
+	generativa para produzir o código.
+
+	\vspace{0.5cm}
+	O catálogo pelo \texttt{produtos.json} é o requisito 4 da Entrega 2, com
+	prazo no domingo, 11/10. No trabalho, o cartão mantém o que a Entrega 1
+	pedia: imagem, nome, descrição curta e preço.
+\end{frame}
+
+\end{document}
