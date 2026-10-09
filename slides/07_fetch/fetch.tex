@@ -235,7 +235,6 @@ produto.svg       200
 		aspas simples, duplas ou crase & só aspas duplas \\ \midrule
 		vírgula depois do último item & erro \\ \midrule
 		comentários & não há \\ \midrule
-		\texttt{const produtos =} antes & só o valor \\ \midrule
 		funções, \texttt{undefined} & não existem \\
 		\bottomrule
 	\end{tabular}
@@ -401,8 +400,9 @@ r.ok       // false
 	\end{minted}
 
 	\vspace{0.2cm}
-	Nenhum erro vermelho. Todo \texttt{fetch} confere \texttt{response.ok} antes
-	de usar o corpo.
+	O console mostra a linha do 404 em vermelho, mas é um registro de rede do
+	navegador: nenhum erro de JavaScript, e o código segue. Todo
+	\texttt{fetch} confere \texttt{response.ok} antes de usar o corpo.
 \end{frame}
 
 \begin{frame}[fragile]{\texttt{response.json()}}

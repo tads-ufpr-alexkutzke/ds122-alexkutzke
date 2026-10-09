@@ -128,7 +128,6 @@ const produtos = [
 | string com aspas simples, duplas ou crase | string só com aspas duplas |
 | vírgula depois do último item é aceita | vírgula depois do último item é erro |
 | comentários com `//` e `/* */` | não há comentários |
-| `const produtos =` antes do array | só o valor, sem variável |
 | funções, `undefined`, datas | não existem; datas viram string |
 
 Um número entre aspas é uma string: `"preco": "32.5"` e `"preco": 32.5` são
@@ -253,8 +252,12 @@ r.status   // 404
 r.ok       // false
 ```
 
-Não houve erro vermelho de JavaScript. Por isso, todo `fetch` confere
-`response.ok` antes de usar o corpo.
+O console mostra em vermelho a linha da requisição que voltou com 404, como
+`GET http://localhost:8000/nao-existe.json [HTTP/1 404 File not found]` no
+Firefox. Essa linha é um registro de rede feito pelo navegador, e não um erro
+do JavaScript: o código seguiu adiante, e `r.status` e `r.ok` responderam
+normalmente. Por isso, todo `fetch` confere `response.ok` antes de usar o
+corpo.
 
 ### 5.3. `response.json()`
 
