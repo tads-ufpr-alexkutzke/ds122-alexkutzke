@@ -28,3 +28,4 @@
 - [Especificação do trabalho prático](./especificacao_trabalho_02_26.md)
 - [Status das entregas de atividades avaliativas (Tarde)](./DS122_TADSV2_entregas.md)
 - [Status das entregas de atividades avaliativas (Noite)](./DS122_TADSN2_entregas.md)
+- [Prova 2: divisão das turmas em grupos](./prova2_grupos.md)

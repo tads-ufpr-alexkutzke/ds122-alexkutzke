@@ -1,0 +1,102 @@
+# Prova 2: divisão das turmas em grupos
+
+Prova 2 de DS122, sexta-feira, 16/10/2026, no laboratório A15. Cada grupo faz a
+prova inteira no próprio horário: primeiro a parte objetiva, no papel, depois a
+parte prática, no computador, que começa no mesmo horário para todo o grupo.
+
+**Última atualização**: 15/10/2026. Esta lista substitui a do aviso de 12/10,
+com duas trocas de grupo pedidas por e-mail.
+
+| Turma | Grupo | Horário | Início da parte prática |
+| --- | --- | --- | --- |
+| Tarde | A | 14h30 às 16h15 | 15h10 |
+| Tarde | B | 16h30 às 18h15 | 17h10 |
+| Noite | A | 19h00 às 20h45 | 19h40 |
+| Noite | B | 21h00 às 22h45 | 21h40 |
+
+## Turma da tarde (TADSV2)
+
+### Grupo A, 14h30 às 16h15 (21 alunos)
+
+- GRR20250024
+- GRR20251898
+- GRR20254382
+- GRR20256530
+- GRR20260686
+- GRR20260800
+- GRR20260851
+- GRR20261421
+- GRR20261919
+- GRR20262205
+- GRR20262461
+- GRR20262490
+- GRR20262889
+- GRR20263065
+- GRR20263132
+- GRR20263137
+- GRR20263282
+- GRR20263928
+- GRR20264587
+- GRR20264888
+- GRR20265844
+
+### Grupo B, 16h30 às 18h15 (19 alunos)
+
+- GRR20243572
+- GRR20260611
+- GRR20261050
+- GRR20261324
+- GRR20262122
+- GRR20263483
+- GRR20263525
+- GRR20263856
+- GRR20263865
+- GRR20263930
+- GRR20264014
+- GRR20264192
+- GRR20264280
+- GRR20265058
+- GRR20265862
+- GRR20265942
+- GRR20266188
+- GRR20266284
+- GRR20266508
+
+## Turma da noite (TADSN2)
+
+### Grupo A, 19h00 às 20h45 (17 alunos)
+
+- GRR20250564
+- GRR20260001
+- GRR20260058
+- GRR20260340
+- GRR20260553
+- GRR20261137
+- GRR20261142
+- GRR20261406
+- GRR20261426
+- GRR20261528
+- GRR20262101
+- GRR20262364
+- GRR20262611
+- GRR20262853
+- GRR20263207
+- GRR20263633
+- GRR20265011
+
+### Grupo B, 21h00 às 22h45 (14 alunos)
+
+- GRR20214918
+- GRR20243354
+- GRR20252028
+- GRR20260844
+- GRR20260905
+- GRR20261526
+- GRR20261773
+- GRR20262658
+- GRR20262792
+- GRR20263216
+- GRR20263366
+- GRR20263474
+- GRR20263531
+- GRR20264165
