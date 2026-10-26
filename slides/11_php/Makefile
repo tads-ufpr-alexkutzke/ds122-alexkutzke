@@ -1,12 +1,16 @@
 file = php.tex
 pdflatex = lualatex
 publicado = ../../src/slides/aula_11_php.pdf
+figura = fluxo_backend_php.pdf
 
 all: pdf
 
-pdf:
+pdf: ${figura}
 	latexmk -pdflatex=${pdflatex} -pdf -shell-escape ${file}
 	cp php.pdf ${publicado}
+
+${figura}: ../../src/images/php/fluxo_backend_php.svg
+	rsvg-convert -f pdf -o $@ $<
 
 clean: dist
 	latexmk -pdflatex=${pdflatex} -C ${file}

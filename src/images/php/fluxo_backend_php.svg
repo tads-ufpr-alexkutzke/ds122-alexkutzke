@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="1000" height="520" font-family="'Noto Sans', 'DejaVu Sans', Arial, sans-serif" font-size="14" fill="#222">
+  <title>Fluxo de uma requisição a uma página PHP</title>
+  <defs>
+    <marker id="seta-azul" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2f5d9e"/>
+    </marker>
+    <marker id="seta-verde" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a7f37"/>
+    </marker>
+    <marker id="seta-roxa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555a9c"/>
+    </marker>
+  </defs>
+
+  <!-- Fundo branco, para a figura continuar legível nos temas escuros do mdBook -->
+  <rect x="0" y="0" width="1000" height="520" rx="12" fill="#ffffff"/>
+
+  <!-- Navegador -->
+  <text x="135" y="78" text-anchor="middle" font-weight="bold" font-size="16">Navegador</text>
+  <rect x="30" y="95" width="210" height="160" rx="6" fill="#ffffff" stroke="#2f5d9e" stroke-width="2"/>
+  <path d="M30,101 a6,6 0 0 1 6,-6 h198 a6,6 0 0 1 6,6 v19 h-210 z" fill="#e3ecf8"/>
+  <line x1="30" y1="120" x2="240" y2="120" stroke="#2f5d9e" stroke-width="1"/>
+  <circle cx="42" cy="107.5" r="3.5" fill="#d9534f"/>
+  <circle cx="53" cy="107.5" r="3.5" fill="#f0ad4e"/>
+  <circle cx="64" cy="107.5" r="3.5" fill="#5cb85c"/>
+  <rect x="74" y="100" width="158" height="15" rx="3" fill="#ffffff" stroke="#b8c7de"/>
+  <text x="80" y="111.5" font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="10">localhost:8000/ola.php</text>
+  <text x="45" y="160" font-weight="bold" font-size="22">Olá, PHP</text>
+  <text x="45" y="192" font-size="13">Número sorteado no</text>
+  <text x="45" y="210" font-size="13">servidor: <tspan font-weight="bold" fill="#1a7f37">4</tspan></text>
+
+  <!-- 1. Requisição -->
+  <text x="345" y="92" text-anchor="middle" font-weight="bold">1. Requisição HTTP</text>
+  <text x="345" y="110" text-anchor="middle" font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="13">GET /ola.php</text>
+  <line x1="242" y1="125" x2="453" y2="125" stroke="#2f5d9e" stroke-width="3" marker-end="url(#seta-azul)"/>
+
+  <!-- 4. Resposta -->
+  <text x="345" y="222" text-anchor="middle" font-weight="bold">4. Resposta HTTP</text>
+  <line x1="455" y1="232" x2="244" y2="232" stroke="#1a7f37" stroke-width="3" marker-end="url(#seta-verde)"/>
+
+  <!-- HTML gerado, que viaja na resposta -->
+  <rect x="262" y="262" width="166" height="118" rx="6" fill="#eef7f0" stroke="#1a7f37" stroke-width="1.5"/>
+  <text x="345" y="282" text-anchor="middle" font-weight="bold" font-size="13">HTML gerado</text>
+  <text x="345" y="298" text-anchor="middle" font-size="11" fill="#555">(o que o Ctrl+U mostra)</text>
+  <g font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="11">
+    <text x="272" y="320">...</text>
+    <text x="272" y="335">&lt;h1&gt;Olá, PHP&lt;/h1&gt;</text>
+    <text x="272" y="350">&lt;p&gt;Número sorteado</text>
+    <text x="272" y="365">no servidor: <tspan font-weight="bold" fill="#1a7f37">4</tspan>&lt;/p&gt;</text>
+  </g>
+  <line x1="345" y1="240" x2="345" y2="260" stroke="#1a7f37" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <!-- Computador servidor -->
+  <rect x="440" y="40" width="540" height="460" rx="12" fill="#f5f5f7" stroke="#8a8a96" stroke-width="2" stroke-dasharray="8 5"/>
+  <text x="710" y="66" text-anchor="middle" font-weight="bold" font-size="16">Computador servidor</text>
+
+  <!-- Servidor web -->
+  <rect x="460" y="90" width="200" height="160" rx="8" fill="#ffffff" stroke="#2f5d9e" stroke-width="2"/>
+  <text x="560" y="118" text-anchor="middle" font-weight="bold" font-size="15">Servidor web</text>
+  <text x="560" y="146" text-anchor="middle" font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="12">php -S localhost:8000</text>
+  <text x="560" y="170" text-anchor="middle" font-size="12" fill="#555">em produção: Apache,</text>
+  <text x="560" y="186" text-anchor="middle" font-size="12" fill="#555">Nginx e outros</text>
+
+  <!-- Interpretador PHP -->
+  <rect x="770" y="90" width="190" height="160" rx="8" fill="#eeeef8" stroke="#555a9c" stroke-width="2"/>
+  <text x="865" y="118" text-anchor="middle" font-weight="bold" font-size="15">Interpretador PHP</text>
+  <text x="865" y="146" text-anchor="middle" font-size="13">executa o trecho</text>
+  <text x="865" y="164" text-anchor="middle" font-size="13">entre <tspan font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" fill="#b54a00">&lt;?=</tspan> e <tspan font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" fill="#b54a00">?&gt;</tspan></text>
+  <text x="865" y="182" text-anchor="middle" font-size="13">e troca pelo resultado</text>
+
+  <!-- 2. Servidor repassa ao interpretador -->
+  <text x="715" y="106" text-anchor="middle" font-weight="bold" font-size="13">2. repassa</text>
+  <text x="715" y="121" text-anchor="middle" font-weight="bold" font-size="13">ola.php</text>
+  <line x1="662" y1="132" x2="768" y2="132" stroke="#2f5d9e" stroke-width="3" marker-end="url(#seta-azul)"/>
+
+  <!-- 3. Interpretador devolve o HTML -->
+  <line x1="768" y1="212" x2="662" y2="212" stroke="#1a7f37" stroke-width="3" marker-end="url(#seta-verde)"/>
+  <text x="715" y="234" text-anchor="middle" font-weight="bold" font-size="13">3. HTML</text>
+  <text x="715" y="249" text-anchor="middle" font-weight="bold" font-size="13">pronto</text>
+
+  <!-- Arquivo ola.php -->
+  <path d="M770,300 h160 l30,30 v150 h-190 z" fill="#ffffff" stroke="#555a9c" stroke-width="2"/>
+  <path d="M930,300 v30 h30" fill="#eeeef8" stroke="#555a9c" stroke-width="2"/>
+  <text x="782" y="322" font-weight="bold" font-size="13">ola.php</text>
+  <text x="840" y="322" font-size="11" fill="#555">(no disco)</text>
+  <g font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="11">
+    <text x="782" y="352">...</text>
+    <text x="782" y="368">&lt;h1&gt;Olá, PHP&lt;/h1&gt;</text>
+    <text x="782" y="384">&lt;p&gt;Número sorteado</text>
+    <text x="782" y="400">no servidor:</text>
+    <text x="782" y="416"><tspan font-weight="bold" fill="#b54a00">&lt;?= rand(1, 6) ?&gt;</tspan>&lt;/p&gt;</text>
+    <text x="782" y="432">...</text>
+  </g>
+  <line x1="865" y1="298" x2="865" y2="254" stroke="#555a9c" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#seta-roxa)"/>
+  <text x="875" y="282" font-size="12" fill="#555a9c">lê o arquivo</text>
+
+  <!-- Nota sobre a repetição -->
+  <rect x="460" y="300" width="200" height="110" rx="8" fill="#ffffff" stroke="#bbbbc4"/>
+  <text x="560" y="328" text-anchor="middle" font-size="13">A cada requisição, os</text>
+  <text x="560" y="347" text-anchor="middle" font-size="13">passos 1 a 4 se repetem,</text>
+  <text x="560" y="366" text-anchor="middle" font-size="13"><tspan font-family="'Noto Sans Mono', 'DejaVu Sans Mono', monospace" font-size="12" fill="#b54a00">rand(1, 6)</tspan> roda de novo</text>
+  <text x="560" y="385" text-anchor="middle" font-size="13">e o número muda.</text>
+</svg>

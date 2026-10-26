@@ -75,7 +75,7 @@ passou ao interpretador do PHP. O interpretador executou o trecho entre `<?=` e
 `?>`, trocou-o pelo resultado e devolveu o HTML pronto, que o servidor enviou na
 resposta HTTP. A cada requisição, o processo se repete, e o sorteio também.
 
-![Fluxo de funcionamento do backend com php](./images/php/fluxo_backend_php.jpg)
+![Fluxo de funcionamento do backend com php](./images/php/fluxo_backend_php.svg)
 
 O material de [Programação Back-end](aula_10_back_end.md) descreve o papel do
 servidor web e do interpretador, e a instalação do PHP em casa.
