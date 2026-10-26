@@ -206,4 +206,4 @@ O que continua permitido, e recomendado:
 | Entrega 2 | JavaScript (Interatividade) | 11/10/2026 (dom) | 30% |
 | Entrega 3 | PHP + MySQL (Back-end completo) | 27/11/2026 (sex) | 40% |
 
-> **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Entregas com atraso terão desconto de 20% por dia.
+> **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Não há entrega em atraso: é avaliado o último *commit* enviado ao GitLab até o prazo, e quem não tiver *commit* até essa data recebe nota zero na entrega.
