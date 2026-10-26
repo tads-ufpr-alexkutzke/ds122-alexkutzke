@@ -1,0 +1,922 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[brazil]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{array}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+% slides de prática e de resposta: fundo e título em cores próprias
+\newcommand{\estilopratica}{%
+  \setbeamercolor{frametitle}{fg=orange!85!black}%
+  \setbeamercolor{background canvas}{bg=orange!8}}
+\newcommand{\estiloresposta}{%
+  \setbeamercolor{frametitle}{fg=green!45!black}%
+  \setbeamercolor{background canvas}{bg=green!6}}
+
+\title{11 - Back-end e PHP}
+\author{Prof. Alex Kutzke}
+\date{Outubro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Explicar o que o interpretador do PHP faz com um arquivo
+		      \texttt{.php}, e o que chega ao navegador;
+		\item Iniciar o servidor embutido do PHP e abrir uma página por ele;
+		\item Declarar variáveis e usar \texttt{==} e \texttt{===};
+		\item Montar textos com concatenação, interpolação e funções de string;
+		\item Criar arrays indexados e associativos, e percorrê-los com
+		      \texttt{foreach};
+		\item Usar \texttt{if}, \texttt{elseif} e \texttt{else} para decidir que
+		      HTML é produzido;
+		\item Ler um arquivo JSON com \texttt{json\_decode} e montar o catálogo a
+		      partir dele.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\section{Back-end}
+% ==========================================
+
+\begin{frame}[fragile]{Uma página gerada no servidor}
+	\texttt{ola.php}:
+
+	\begin{minted}{html+php}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Olá, PHP</title>
+</head>
+<body>
+  <h1>Olá, PHP</h1>
+  <p>Número sorteado no servidor: <?= rand(1, 6) ?></p>
+</body>
+</html>
+	\end{minted}
+
+	No terminal, na pasta do arquivo:
+
+	\begin{minted}{bash}
+php -d display_errors=1 -S localhost:8000
+	\end{minted}
+
+	\quad e no navegador: \texttt{http://localhost:8000/ola.php}
+\end{frame}
+
+\begin{frame}[fragile]{O que chegou ao navegador}
+	Cada recarga sorteia outro número.
+
+	\vspace{0.2cm}
+	Código-fonte da página, com \texttt{Ctrl+U}:
+
+	\begin{minted}{html}
+<body>
+  <h1>Olá, PHP</h1>
+  <p>Número sorteado no servidor: 4</p>
+</body>
+	\end{minted}
+
+	\vspace{0.2cm}
+	Nenhuma linha de PHP. O servidor passou o arquivo ao interpretador do PHP,
+	que executou o trecho entre \texttt{<?=} e \texttt{?>} e devolveu o HTML
+	pronto. A resposta HTTP levou só o HTML.
+\end{frame}
+
+\begin{frame}{Back-end}
+	\textbf{Back-end} (\emph{server-side}): a parte da aplicação Web executada no
+	servidor. Processa as regras de negócio, produz o HTML com conteúdo dinâmico e
+	guarda os dados.
+
+	\vspace{0.3cm}
+	Para gerar páginas no servidor, três peças:
+	\begin{itemize}
+		\item um \textbf{servidor web}, que recebe as requisições HTTP e envia as
+		      respostas;
+		\item um \textbf{interpretador} (ou programa), que executa a lógica e
+		      produz o HTML;
+		\item um \textbf{banco de dados}, que guarda os dados da aplicação.
+	\end{itemize}
+
+	\vspace{0.3cm}
+	O banco de dados entra na disciplina na aula de PHP e MySQL.
+\end{frame}
+
+\begin{frame}{Servidor web e diretório raiz}
+	O servidor web escuta requisições, em geral na porta 80 (HTTP) e 443 (HTTPS).
+	Exemplos: Apache, Nginx, Lighttpd.
+
+	\vspace{0.3cm}
+	Em páginas estáticas, ele traduz a URL para um arquivo dentro do
+	\textbf{diretório raiz} (\emph{document root}):
+
+	\vspace{0.2cm}
+	\begin{center}
+		\small
+		\texttt{http://example.com/dir1/arquivo.html}\\[0.1cm]
+		\texttt{/var/www/html/dir1/arquivo.html}
+	\end{center}
+
+	\vspace{0.2cm}
+	O servidor nega acesso a arquivos fora do diretório raiz.
+\end{frame}
+
+\begin{frame}{Páginas dinâmicas}
+	Num sistema de notas, cada aluno vê as suas. Um arquivo HTML por aluno é
+	inviável: o HTML precisa ser gerado a cada requisição.
+
+	\vspace{0.3cm}
+	\begin{enumerate}
+		\item o navegador pede \texttt{/catalogo.php};
+		\item o servidor web vê o \texttt{.php} e passa o arquivo ao interpretador;
+		\item o interpretador executa o código e produz o HTML;
+		\item o servidor envia esse HTML na resposta.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Quem executa o código é o interpretador, não o servidor web. No Apache, por
+	exemplo, a ligação é feita pelo módulo \texttt{mod\_php} ou pelo serviço
+	PHP-FPM.
+\end{frame}
+
+\begin{frame}{Renderização no servidor, APIs e SPAs}
+	Nesta parte da disciplina: \textbf{renderização no servidor} (SSR). O
+	back-end monta o HTML completo de cada página.
+
+	\vspace{0.3cm}
+	Outro modelo, já visto pela metade com \texttt{fetch} e
+	\texttt{produtos.json}:
+	\begin{itemize}
+		\item \textbf{API}: o back-end devolve apenas os dados, em geral em JSON,
+		      gerados a cada requisição;
+		\item \textbf{SPA}: o front-end em JavaScript pede os dados com
+		      \texttt{fetch} e monta as telas pelo DOM, sem recarregar a página.
+	\end{itemize}
+
+	\vspace{0.3cm}
+	O segundo modelo é assunto de disciplinas seguintes do curso.
+\end{frame}
+
+% ==========================================
+\section{Servidor}
+% ==========================================
+
+\begin{frame}[fragile]{O servidor embutido do PHP}
+	\begin{minted}{bash}
+php -d display_errors=1 -S localhost:8000
+	\end{minted}
+
+	\begin{itemize}
+		\item serve os arquivos da pasta onde o comando foi executado;
+		\item \texttt{.php} passa pelo interpretador; HTML, CSS, imagens e JSON
+		      saem como estão;
+		\item endereço sem arquivo: procura \texttt{index.php}, depois
+		      \texttt{index.html};
+		\item \texttt{Ctrl+C} encerra.
+	\end{itemize}
+
+	\vspace{0.2cm}
+	Feito para desenvolvimento. O manual do PHP avisa para não usá-lo em rede
+	pública.
+
+	\vspace{0.2cm}
+	Instalação: \texttt{php-cli} pelo \texttt{apt} ou \texttt{dnf}; no Windows,
+	o PHP do XAMPP. Ver o material de Programação Back-end.
+\end{frame}
+
+\begin{frame}[fragile]{Erros: página e terminal}
+	\texttt{-d display\_errors=1}: a mensagem de erro aparece na página. Sem a
+	opção, conforme a instalação, a página chega em branco.
+
+	\vspace{0.2cm}
+	O terminal do servidor mostra uma linha por requisição, com status e erro:
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+[Mon Oct 26 12:35:47 2026] [::1]:33222 [200]: GET /ola.php
+[Mon Oct 26 12:35:54 2026] [::1]:33250 [404]: GET /nada.php
+                                   - No such file or directory
+	\end{minted}
+
+	\vspace{0.2cm}
+	Live Server, \texttt{python3 -m http.server} e \texttt{file://} entregam o
+	\texttt{.php} sem executar: o navegador mostra o código ou baixa o arquivo.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o ambiente}
+	\begin{enumerate}
+		\item confira a instalação com \texttt{php -v};
+		\item crie a pasta \texttt{aula-php/}, fora do repositório do trabalho;
+		\item crie nela o \texttt{ola.php};
+		\item inicie o servidor dentro da pasta e abra
+		      \texttt{http://localhost:8000/ola.php};
+		\item recarregue algumas vezes e abra o código-fonte com
+		      \texttt{Ctrl+U}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Os exercícios desta aula não têm entrega.
+
+	\vspace{0.3cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o ambiente}
+	\begin{minted}{text}
+$ php -v
+PHP 8.3.x (cli) ...
+	\end{minted}
+
+	\begin{itemize}
+		\item o número muda a cada recarga;
+		\item o código-fonte mostra só o número, sem \texttt{<?=};
+		\item no terminal, uma linha \texttt{[200]: GET /ola.php} por recarga.
+	\end{itemize}
+
+	\vspace{0.2cm}
+	\texttt{php: command not found}: o PHP não está instalado, ou não está no
+	\texttt{PATH}.
+\end{frame}
+}
+
+% ==========================================
+\section{Sintaxe}
+% ==========================================
+
+\begin{frame}[fragile]{Tags PHP}
+	O interpretador executa o que está entre as tags. O resto vai para a saída
+	sem alteração.
+
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item \texttt{<?php ... ?>}: bloco de código;
+		\item \texttt{<?= ... ?>}: imprime um valor; equivale a
+		      \texttt{<?php echo ... ?>}.
+	\end{itemize}
+
+	\begin{minted}{html+php}
+<p>Isto vai direto ao navegador.</p>
+<?php echo 'Isto é processado no servidor.'; ?>
+<p>Isto também vai direto.</p>
+	\end{minted}
+
+	O navegador recebe:
+
+	\begin{minted}{html}
+<p>Isto vai direto ao navegador.</p>
+Isto é processado no servidor.<p>Isto também vai direto.</p>
+	\end{minted}
+
+	A quebra de linha logo depois de \texttt{?>} não vai para a saída.
+\end{frame}
+
+\begin{frame}[fragile]{Ponto e vírgula e a tag de fechamento}
+	Cada instrução termina com \texttt{;}.
+
+	\vspace{0.2cm}
+	Arquivo só com PHP, sem HTML: \textbf{sem} \texttt{?>} no fim. Um espaço
+	depois dele iria para a saída e causaria o erro \emph{headers already sent},
+	visto nas aulas de formulários e de sessões.
+
+	\begin{minted}{php}
+<?php
+// Arquivo com apenas código PHP: termina sem a tag de fechamento.
+
+echo 'Isto é um teste';
+$variavel = 10;
+	\end{minted}
+
+	\vspace{0.2cm}
+	Um \texttt{?>} dentro de um comentário \texttt{//} também encerra o modo
+	PHP. O que vem depois dele vira texto na página.
+\end{frame}
+
+\begin{frame}[fragile]{Variáveis e tipos}
+	Toda variável começa com \texttt{\$}. Sem \texttt{let} ou \texttt{const}: ela
+	existe a partir da primeira atribuição. \texttt{\$preco} e \texttt{\$Preco}
+	são variáveis diferentes.
+
+	\begin{minted}{php}
+<?php
+$nome = "Café em grão";   // string
+$estoque = 12;            // int
+$preco = 32.5;            // float
+$disponivel = true;       // bool
+$cupom = null;            // null
+
+var_dump($preco);   // float(32.5)
+var_dump($nome);    // string(14) "Café em grão"
+	\end{minted}
+
+	\texttt{14} é o tamanho em bytes: \texttt{é} e \texttt{ã} ocupam dois bytes
+	em UTF-8.
+\end{frame}
+
+\begin{frame}[fragile]{Operadores e comparação}
+	Aritméticos e de comparação iguais aos do JavaScript: \texttt{+ - * / \%},
+	\texttt{< > <= >=}, \texttt{\&\& || !}.
+
+	\begin{minted}{php}
+var_dump(1 == "1");    // bool(true): converte o tipo
+var_dump(1 === "1");   // bool(false): compara valor e tipo
+	\end{minted}
+
+	\vspace{0.2cm}
+	Como no JavaScript, prefira \texttt{===} e \texttt{!==}.
+\end{frame}
+
+\begin{frame}[fragile]{Concatenação com ponto}
+	O \texttt{+} é sempre soma. A concatenação é com \texttt{.}:
+
+	\begin{minted}{php}
+var_dump("1" + "1");   // int(2)
+var_dump("1" . "1");   // string(2) "11"
+	\end{minted}
+
+	\texttt{"Preço: " + \$preco} interrompe o script:
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+Fatal error: Uncaught TypeError: Unsupported operand types: string + float
+	\end{minted}
+
+	\texttt{.=} acrescenta ao fim:
+
+	\begin{minted}{php}
+$html = "<ul>";
+$html .= "<li>Café em grão</li>";
+$html .= "</ul>";
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Aspas simples e aspas duplas}
+	Aspas duplas substituem a variável pelo valor (\textbf{interpolação}), como a
+	\emph{template string} do JavaScript. Aspas simples não:
+
+	\begin{minted}{php}
+$nome = "Café em grão";
+echo "Produto: $nome";      // Produto: Café em grão
+echo 'Produto: $nome';      // Produto: $nome
+echo "Produto: {$nome}!";   // Produto: Café em grão!
+	\end{minted}
+
+	\vspace{0.2cm}
+	As chaves delimitam a variável. Use-as quando a variável é seguida de letra
+	ou é um elemento de array.
+\end{frame}
+
+\begin{frame}{Funções de string}
+	\footnotesize
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.62\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}}
+		\toprule
+		Chamada & Resultado \\
+		\midrule
+		\texttt{strlen("Chá")} & \texttt{4} (bytes) \\ \midrule
+		\texttt{strtoupper("Bebidas")} & \texttt{"BEBIDAS"} \\ \midrule
+		\texttt{strtolower("Bebidas")} & \texttt{"bebidas"} \\ \midrule
+		\texttt{trim("\ \ Café\ \ ")} & \texttt{"Café"} \\ \midrule
+		\texttt{str\_contains("Café em grão", "grão")} & \texttt{true} \\
+		\midrule
+		\texttt{str\_replace(".", ",", "32.5")} & \texttt{"32,5"} \\ \midrule
+		\texttt{number\_format(1234.5, 2, ",", ".")} & \texttt{"1.234,50"} \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.3cm}
+	\small
+	\texttt{number\_format}: número, casas decimais, separador decimal,
+	separador de milhar. Arredonda: \texttt{27.625} vira \texttt{"27,63"}.
+
+	\vspace{0.1cm}
+	\texttt{strtoupper("Café")} dá \texttt{"CAFé"}: só letras sem acento.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o preço com desconto}
+	Crie o \texttt{preco.php}, com no topo:
+
+	\begin{minted}{php}
+<?php
+$nome = "Café em grão";
+$categoria = "Bebidas";
+$preco = 32.5;
+$desconto = 0.15;
+?>
+	\end{minted}
+
+	\begin{enumerate}
+		\item calcule o preço com desconto em \texttt{\$precoFinal};
+		\item escreva um \texttt{<h1>} com o nome e a categoria em maiúsculas;
+		\item escreva um \texttt{<p>} com os dois preços, com
+		      \texttt{number\_format};
+		\item troque um \texttt{.} por \texttt{+} e leia o erro; desfaça.
+	\end{enumerate}
+
+	Confira: \texttt{Café em grão (BEBIDAS)} e
+	\texttt{De R\$ 32,50 por R\$ 27,63}.
+
+	\vspace{0.1cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o preço com desconto}
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<?php
+$nome = "Café em grão";
+$categoria = "Bebidas";
+$preco = 32.5;
+$desconto = 0.15;
+$precoFinal = $preco * (1 - $desconto);
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Preço</title>
+</head>
+<body>
+  <h1><?= $nome . " (" . strtoupper($categoria) . ")" ?></h1>
+  <p>De R$ <?= number_format($preco, 2, ",", ".") ?>
+     por R$ <?= number_format($precoFinal, 2, ",", ".") ?></p>
+</body>
+</html>
+	\end{minted}
+\end{frame}
+}
+
+% ==========================================
+\section{Arrays}
+% ==========================================
+
+\begin{frame}[fragile]{Arrays indexados}
+	Valores em sequência, a partir do índice \texttt{0}:
+
+	\begin{minted}{php}
+$categorias = ["Bebidas", "Doces", "Grãos"];
+echo $categorias[0];        // Bebidas
+echo count($categorias);    // 3
+
+$categorias[] = "Temperos"; // acrescenta ao fim
+echo count($categorias);    // 4
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{\$categorias[] = ...} faz o papel do \texttt{push} do JavaScript.
+\end{frame}
+
+\begin{frame}[fragile]{Arrays associativos}
+	Cada valor tem uma \textbf{chave} de texto. \texttt{=>} liga a chave ao
+	valor:
+
+	\begin{minted}{php}
+$produto = [
+  "id" => 1,
+  "nome" => "Café em grão",
+  "categoria" => "Bebidas",
+  "preco" => 32.5,
+  "desconto" => 0.15,
+];
+
+echo $produto["nome"];                // Café em grão
+echo "Preço: {$produto["preco"]}";    // Preço: 32.5
+	\end{minted}
+
+	O papel do objeto no JavaScript, com acesso sempre por colchetes:
+	\texttt{\$produto["nome"]}, e não \texttt{produto.nome}.
+\end{frame}
+
+\begin{frame}[fragile]{Array de arrays}
+	A forma do \texttt{produtos.js} e do \texttt{produtos.json}:
+
+	\begin{minted}{php}
+$produtos = [
+  ["nome" => "Café em grão", "preco" => 32.5],
+  ["nome" => "Chá mate", "preco" => 12.9],
+];
+
+echo $produtos[1]["nome"];   // Chá mate
+print_r($produtos[0]);
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+Array
+(
+    [nome] => Café em grão
+    [preco] => 32.5
+)
+	\end{minted}
+
+	\texttt{echo \$produtos} imprime só \texttt{Array}, com o aviso
+	\texttt{Array to string conversion}.
+\end{frame}
+
+% ==========================================
+\section{Controle}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{if}, \texttt{elseif} e \texttt{else}}
+	\begin{minted}{php}
+if ($produto["desconto"] > 0.2) {
+  echo "Promoção";
+} elseif ($produto["desconto"] > 0) {
+  echo "Com desconto";
+} else {
+  echo "Preço normal";
+}
+	\end{minted}
+
+	\vspace{0.2cm}
+	\texttt{elseif} é uma palavra só.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{foreach}}
+	Percorre um array, um elemento por vez:
+
+	\begin{minted}{php}
+foreach ($produtos as $produto) {
+  echo "<li>{$produto["nome"]}</li>";
+}
+	\end{minted}
+
+	Com a chave:
+
+	\begin{minted}{php}
+foreach ($produto as $chave => $valor) {
+  echo "$chave: $valor\n";
+}
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+id: 1
+nome: Café em grão
+categoria: Bebidas
+...
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{for} e \texttt{while}}
+	A forma do JavaScript, com \texttt{\$} nas variáveis:
+
+	\begin{minted}{php}
+for ($i = 1; $i <= 3; $i++) {
+  echo "<p>Parcela $i</p>";
+}
+
+$estoque = 3;
+while ($estoque > 0) {
+  echo "<p>Restam $estoque</p>";
+  $estoque--;
+}
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Sintaxe alternativa dentro do HTML}
+	\texttt{:} no lugar de \texttt{\{}, e \texttt{endif;},
+	\texttt{endforeach;} no lugar de \texttt{\}}:
+
+	\begin{minted}{html+php}
+<ul>
+  <?php foreach ($produtos as $produto): ?>
+    <li>
+      <?= $produto["nome"] ?>
+      <?php if ($produto["preco"] < 20): ?>
+        <strong>até R$ 20</strong>
+      <?php endif; ?>
+    </li>
+  <?php endforeach; ?>
+</ul>
+	\end{minted}
+
+	O \texttt{<li>} se repete por produto; o \texttt{<strong>} só sai quando a
+	condição é verdadeira. O HTML fica fora das strings.
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o catálogo com \texttt{foreach}}
+	Crie o \texttt{catalogo.php} com o array de três produtos da seção 14 do
+	material (\texttt{id}, \texttt{nome}, \texttt{descricao},
+	\texttt{categoria}, \texttt{preco}, \texttt{desconto}).
+
+	\begin{enumerate}
+		\item escreva um \texttt{<p>} com a quantidade de produtos, com
+		      \texttt{count};
+		\item escreva um \texttt{<article class="cartao">} por produto, com
+		      \texttt{foreach} na sintaxe alternativa: \texttt{<h2>} com o nome,
+		      \texttt{<p>} com a descrição, \texttt{<p>} com o preço;
+		\item confira três \texttt{<article>} no \texttt{Ctrl+U};
+		\item acrescente um quarto produto ao array e confira que ele aparece.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	Tempo: 15 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o catálogo com \texttt{foreach}}
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<body>
+  <p><?= count($produtos) ?> produtos</p>
+  <?php foreach ($produtos as $produto): ?>
+    <article class="cartao">
+      <h2><?= $produto["nome"] ?></h2>
+      <p><?= $produto["descricao"] ?></p>
+      <p>R$ <?= number_format($produto["preco"], 2, ",", ".") ?></p>
+    </article>
+  <?php endforeach; ?>
+</body>
+	\end{minted}
+
+	\vspace{0.2cm}
+	O quarto produto aparece sem mudança no HTML: o \texttt{foreach} gera um
+	cartão por elemento do array.
+\end{frame}
+}
+
+\begin{frame}[fragile]{Funções}
+	\begin{minted}{php}
+function formataPreco(float $valor): string {
+  return "R$ " . number_format($valor, 2, ",", ".");
+}
+
+echo formataPreco(27.625);   // R$ 27,63
+	\end{minted}
+
+	\begin{itemize}
+		\item tipos do parâmetro (\texttt{float \$valor}) e do retorno
+		      (\texttt{: string}) são opcionais;
+		\item com eles, \texttt{formataPreco("abc")} interrompe o script com
+		      \texttt{TypeError};
+		\item variáveis de fora não são visíveis dentro da função: o que ela usa
+		      entra pelos parâmetros.
+	\end{itemize}
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o desconto com \texttt{if}}
+	No \texttt{catalogo.php}:
+
+	\begin{enumerate}
+		\item escreva a função \texttt{formataPreco} no bloco do topo, e use-a em
+		      todos os preços;
+		\item troque o parágrafo do preço por um \texttt{if} na sintaxe
+		      alternativa: com desconto, o preço original dentro de \texttt{<s>} e
+		      o preço com desconto ao lado; sem desconto, só o preço.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	Confira:
+
+	\begin{minted}{text}
+Café em grão     R$ 32,50 R$ 27,63
+Chá mate         R$ 12,90
+Pão de mel       R$ 8,00 R$ 7,20
+	\end{minted}
+
+	Tempo: 15 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o desconto com \texttt{if}}
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<?php
+function formataPreco(float $valor): string {
+  return "R$ " . number_format($valor, 2, ",", ".");
+}
+// ... array $produtos ...
+?>
+<!-- dentro do foreach, no lugar do parágrafo do preço -->
+<?php if ($produto["desconto"] > 0): ?>
+  <p>
+    <s><?= formataPreco($produto["preco"]) ?></s>
+    <?= formataPreco($produto["preco"] * (1 - $produto["desconto"])) ?>
+  </p>
+<?php else: ?>
+  <p><?= formataPreco($produto["preco"]) ?></p>
+<?php endif; ?>
+	\end{minted}
+\end{frame}
+}
+
+% ==========================================
+\section{JSON}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{json\_decode}}
+	O mesmo \texttt{produtos.json} lido pelo \texttt{fetch}, agora no servidor:
+
+	\begin{minted}{php}
+$conteudo = file_get_contents("produtos.json"); // texto
+$produtos = json_decode($conteudo, true);        // array
+	\end{minted}
+
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item \texttt{true}: objetos do JSON viram arrays associativos;
+		\item o resultado tem a forma do array de arrays, e o mesmo
+		      \texttt{foreach} serve;
+		\item \texttt{json\_encode} faz o caminho inverso, e é como um back-end
+		      PHP responde a um \texttt{fetch}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{JSON com erro}
+	Com erro de sintaxe no arquivo, \texttt{json\_decode} devolve \texttt{null},
+	sem mensagem:
+
+	\begin{minted}{php}
+$produtos = json_decode('[{"id": 1,}]', true);
+var_dump($produtos);           // NULL
+echo json_last_error_msg();    // Syntax error
+	\end{minted}
+
+	\vspace{0.2cm}
+	O \texttt{foreach} logo depois avisa:
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+Warning: foreach() argument must be of type array|object, null given
+	\end{minted}
+\end{frame}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: o catálogo pelo \texttt{produtos.json}}
+	\begin{enumerate}
+		\item copie para \texttt{aula-php/} o \texttt{produtos.json} da Entrega 2,
+		      ou escreva os três produtos em JSON;
+		\item abra \texttt{http://localhost:8000/produtos.json} e confira que o
+		      servidor entrega o arquivo;
+		\item no \texttt{catalogo.php}, troque o array escrito no código pela
+		      leitura do arquivo;
+		\item acrescente um produto ao JSON e confira que ele aparece sem
+		      alteração no PHP.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	\texttt{Undefined array key "desconto"}: falta essa chave em algum produto do
+	arquivo. Acrescente \texttt{"desconto": 0}, ou ajuste o nome no PHP.
+
+	\vspace{0.2cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: o catálogo pelo \texttt{produtos.json}}
+	\begin{minted}{php}
+<?php
+function formataPreco(float $valor): string {
+  return "R$ " . number_format($valor, 2, ",", ".");
+}
+
+$conteudo = file_get_contents("produtos.json");
+$produtos = json_decode($conteudo, true);
+?>
+	\end{minted}
+
+	\vspace{0.2cm}
+	O HTML abaixo do bloco não muda.
+
+	\vspace{0.2cm}
+	Na Entrega 3, o lugar do \texttt{json\_decode} é ocupado pela consulta ao
+	banco de dados.
+\end{frame}
+}
+
+{\estilopratica
+\begin{frame}[fragile]{Prática: filtro por categoria}
+	No \texttt{catalogo.php}:
+
+	\begin{enumerate}
+		\item crie no topo a variável \texttt{\$categoria}, com o valor
+		      \texttt{"Bebidas"};
+		\item dentro do \texttt{foreach}, mostre apenas os produtos dessa
+		      categoria, com um \texttt{if};
+		\item no topo, conte em \texttt{\$mostrados} os produtos da categoria,
+		      com outro \texttt{foreach} e um \texttt{if}, e use a variável no
+		      \texttt{<p>} da quantidade;
+		\item troque o valor de \texttt{\$categoria} e recarregue.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	Tempo: 10 minutos.
+\end{frame}
+}
+
+{\estiloresposta
+\begin{frame}[fragile]{Resposta: filtro por categoria}
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<?php
+// ... formataPreco e json_decode ...
+$categoria = "Bebidas";
+$mostrados = 0;
+foreach ($produtos as $produto) {
+  if ($produto["categoria"] === $categoria) {
+    $mostrados++;
+  }
+}
+?>
+<!-- ... -->
+<p><?= $mostrados ?> produtos</p>
+<?php foreach ($produtos as $produto): ?>
+  <?php if ($produto["categoria"] === $categoria): ?>
+    <article class="cartao"> ... </article>
+  <?php endif; ?>
+<?php endforeach; ?>
+	\end{minted}
+
+	\small
+	Na aula de formulários, \texttt{\$categoria} passa a vir do endereço,
+	como em \texttt{catalogo.php?categoria=Bebidas}.
+\end{frame}
+}
+
+\begin{frame}{Quando dá errado}
+	\scriptsize
+	\begin{tabular}{>{\raggedright\arraybackslash}p{0.48\textwidth}>{\raggedright\arraybackslash}p{0.42\textwidth}}
+		\toprule
+		Sintoma & Causa provável \\
+		\midrule
+		página mostra o código PHP, ou o navegador baixa o arquivo & sem o
+		servidor do PHP \\ \midrule
+		página em branco & \texttt{display\_errors} desligado; erro no
+		terminal \\ \midrule
+		\texttt{Parse error: syntax error, unexpected token "echo"} &
+		\texttt{;} faltando na linha anterior \\ \midrule
+		\texttt{Undefined variable} & nome digitado diferente, ou variável de
+		fora usada na função \\ \midrule
+		\texttt{Undefined array key} & chave inexistente no elemento \\
+		\midrule
+		\texttt{Unsupported operand types: string + float} & \texttt{+} no
+		lugar de \texttt{.} \\ \midrule
+		\texttt{Array} na página & \texttt{echo} de um array inteiro \\
+		\midrule
+		\texttt{\$nome} literal na página & aspas simples \\ \midrule
+		\texttt{foreach() argument must be of type array|object, null given} &
+		JSON com erro ou caminho errado \\
+		\bottomrule
+	\end{tabular}
+\end{frame}
+
+\begin{frame}{Exercícios e próximos passos}
+	Os exercícios desta aula não têm entrega e não valem nota. O enunciado
+	completo está na Parte prática do material de PHP.
+
+	\vspace{0.3cm}
+	Próxima aula: formulários. \texttt{\$\_GET} e \texttt{\$\_POST}, validação no
+	servidor, \texttt{htmlspecialchars} e \texttt{include}.
+
+	\vspace{0.3cm}
+	A Entrega 3 do trabalho (PHP e MySQL) vence em 27/11, às 23h59. Não há
+	entrega em atraso: vale o último \emph{commit} enviado até o prazo.
+\end{frame}
+
+\end{document}

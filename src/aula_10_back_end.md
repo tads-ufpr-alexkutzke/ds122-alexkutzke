@@ -1,5 +1,7 @@
 # Programação Back-end
 
+[Slides desta aula (PDF)](slides/aula_11_php.pdf), que cobrem também o material de [PHP](aula_11_php.md).
+
 **Back-end**, ou *server-side*, é o termo utilizado para fazer referência à parte de uma aplicação Web que é executada na máquina servidor. Em sua essência, envolve as operações relacionadas ao processamento da lógica de negócio e à produção e entrega de arquivos HTML com conteúdo dinâmico. Trata, em grande medida, do gerenciamento e da persistência dos **dados** da aplicação Web. Por essa razão, o back-end atua quase sempre integrado a sistemas de bancos de dados.
 Para que uma aplicação Web seja capaz de gerar conteúdo dinâmico baseando-se na arquitetura de renderização no servidor, é necessário o seguinte conjunto:
 
@@ -15,7 +17,7 @@ Portanto, a função básica de um servidor web é: dada uma requisição do cli
 
 Alguns servidores Web amplamente utilizados são:
 * Apache HTTP Server ([https://httpd.apache.org/](https://httpd.apache.org/));
-* Nginx ([https://www.nginx.com/](https://www.nginx.com/));
+* Nginx ([https://nginx.org/](https://nginx.org/));
 * Apache Tomcat ([http://tomcat.apache.org/](http://tomcat.apache.org/));
 * Lighttpd ([http://www.lighttpd.net/](http://www.lighttpd.net/)).
 
@@ -74,15 +76,44 @@ Ao passar o arquivo acima pelo interpretador, a lógica é processada e o client
 </html>
 ```
 
-## Preparação do ambiente de desenvolvimento no Linux
+## Preparação do ambiente de desenvolvimento
 
-Para desenvolver localmente, é necessário instalar um servidor web e o interpretador da linguagem. Em distribuições Linux, a abordagem mais comum é a instalação da pilha **LAMP** (Linux, Apache, MariaDB/MySQL e PHP).
+Para executar PHP no computador, são necessários o interpretador da linguagem e um servidor web que repasse a ele as requisições.
 
-### Exibição de erros no PHP
+### Servidor embutido do PHP
 
-Em ambientes de produção, os erros de código ficam ocultos do usuário final por segurança. Durante o desenvolvimento, é fundamental que o PHP exiba esses erros no navegador para facilitar a correção.
+O interpretador do PHP traz um servidor web de desenvolvimento, iniciado pelo terminal. É o servidor usado nas aulas. Dentro da pasta do projeto, execute:
 
-Para ativar a exibição, localize o arquivo de configuração `php.ini`. Em sistemas modernos utilizando Apache, o caminho costuma ser algo como `/etc/php/8.x/apache2/php.ini` (onde `8.x` corresponde à versão instalada).
+```bash
+php -d display_errors=1 -S localhost:8000
+```
+
+e abra no navegador `http://localhost:8000/arquivo.php`. Quando o endereço não tem nome de arquivo, o servidor procura um `index.php` e depois um `index.html` na pasta. `Ctrl+C` encerra o servidor.
+
+A opção `-d display_errors=1` faz o PHP mostrar as mensagens de erro na própria página. Sem ela, conforme a configuração instalada, a página com erro pode chegar em branco; a mensagem continua aparecendo no terminal onde o servidor está rodando, junto com o status de cada requisição.
+
+A extensão Live Server e o `python3 -m http.server`, usados no material de Fetch API e JSON, entregam o arquivo `.php` sem executá-lo: o navegador mostra o código ou oferece o arquivo para *download*. Para páginas PHP, use o servidor embutido.
+
+O manual do PHP avisa que esse servidor foi feito para desenvolvimento e não deve ser usado em rede pública ([documentação](https://www.php.net/manual/pt_BR/features.commandline.webserver.php)).
+
+Para instalar o interpretador no Linux:
+
+```bash
+sudo apt install php-cli     # Debian e Ubuntu
+sudo dnf install php-cli     # Fedora
+```
+
+Confira a instalação com `php -v`, que mostra a versão.
+
+### Pilha LAMP no Linux
+
+Em servidores Linux, a instalação mais comum é a pilha **LAMP** (Linux, Apache, MariaDB/MySQL e PHP), em que o Apache recebe as requisições e repassa os arquivos `.php` ao interpretador.
+
+#### Exibição de erros no PHP
+
+Em ambientes de produção, os erros de código ficam ocultos do usuário final por segurança. Durante o desenvolvimento, o PHP deve exibir esses erros no navegador, para facilitar a correção.
+
+Para ativar a exibição, localize o arquivo de configuração `php.ini`. Em sistemas que usam Apache, o caminho costuma ser algo como `/etc/php/8.x/apache2/php.ini` (onde `8.x` corresponde à versão instalada).
 
 Abra o arquivo, localize a opção `display_errors` e altere o seu valor para `On`:
 
@@ -96,21 +127,22 @@ Após salvar o arquivo, é necessário reiniciar o serviço do Apache para que a
 sudo systemctl restart apache2
 ```
 
-## Preparação do ambiente de desenvolvimento no Windows
+### Pacotes para Windows
 
-No Windows, a forma mais prática de configurar o ambiente de desenvolvimento é através da instalação de *bundles* (pacotes All-in-One), que instalam e pré-configuram o servidor Web, o banco de dados e o PHP simultaneamente.
-
-Os pacotes mais comuns utilizados para este fim são:
+No Windows, a forma mais prática de configurar o ambiente é instalar um pacote que reúne servidor web, banco de dados e PHP já configurados:
 
 * [XAMPP](https://www.apachefriends.org/index.html) - Apache + MariaDB + PHP + Perl
-* [Laragon](https://laragon.org/) - Alternativa moderna e otimizada ao XAMPP/WAMP para Windows.
-* [WAMP](http://www.wampserver.com/en/) - Apache + PHP + MySQL
+* [Laragon](https://laragon.org/) - alternativa ao XAMPP para Windows.
 
-### Modelos atuais: APIs e Arquiteturas Modernas
+O XAMPP também permite usar o servidor embutido: na instalação padrão, o interpretador fica em `C:\xampp\php\php.exe`, e o comando do servidor embutido vira `C:\xampp\php\php.exe -d display_errors=1 -S localhost:8000`.
 
-Embora o modelo de geração de páginas HTML no servidor (conhecido como *Server-Side Rendering* ou SSR) seja o pilar fundamental para o entendimento da arquitetura Web e ainda amplamente utilizado, o desenvolvimento de software moderno adotou também arquiteturas mais descentralizadas.
+## Renderização no servidor, APIs e SPAs
 
-Para fins de contexto histórico, é importante saber que em disciplinas futuras você estudará um padrão arquitetural diferente, focado em **APIs** e **Single Page Applications (SPAs)**. Nesse cenário, a responsabilidade de gerar o visual da página muda de lugar:
+O modelo estudado nesta parte da disciplina é a renderização no servidor (*Server-Side Rendering*, SSR): o back-end monta o HTML completo de cada página e o envia ao navegador. Ele continua muito usado e é a base para entender a arquitetura Web.
 
-* **API (*Application Programming Interface*):** O Back-end deixa de misturar lógica com HTML. Sua única função passa a ser processar regras de negócio, consultar o banco de dados e devolver apenas os **dados puros**. Esses dados transitam pela rede em um formato de texto universal e leve chamado **JSON** (*JavaScript Object Notation*).
-* **SPA (*Single Page Application*):** O Front-end torna-se uma aplicação JavaScript robusta e independente (utilizando tecnologias como React, Angular ou Vue). Ele roda diretamente no navegador do usuário, pede os dados (JSON) para a API e "desenha" as telas dinamicamente, sem a necessidade de recarregar a página a cada clique.
+Há outro modelo, em que a geração do visual muda de lugar. A turma já viu metade dele no material de Fetch API e JSON, quando a página pediu o `produtos.json` com `fetch` e montou os cartões pelo DOM:
+
+* **API (*Application Programming Interface*):** o back-end processa as regras de negócio, consulta o banco de dados e devolve apenas os dados, em geral em JSON, sem HTML. No lugar do `produtos.json` fixo, a resposta é gerada por um programa a cada requisição.
+* **SPA (*Single Page Application*):** o front-end é uma aplicação JavaScript que roda no navegador, pede os dados à API com `fetch` e monta as telas pelo DOM, sem recarregar a página a cada clique. Bibliotecas como React, Angular e Vue são usadas nesse modelo.
+
+Esse segundo modelo é assunto de disciplinas seguintes do curso.
