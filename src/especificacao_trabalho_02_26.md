@@ -104,7 +104,7 @@ O `README.md` do fork já traz o modelo do diário de bordo a preencher.
 ---
 
 ### Entrega 3: Back-end com PHP + MySQL
-**Prazo:** 27/11/2026, na aula anterior à Prova 3  
+**Prazo:** ~27/11/2026~ 04/12/2026, na aula anterior à Prova 3  
 **Peso na nota do trabalho:** 40%
 
 **Requisitos mínimos:**
