@@ -1,4 +1,4 @@
-# Reentrega das entregas 1 e 2 do trabalho
+# Reentrega das etapas 1 e 2 do trabalho
 
 O prazo de reentrega da Entrega 1 (HTML5 e CSS3) e da Entrega 2 (JavaScript)
 vai até **20/11/2026, às 23h59**. A reentrega é opcional e a nota já lançada só
