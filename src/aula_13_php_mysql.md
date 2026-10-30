@@ -520,7 +520,20 @@ sudo apt-get install mysql-server php-mysql
 
 > O pacote `php-mysql` instala automaticamente a extensão compatível com sua versão do PHP. Para descobrir sua versão, execute `php -v`.
 
-Após a instalação, execute o assistente de segurança:
+### Linux (Fedora)
+
+No Fedora, a extensão `mysqli` vem no pacote `php-mysqlnd`, que o `php-cli` não instala. Diferente do Ubuntu, o serviço do MySQL não inicia sozinho depois da instalação:
+
+```bash
+sudo dnf install mysql-server php-mysqlnd
+sudo systemctl enable --now mysqld
+```
+
+Para conferir se a extensão está disponível, execute `php -m | grep mysqli`. Se nada aparecer, ela não foi instalada.
+
+### Linux: configuração inicial
+
+Após a instalação, em qualquer das distribuições, execute o assistente de segurança:
 
 ```bash
 sudo mysql_secure_installation
@@ -528,10 +541,11 @@ sudo mysql_secure_installation
 
 Responda **"yes"** para todas as questões, **exceto** para a primeira (alteração da senha de root), caso queira manter a senha já configurada.
 
-Reinicie o servidor web:
+Se o servidor embutido do PHP (`php -S`) estiver rodando, encerre-o com `Ctrl+C` e inicie de novo, para que ele carregue a extensão nova. Quem usa Apache reinicia o serviço, que se chama `apache2` no Ubuntu e `httpd` no Fedora:
 
 ```bash
-sudo service apache2 restart
+sudo systemctl restart apache2   # Debian e Ubuntu
+sudo systemctl restart httpd     # Fedora
 ```
 
 Para testar a instalação, acesse o terminal do MySQL:
@@ -545,12 +559,12 @@ sudo mysql -uroot -p
 Por boas práticas, não se utiliza o usuário `root` nas aplicações. Crie um usuário específico:
 
 ```sql
-CREATE USER 'appuser'@'localhost' IDENTIFIED WITH mysql_native_password BY 'sua_senha_aqui';
+CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'sua_senha_aqui';
 GRANT ALL PRIVILEGES ON *.* TO 'appuser'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
 No lugar de `'sua_senha_aqui'`, defina uma senha de sua preferência. Para o ambiente de desenvolvimento local, pode-se utilizar uma senha simples como `web1`.
 
-> **Nota:** o método `mysql_native_password` é adequado para ambientes de desenvolvimento. Em produção, o MySQL 8+ utiliza `caching_sha2_password`, que é mais seguro.
+> **Nota:** sem a cláusula `WITH`, o usuário é criado com o método de autenticação padrão do servidor, e o comando funciona igual no MySQL do Ubuntu, no do Fedora e no MariaDB do XAMPP. No MySQL 8.4, instalado pelo Fedora, o método antigo `mysql_native_password` vem desativado, e `IDENTIFIED WITH mysql_native_password` termina em erro. A extensão `mysqli` do PHP 8 já aceita o método padrão do MySQL 8, `caching_sha2_password`.
 
