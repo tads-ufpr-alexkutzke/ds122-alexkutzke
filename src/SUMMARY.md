@@ -7,6 +7,7 @@
 - [Entrega de exercícios e trabalhos no GitLab](./instrucoes_submissao_tarefas_e_trabalhos.md)
 - [Autenticação no GitLab: token e chave SSH](./instrucoes_autenticacao_git.md)
 - [Como os exercícios são corrigidos](./00_como_os_exercicios_sao_corrigidos.md)
+- [Reentrega do trabalho e dos exercícios até 20/11](./instrucoes_reentrega_trabalho.md)
 - [Apresentação e Ambiente de Desenvolvimento](./aula_01.md)
 - [Git e GitLab](./aula_02_git.md)
 - [Protocolo HTTP](./aula_03_http.md)
