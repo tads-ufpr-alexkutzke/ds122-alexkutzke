@@ -639,3 +639,95 @@ a vir do endereço da página, como em `catalogo.php?categoria=Bebidas`.
   `$produto["chave"]`.
 * `foreach` e `if`, na sintaxe alternativa, decidem que HTML é enviado.
 * `json_decode($texto, true)` converte JSON em array associativo.
+
+## Exercício em sala: a ordem dos eventos numa requisição a uma página PHP
+
+Numere de 1 a 10, na ordem em que acontecem, os eventos da situação abaixo.
+
+Com o servidor embutido do PHP rodando, um usuário acessa pelo método GET o
+endereço `http://localhost:8000/index.php`. O arquivo `index.php` tem o
+seguinte conteúdo:
+
+```php
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exemplo</title>
+  </head>
+<body>
+  <script>
+    alert("soma: <?php echo 2 + 2 ?>");
+  </script>
+  <?php echo "ola mundo!" ?>
+</body>
+</html>
+```
+
+Eventos:
+
+* ( ) Recebimento da requisição HTTP pelo servidor web;
+* ( ) Apresentação da página final no navegador;
+* ( ) Execução do código JavaScript;
+* ( ) Envio da resposta pelo servidor ao navegador;
+* ( ) Recebimento da resposta pelo navegador;
+* ( ) Processamento do código PHP pelo interpretador;
+* ( ) Processamento da resposta pelo navegador;
+* ( ) Conclusão do código HTML final pelo servidor;
+* ( ) Envio da requisição HTTP (GET) pelo navegador;
+* ( ) Apresentação da caixa de diálogo (`alert`) no navegador.
+
+Depois de numerar, responda:
+
+1. Que código o navegador recebe como resposta? Confira com `Ctrl+U`.
+2. Se o mesmo conteúdo estivesse num arquivo `index.html`, servido pelo mesmo
+   servidor, que texto apareceria na caixa de diálogo?
+
+<details>
+<summary>Resposta</summary>
+
+1. Envio da requisição HTTP (GET) pelo navegador;
+2. Recebimento da requisição HTTP pelo servidor web;
+3. Processamento do código PHP pelo interpretador;
+4. Conclusão do código HTML final pelo servidor;
+5. Envio da resposta pelo servidor ao navegador;
+6. Recebimento da resposta pelo navegador;
+7. Processamento da resposta pelo navegador;
+8. Execução do código JavaScript;
+9. Apresentação da caixa de diálogo (`alert`) no navegador;
+10. Apresentação da página final no navegador.
+
+O interpretador produz o HTML à medida que executa o código, e o HTML final só
+fica concluído quando a execução termina. Por isso o processamento do PHP (3)
+vem antes da conclusão do HTML (4).
+
+Os eventos 7 a 10 acontecem dentro do navegador. Ele começa a ler o HTML (7) e,
+ao encontrar o `<script>`, interrompe a leitura para executar o código (8). O
+`alert` abre a caixa de diálogo (9) e bloqueia a página até ser fechado. Só
+então o navegador lê o restante do HTML, inclusive o texto `ola mundo!`, e a
+página aparece completa (10).
+
+O trecho `<?php echo 2 + 2 ?>` está dentro do código JavaScript, mas quem o
+executa é o servidor, no evento 3. O navegador recebe o resultado:
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exemplo</title>
+  </head>
+<body>
+  <script>
+    alert("soma: 4");
+  </script>
+  ola mundo!</body>
+</html>
+```
+
+O `?>` consome a quebra de linha que vem logo depois dele, e por isso o
+`</body>` aparece na mesma linha de `ola mundo!`.
+
+No arquivo `index.html`, o servidor entrega o conteúdo sem passar pelo
+interpretador, e a caixa de diálogo mostra o texto literal
+`soma: <?php echo 2 + 2 ?>`.
+
+</details>
