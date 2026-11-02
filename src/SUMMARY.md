@@ -23,7 +23,7 @@
 - [Frameworks Front-end](./aula_09_frameworks_front_end.md)
 - [Programação Back-end](./aula_10_back_end.md)
 - [PHP](./aula_11_php.md)
-- [PHP e Formulários](./aula_12_php_forms.md)
+- [PHP: SuperGlobals, Formulários, Validação e Includes](./aula_12_php_forms.md)
 - [PHP e MySQL](./aula_13_php_mysql.md)
 - [Cookies e Sessions](./aula_14_cookies_session.md)
 - [Especificação do trabalho prático](./especificacao_trabalho_02_26.md)

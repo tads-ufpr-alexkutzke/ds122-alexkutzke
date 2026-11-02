@@ -1,0 +1,543 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[shorthands=off,brazil]{babel}
+\usepackage[T1]{fontenc}
+% sem guillemets: "> fora do código e << >> na fonte monoespaçada
+\usepackage[protrusion=false,expansion=false]{microtype}
+\DisableLigatures[<,>]{encoding = T1, family = tt*}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{array}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{12 - PHP: SuperGlobals, formulários, validação e includes}
+\author{Prof. Alex Kutzke}
+\date{Novembro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+% ==========================================
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Ler dados da requisição com \texttt{\$\_GET}, \texttt{\$\_POST} e
+		      \texttt{\$\_SERVER};
+		\item Ligar um formulário HTML a um script PHP com \texttt{action},
+		      \texttt{method} e \texttt{name};
+		\item Escrever um formulário que envia os dados para a própria página;
+		\item Validar dados no front-end e no back-end;
+		\item Explicar XSS e SQL Injection, e como prevenir cada um;
+		\item Dividir o código em arquivos com \texttt{include} e
+		      \texttt{require}.
+	\end{enumerate}
+\end{frame}
+
+% ==========================================
+\begin{frame}{Roteiro}
+	\tableofcontents
+\end{frame}
+
+% ==========================================
+\begin{frame}{Código de exemplo}
+	\begin{center}
+		{\small\mbox{\texttt{https://gitlab.com/ds122-alexkutzke/ds122-php-forms-example}}}
+	\end{center}
+
+	\vspace{0.3cm}
+	Bibliografia recomendada:
+	\begin{itemize}
+		\item Documentação oficial do PHP, Variáveis Pré-definidas:\\
+		      {\small\mbox{\texttt{https://www.php.net/manual/pt\_BR/reserved.variables.php}}}
+		\item w3schools, PHP SuperGlobals e PHP Forms.
+	\end{itemize}
+\end{frame}
+
+% ==========================================
+\section{SuperGlobals}
+% ==========================================
+
+\begin{frame}{Arrays SuperGlobals}
+	Ao iniciar um script, o interpretador do PHP cria uma série de arrays
+	associativos globais, as \textbf{SuperGlobals}.
+
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item Estão disponíveis em qualquer escopo do código, dentro ou fora de
+		      funções;
+		\item Trazem informações sobre o ambiente do servidor, os cabeçalhos HTTP
+		      e, principalmente, os dados enviados pelo usuário na requisição.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{As SuperGlobals mais utilizadas}
+	\small
+	\begin{tabular}{>{\ttfamily}l p{0.68\textwidth}}
+		\toprule
+		\$\_SERVER  & ambiente do servidor, cabeçalhos HTTP, caminhos e
+		localização de scripts \\
+		\$\_GET     & dados enviados pela URL (\emph{query string}) ou por
+		formulário com método GET \\
+		\$\_POST    & dados de formulário enviados com método POST, no corpo da
+		requisição, e não na URL \\
+		\$\_REQUEST & \texttt{\$\_GET} e \texttt{\$\_POST} combinados (e
+		\texttt{\$\_COOKIE}, conforme a diretiva \texttt{request\_order}) \\
+		\$\_FILES   & arquivos enviados por upload \\
+		\$\_SESSION & dados da sessão do usuário \\
+		\$\_COOKIE  & cookies enviados pelo navegador \\
+		\$GLOBALS   & todas as variáveis globais do código \\
+		\$\_ENV     & variáveis de ambiente \\
+		\bottomrule
+	\end{tabular}
+
+	\vspace{0.2cm}
+	Prefira \texttt{\$\_GET} ou \texttt{\$\_POST} a \texttt{\$\_REQUEST}, por
+	segurança e clareza.
+\end{frame}
+
+\begin{frame}{\texttt{\$GLOBALS}}
+	Dá acesso a todas as variáveis globais definidas no código.
+
+	\vspace{0.3cm}
+	Usá-lo para alterar, dentro de uma função, uma variável de fora dela é
+	considerado má prática. Prefira passar parâmetros e usar o retorno da
+	função.
+\end{frame}
+
+\begin{frame}[fragile]{Consulta ao \texttt{\$\_SERVER}: \texttt{server.php}}
+	\begin{minted}[fontsize=\scriptsize]{php}
+<?php
+// Exibindo informações sobre o servidor e a requisição atual
+echo "Caminho do script: " . htmlspecialchars($_SERVER['PHP_SELF']) . "<br>";
+echo "Nome do servidor: " . $_SERVER['SERVER_NAME'] . "<br>";
+echo "Host: " . $_SERVER['HTTP_HOST'] . "<br>";
+echo "Navegador/User-Agent: " . $_SERVER['HTTP_USER_AGENT'] . "<br>";
+?>
+	\end{minted}
+
+	Texto exibido, com \texttt{php -S localhost:8000} e a requisição feita pelo \texttt{curl}:
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+Caminho do script: /server.php
+Nome do servidor: localhost
+Host: localhost:8000
+Navegador/User-Agent: curl/8.18.0
+	\end{minted}
+
+	\texttt{htmlspecialchars()} no \texttt{PHP\_SELF} evita injeção de código,
+	como veremos na seção de XSS.
+\end{frame}
+
+% ==========================================
+\section{Formulários}
+% ==========================================
+
+\begin{frame}{Formulário: \texttt{action}, \texttt{method} e \texttt{name}}
+	Para o formulário HTML enviar dados ao back-end, ele define dois atributos:
+
+	\begin{enumerate}
+		\item \textbf{\texttt{action}}: a URL (recurso ou arquivo PHP) para onde
+		      os dados serão enviados;
+		\item \textbf{\texttt{method}}: o verbo HTTP do envio, \texttt{GET} ou
+		      \texttt{POST}.
+	\end{enumerate}
+
+	\vspace{0.3cm}
+	Cada campo (\texttt{<input>}, \texttt{<select>}, \texttt{<textarea>})
+	precisa do atributo \textbf{\texttt{name}}. O PHP usa o valor desse
+	atributo como \textbf{chave} na SuperGlobal:
+
+	\vspace{0.2cm}
+	\begin{center}
+		\texttt{<input name="termo\_busca">} \quad corresponde a \quad
+		\texttt{\$\_GET["termo\_busca"]}
+	\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Formulário de busca}
+	\begin{minted}{html}
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Teste de formulário</title>
+  </head>
+  <body>
+    <form action="form_test.php" method="get">
+      <label for="busca">Pesquisar:</label>
+      <input type="text" id="busca" name="termo_busca">
+      <button type="submit">Buscar</button>
+    </form>
+  </body>
+</html>
+	\end{minted}
+
+	Ao clicar em ``Buscar'', o navegador faz a requisição para\\
+	\texttt{form\_test.php?termo\_busca=valor\_digitado}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{form\_test.php}}
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<?php
+  // O operador ?? (Null Coalescing) verifica se o campo foi enviado.
+  // Se não foi, atribui uma string vazia, evitando erros de "Undefined array key".
+  $busca = $_GET["termo_busca"] ?? '';
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <title>Resultado da Busca</title>
+  </head>
+  <body>
+    <h2>Você buscou por:</h2>
+    <!-- O htmlspecialchars protege contra a execução acidental de tags HTML digitadas pelo usuário -->
+    <p><?= htmlspecialchars($busca) ?></p>
+  </body>
+</html>
+	\end{minted}
+\end{frame}
+
+\begin{frame}{Formulário na mesma página (\emph{self-submitting})}
+	O formulário e o código PHP que o processa ficam no mesmo arquivo.
+
+	\vspace{0.2cm}
+	\begin{itemize}
+		\item O atributo \texttt{action} é omitido, ou aponta para o próprio
+		      script;
+		\item O script verifica o método da requisição para saber se deve só
+		      exibir o formulário ou também processar os dados:
+	\end{itemize}
+
+	\vspace{0.2cm}
+	\begin{center}
+		\texttt{if (\$\_SERVER["REQUEST\_METHOD"] === "POST") \{ ... \}}
+	\end{center}
+
+	\vspace{0.2cm}
+	O primeiro acesso à página é um GET; o envio do formulário, um POST.
+\end{frame}
+
+\begin{frame}[fragile]{Mesma página: o processamento}
+	\begin{minted}{php}
+<?php
+$nome = '';
+$mensagem = '';
+
+// Verifica se o formulário foi submetido
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Resgata o valor. Se não existir, assume string vazia.
+    $nome = $_POST['fname'] ?? '';
+
+    if (empty(trim($nome))) {
+        $mensagem = "O nome é obrigatório!";
+    } else {
+        $mensagem = "Olá, " . htmlspecialchars($nome) . "!";
+    }
+}
+?>
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Mesma página: o formulário}
+	Continuação do mesmo arquivo:
+
+	\begin{minted}[fontsize=\scriptsize]{html+php}
+<!DOCTYPE html>
+<html>
+<body>
+
+<!-- htmlspecialchars impede que o PHP_SELF seja vetor de ataque -->
+<form method="post" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>">
+  <label for="fname">Nome:</label>
+  <input type="text" id="fname" name="fname" value="<?= htmlspecialchars($nome) ?>">
+  <button type="submit">Enviar</button>
+</form>
+
+<p><strong><?= $mensagem ?></strong></p>
+
+</body>
+</html>
+	\end{minted}
+
+	O \texttt{value} devolve ao campo o que foi digitado, e o usuário não
+	precisa preencher de novo.
+\end{frame}
+
+% ==========================================
+\section{Validação}
+% ==========================================
+
+\begin{frame}{Validação}
+	Verificar se os dados recebidos seguem as regras de negócio esperadas e se
+	são seguros. Nunca confie nos dados enviados pelo usuário.
+
+	\vspace{0.3cm}
+	A validação ocorre em duas camadas:
+	\begin{enumerate}
+		\item \textbf{Front-end} (\emph{client-side}): avisa o erro antes do
+		      envio, e poupa processamento do servidor. Pode ser burlada
+		      facilmente;
+		\item \textbf{Back-end} (\emph{server-side}): a validação definitiva e
+		      obrigatória. Garante a integridade e a segurança do sistema, porque
+		      não pode ser manipulada pelo usuário.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Validação no front-end: atributos do HTML5}
+	Os próprios atributos do HTML5 validam o formulário, sem JavaScript:
+
+	\begin{itemize}
+		\item \texttt{required}, \texttt{minlength}, \texttt{maxlength},
+		      \texttt{min}, \texttt{max};
+		\item \texttt{pattern}, com uma expressão regular;
+		\item tipos semânticos, como \texttt{type="email"} e
+		      \texttt{type="number"}.
+	\end{itemize}
+
+	\begin{minted}{html}
+<input type="email" name="email" required>
+<input type="text" name="nome" required minlength="3" maxlength="60">
+<input type="number" name="quantidade" min="1" max="10">
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Validação no front-end: JavaScript}
+	Para lógicas mais complexas, o JavaScript intercepta o evento
+	\texttt{submit} do formulário:
+
+	\begin{minted}{html}
+<form id="form-test" action="processa.php" method="post">
+    <input type="text" name="nome" id="nome_input">
+    <span id="erro-nome" style="color: red;"></span>
+    <button type="submit">Enviar</button>
+</form>
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Validação no front-end: o \emph{script}}
+	Continuação do mesmo arquivo:
+
+	\begin{minted}[fontsize=\scriptsize]{html}
+<script>
+    document.getElementById("form-test").addEventListener("submit", function(event) {
+        const nomeInput = document.getElementById("nome_input").value;
+        const erroSpan = document.getElementById("erro-nome");
+
+        // Se estiver vazio, exibe o erro e cancela o envio
+        if (nomeInput.trim() === "") {
+            erroSpan.textContent = "O nome é obrigatório.";
+            event.preventDefault(); // Impede o formulário de ser enviado ao servidor
+        } else {
+            erroSpan.textContent = "";
+        }
+    });
+</script>
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Validação no back-end}
+	O PHP verifica se os dados existem, se estão no formato correto, e os
+	higieniza (sanitização). \texttt{trim()} remove os espaços nas extremidades:
+
+	\begin{minted}[fontsize=\scriptsize]{php}
+<?php
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $nome = trim($_POST["nome"] ?? ''); // Remove espaços no início e no final
+
+    if (empty($nome)) {
+        echo "O campo nome é inválido ou está vazio.";
+    } else {
+        // Converte caracteres como < e > para entidades HTML, na hora de exibir
+        echo "Olá, " . htmlspecialchars($nome) . "!";
+    }
+}
+?>
+	\end{minted}
+
+	\texttt{htmlspecialchars()} fica para a hora de exibir. Feita na entrada, a
+	conversão gravaria no banco de dados \texttt{\&lt;} no lugar de
+	\texttt{<}.
+\end{frame}
+
+\begin{frame}{\texttt{filter\_var}}
+	Para validações avançadas, o PHP oferece a família de funções
+	\textbf{\texttt{filter\_var}}, com regras prontas para e-mails, URLs e
+	números.
+
+	\vspace{0.3cm}
+	Documentação:\\
+	{\small\mbox{\texttt{https://www.php.net/manual/pt\_BR/function.filter-var.php}}}
+\end{frame}
+
+% ==========================================
+\section{Segurança}
+% ==========================================
+
+\begin{frame}{Segurança}
+	A internet é um ambiente hostil. Formulários são a principal porta de
+	entrada para ataques contra aplicações Web.
+
+	\vspace{0.3cm}
+	Dois ataques:
+	\begin{itemize}
+		\item \textbf{Cross-site Scripting} (XSS);
+		\item \textbf{SQL Injection} (injeção de SQL).
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Cross-site Scripting (XSS)}
+	A aplicação recebe dados com scripts (como JavaScript) e os exibe para
+	outros usuários sem tratamento.
+
+	\vspace{0.2cm}
+	Campo ``Nome'' preenchido com:
+
+	\begin{minted}{html}
+José <script>alert('Roubei seus cookies!');</script>
+	\end{minted}
+
+	Se a aplicação fizer apenas \texttt{echo \$\_POST['nome'];}, o navegador
+	interpreta a tag \texttt{<script>} e executa o código.
+
+	\vspace{0.2cm}
+	\textbf{Prevenção}: use \textbf{sempre} \texttt{htmlspecialchars()} antes de
+	exibir no HTML qualquer dado vindo do usuário. Ela transforma \texttt{<} em
+	\texttt{\&lt;} e \texttt{>} em \texttt{\&gt;}, e o navegador trata o
+	conteúdo apenas como texto.
+\end{frame}
+
+\begin{frame}[fragile]{SQL Injection}
+	Trechos de SQL enviados pelo formulário alteram a consulta feita ao banco
+	de dados.
+
+	\begin{minted}{php}
+$sql = "SELECT * FROM Usuarios WHERE id = " . $_POST['id'];
+	\end{minted}
+
+	O usuário digita no campo ID: \texttt{105 OR 1=1}. A consulta final fica:
+
+	\begin{minted}{sql}
+SELECT * FROM Usuarios WHERE id = 105 OR 1=1;
+	\end{minted}
+
+	Como \texttt{1=1} é sempre verdadeiro, o banco devolve os dados de
+	\textbf{todos} os usuários.
+\end{frame}
+
+\begin{frame}{Prevenção de SQL Injection}
+	\textbf{Prepared Statements} (consultas preparadas): o dado enviado pelo
+	usuário é tratado separadamente da instrução SQL.
+
+	\vspace{0.3cm}
+	Existem tanto na extensão \textbf{mysqli}, que usaremos na aula de PHP e
+	MySQL, quanto na \textbf{PDO}.
+\end{frame}
+
+% ==========================================
+\section{Includes}
+% ==========================================
+
+\begin{frame}{Includes e requires}
+	Sistemas grandes ficam divididos em arquivos menores: um para o cabeçalho,
+	um para o rodapé, outro para a conexão com o banco.
+
+	\vspace{0.2cm}
+	\small
+	\begin{tabular}{>{\ttfamily\footnotesize}l p{0.56\textwidth}}
+		\toprule
+		include 'arquivo.php'; & arquivo inexistente: \textbf{aviso}
+		(\emph{Warning}), e a execução \textbf{continua} \\ \midrule
+		require 'arquivo.php'; & arquivo inexistente: \textbf{erro fatal}
+		(\emph{Fatal Error}), e a execução \textbf{para}. Mais seguro para
+		arquivos essenciais \\ \midrule
+		\begin{tabular}[t]{@{}l@{}}include\_once\\require\_once\end{tabular} & iguais aos pares, mas não incluem
+		de novo um arquivo já incluído na mesma execução. Evitam redefinir
+		funções e variáveis \\
+		\bottomrule
+	\end{tabular}
+\end{frame}
+
+\begin{frame}[fragile]{Exemplo de \texttt{require}}
+	\begin{columns}[T]
+		\begin{column}{0.27\textwidth}
+			\texttt{variaveis.php}:
+			\begin{minted}[fontsize=\scriptsize]{php}
+<?php
+$cor = 'verde';
+$fruta = 'maçã';
+?>
+			\end{minted}
+		\end{column}
+		\begin{column}{0.71\textwidth}
+			\texttt{teste.php}:
+			\begin{minted}[fontsize=\scriptsize]{php}
+<?php
+// Tenta imprimir variáveis que ainda não existem
+echo "Uma $fruta $cor. <br>";
+
+// Inclui o arquivo que contém as variáveis
+require 'variaveis.php';
+
+// Agora as variáveis estão disponíveis no escopo
+echo "Uma $fruta $cor."; // Saída: Uma maçã verde.
+?>
+			\end{minted}
+		\end{column}
+	\end{columns}
+
+	\vspace{0.2cm}
+	No primeiro \texttt{echo}, o PHP emite \texttt{Warning: Undefined variable
+	\$fruta} (e o mesmo para \texttt{\$cor}) e imprime \verb|Uma  .|
+\end{frame}
+
+% ==========================================
+\begin{frame}{Exercícios e próximos passos}
+	Os exercícios desta aula não têm entrega e não valem nota. O enunciado
+	está no fim do material desta aula, na seção Exercícios, e o conteúdo cai
+	na Prova 3.
+
+	\vspace{0.3cm}
+	Próxima aula, em 13/11: PHP e MySQL. Conexão com \texttt{mysqli},
+	\emph{prepared statements} e operações CRUD.
+
+	\vspace{0.3cm}
+	A Entrega 3 do trabalho (PHP e MySQL) vence em 27/11, às 23h59. Não há
+	entrega em atraso: vale o último \emph{commit} enviado até o prazo.
+\end{frame}
+
+\end{document}
