@@ -1,8 +1,11 @@
 \documentclass{beamer}
 
 \usepackage{beamerthemeSingapore}
-\usepackage[brazil]{babel}
+\usepackage[shorthands=off,brazil]{babel}
 \usepackage[T1]{fontenc}
+% sem guillemets: "> fora do código e << >> na fonte monoespaçada
+\usepackage[protrusion=false,expansion=false]{microtype}
+\DisableLigatures[<,>]{encoding = T1, family = tt*}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{url}
