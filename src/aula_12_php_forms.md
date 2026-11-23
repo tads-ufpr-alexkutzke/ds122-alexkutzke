@@ -369,4 +369,4 @@ Acrescente ao formulário do catálogo um campo `<input type="number" name="max"
 
 Próxima aula, em 13/11: PHP e MySQL. Conexão com `mysqli`, *prepared statements* e operações CRUD.
 
-A Entrega 3 do trabalho (PHP e MySQL) vence em 27/11, às 23h59. Não há entrega em atraso: vale o último *commit* enviado até o prazo.
+A Entrega 3 do trabalho (PHP e MySQL) vence em 29/11 (domingo), às 23h59. Não há entrega em atraso: vale o último *commit* enviado até o prazo.

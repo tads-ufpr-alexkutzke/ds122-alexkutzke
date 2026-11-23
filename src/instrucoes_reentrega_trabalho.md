@@ -19,7 +19,7 @@ Um ramo é uma linha de commits paralela à do `main`. O que você commitar no
 - A reentrega só entra na recorreção se for **declarada por e-mail** até
   20/11/2026, às 23h59 (passo 6). Quem não declarar, ou não criar o ramo
   `reentrega`, mantém as notas de E1 e E2 já lançadas.
-- A Entrega 3 continua no `main`, com o prazo de 27/11/2026.
+- A Entrega 3 continua no `main`, com o prazo de 29/11/2026.
 - Os demais exercícios da disciplina não usam ramo: a reentrega deles é feita
   no próprio repositório de cada exercício, no `main`, como sempre, e também
   precisa ser declarada no mesmo e-mail.

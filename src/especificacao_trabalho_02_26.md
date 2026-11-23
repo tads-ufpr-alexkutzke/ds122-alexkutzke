@@ -104,7 +104,7 @@ O `README.md` do fork já traz o modelo do diário de bordo a preencher.
 ---
 
 ### Entrega 3: Back-end com PHP + MySQL
-**Prazo:** 27/11/2026, na aula anterior à Prova 3  
+**Prazo:** 29/11/2026 (domingo), prorrogado da aula de 27/11, antes da Prova 3  
 **Peso na nota do trabalho:** 40%
 
 **Requisitos mínimos:**
@@ -204,6 +204,6 @@ O que continua permitido, e recomendado:
 |---|---|---|---|
 | Entrega 1 | HTML5 + CSS3 (Front-end estático) | ~~11/09/2026 (sex)~~ **13/09/2026 (dom)** | 30% |
 | Entrega 2 | JavaScript (Interatividade) | 11/10/2026 (dom) | 30% |
-| Entrega 3 | PHP + MySQL (Back-end completo) | 27/11/2026 (sex) | 40% |
+| Entrega 3 | PHP + MySQL (Back-end completo) | 29/11/2026 (dom) | 40% |
 
 > **Observação sobre prazos:** Toda entrega vence na **aula anterior à prova correspondente**, às 23h59, por `push` no **GitLab**. A semana entre a entrega e a prova é o que permite ao professor preparar a questão integradora, que pede para modificar, estender ou explicar o seu próprio código. O diário de bordo, no `README.md`, deve estar atualizado no repositório. Não há entrega em atraso: é avaliado o último *commit* enviado ao GitLab até o prazo, e quem não tiver *commit* até essa data recebe nota zero na entrega.
