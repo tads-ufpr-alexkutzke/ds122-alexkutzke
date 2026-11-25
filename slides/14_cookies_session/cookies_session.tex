@@ -1,0 +1,454 @@
+\documentclass{beamer}
+
+\usepackage{beamerthemeSingapore}
+\usepackage[shorthands=off,brazil]{babel}
+\usepackage[T1]{fontenc}
+% sem guillemets: "> fora do código e << >> na fonte monoespaçada
+\usepackage[protrusion=false,expansion=false]{microtype}
+\DisableLigatures[<,>]{encoding = T1, family = tt*}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{minted}
+\usepackage{array}
+
+\newcommand{\tcb}[1]{\textcolor{blue}{#1}}
+\newcommand{\tcr}[1]{\textcolor{red}{#1}}
+\newcommand{\tcg}[1]{\textcolor{green!50!black}{#1}}
+
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakanywhere=true,
+  frame=lines,
+  framesep=2mm,
+  baselinestretch=1.05,
+  tabsize=2
+}
+
+\apptocmd{\frame}{}{\justifying}{}
+
+\setbeamertemplate{navigation symbols}{}
+
+\title{14 - PHP: cookies, sessões e login}
+\author{Prof. Alex Kutzke}
+\date{Novembro de 2026}
+
+\begin{document}
+
+% ==========================================
+\begin{frame}
+	\begin{center}
+		\large{Setor de Educação Profissional e Tecnológica}\\
+		Tecnologia em Análise e Desenvolvimento de Sistemas\\
+		\vspace{1cm}
+		\small{DS122 - Desenvolvimento de Aplicações Web 1}
+	\end{center}
+	\titlepage
+\end{frame}
+
+\begin{frame}{Objetivos da aula}
+	Ao final desta aula você deve ser capaz de:
+	\begin{enumerate}
+		\item Explicar por que o HTTP precisa de cookies e sessões, e onde cada um
+		      guarda os dados;
+		\item Criar, ler e remover um cookie em PHP;
+		\item Guardar e ler dados em \texttt{\$\_SESSION}, e encerrar uma sessão;
+		\item Gravar senhas com \texttt{password\_hash} e conferi-las com
+		      \texttt{password\_verify};
+		\item Construir um login e proteger as páginas e os scripts de uma área
+		      administrativa.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	Código de exemplo:\\
+	{\small\mbox{\texttt{https://gitlab.com/ds122-alexkutzke/ds122-login-app}}}
+\end{frame}
+
+% ==========================================
+\section{Estado}
+% ==========================================
+
+\begin{frame}[fragile]{Demonstração: contador de visitas}
+	\begin{minted}{html+php}
+<?php
+session_start();
+$_SESSION["visitas"] = ($_SESSION["visitas"] ?? 0) + 1;
+?>
+<p>Visitas nesta sessão: <?= $_SESSION["visitas"] ?></p>
+	\end{minted}
+
+	\begin{itemize}
+		\item Rede (\texttt{F12}): \texttt{Set-Cookie: PHPSESSID=...} na primeira
+		      resposta, \texttt{Cookie: PHPSESSID=...} nas requisições seguintes;
+		\item Numa janela anônima, o contador volta a 1;
+		\item O número fica num arquivo do servidor, \texttt{sess\_} seguido do
+		      identificador:
+	\end{itemize}
+
+	\begin{minted}{text}
+visitas|i:2;
+	\end{minted}
+\end{frame}
+
+\begin{frame}{Cookies e sessões}
+	O HTTP é \textbf{sem estado}: para reconhecer o usuário, o servidor precisa
+	que o cliente reenvie alguma informação em toda requisição.
+
+	\vspace{0.3cm}
+	\small
+	\begin{tabular}{p{0.27\textwidth} p{0.28\textwidth} p{0.31\textwidth}}
+		\toprule
+		 & \textbf{Cookie} & \textbf{Sessão} \\ \midrule
+		Onde ficam os dados & No navegador & No servidor \\
+		O que trafega & Os próprios dados & Só o identificador, num cookie \\
+		O usuário altera os dados & Sim & Não \\
+		Uso típico & Preferências & Usuário autenticado \\
+		Em PHP & \texttt{setcookie()}, \texttt{\$\_COOKIE} &
+		\texttt{session\_start()}, \texttt{\$\_SESSION} \\
+		\bottomrule
+	\end{tabular}
+\end{frame}
+
+% ==========================================
+\section{Cookies}
+% ==========================================
+
+\begin{frame}[fragile]{Criar, ler e remover um cookie}
+	Criar, com nome, valor, expiração e caminho:
+	\begin{minted}[startinline]{php}
+setcookie("tema", "escuro", time() + 60 * 60 * 24 * 30, "/");
+	\end{minted}
+
+	Ler:
+	\begin{minted}[startinline]{php}
+$tema = $_COOKIE["tema"] ?? "claro";
+	\end{minted}
+
+	Remover, com uma data no passado e o mesmo caminho:
+	\begin{minted}[startinline]{php}
+setcookie("tema", "", time() - 3600, "/");
+	\end{minted}
+
+	\begin{itemize}
+		\item \texttt{setcookie()} vem antes de qualquer saída HTML;
+		\item o cookie só aparece em \texttt{\$\_COOKIE} na \textbf{próxima}
+		      requisição.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{O usuário pode alterar o cookie}
+	No \texttt{F12}, troque o valor de \texttt{tema} por
+	\texttt{<b>azul</b>} e recarregue a página.
+
+	\vspace{0.3cm}
+	\begin{itemize}
+		\item Um cookie é um dado enviado pelo usuário, como um campo de
+		      formulário: exiba-o com \texttt{htmlspecialchars()};
+		\item Um cookie \texttt{admin=1} não protege nada, porque qualquer
+		      visitante pode criá-lo;
+		\item A informação de quem está autenticado fica na sessão.
+	\end{itemize}
+\end{frame}
+
+% ==========================================
+\section{Sessões}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{session\_start()} e \texttt{\$\_SESSION}}
+	\begin{minted}{php}
+<?php
+session_start();
+
+// Gravar
+$_SESSION["usuario_nome"] = "Maria Silva";
+
+// Ler, em qualquer página que chame session_start()
+echo htmlspecialchars($_SESSION["usuario_nome"] ?? "visitante");
+	\end{minted}
+
+	\begin{itemize}
+		\item Se a requisição traz o cookie \texttt{PHPSESSID}, o PHP carrega os
+		      dados daquela sessão. Se não traz, cria uma sessão nova;
+		\item Toda página que usa \texttt{\$\_SESSION} chama
+		      \texttt{session\_start()} uma vez, antes de qualquer saída HTML.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Opções do cookie da sessão: \texttt{admin/sessao.php}}
+	\begin{minted}{php}
+<?php
+session_start([
+    "cookie_httponly" => true,
+    "cookie_samesite" => "Lax",
+]);
+	\end{minted}
+
+	Com uma cópia do identificador, outra pessoa acessa o site como se fosse o
+	usuário.
+
+	\begin{itemize}
+		\item \texttt{cookie\_httponly}: o JavaScript da página não lê o cookie;
+		\item \texttt{cookie\_samesite} com \texttt{"Lax"}: o navegador não envia
+		      o cookie num formulário POST que outro site submeta para o seu.
+	\end{itemize}
+\end{frame}
+
+% ==========================================
+\section{Senhas}
+% ==========================================
+
+\begin{frame}[fragile]{\texttt{password\_hash} e \texttt{password\_verify}}
+	O banco guarda o \emph{hash} da senha, do qual não se recupera o texto
+	original.
+
+	\begin{minted}[startinline]{php}
+echo password_hash("123456", PASSWORD_DEFAULT), "<br>";
+echo password_hash("123456", PASSWORD_DEFAULT), "<br>";
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+$2y$10$q6WA7ddvt4RPkToscD5YPO6OjWIV1oNZaxPvxCrstTStCIi9DXavq
+$2y$10$zITCq58z8tNBapehdpRRwuHmEYOwBC5ivKRBfLw/vYF71oULWke9W
+	\end{minted}
+
+	\begin{itemize}
+		\item A mesma senha produz hashes diferentes, por causa do \emph{salt}. A
+		      comparação com \texttt{===} não funciona;
+		\item \texttt{password\_verify(\$senha, \$hash)} devolve \texttt{true}
+		      quando a senha confere;
+		\item Não use \texttt{md5()} nem \texttt{sha1()} para senhas.
+	\end{itemize}
+\end{frame}
+
+% ==========================================
+\section{Login}
+% ==========================================
+
+\begin{frame}[fragile]{Estrutura do exemplo}
+	\begin{minted}[breaklines=false]{text}
+ds122-login-app/
+|-- config.php               dados de conexão
+|-- conexao.php              conexão com o MySQL
+|-- criar_bd.php             cria a base de dados
+|-- criar_tabela.php         cria a tabela de usuários
+|-- cadastrar.php            cadastra o primeiro usuário
+|-- index.php                página pública
+`-- admin/
+    |-- sessao.php           inicia a sessão
+    |-- verifica_login.php   barra quem não está autenticado
+    |-- login.php            formulário e processamento
+    |-- dashboard.php        página protegida
+    `-- logout.php           encerra a sessão
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{conexao.php}}
+	\begin{minted}[fontsize=\scriptsize]{php}
+<?php
+require_once __DIR__ . "/config.php";
+
+try {
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($conn, "utf8mb4");
+} catch (mysqli_sql_exception $e) {
+    // Em produção, mostre uma mensagem genérica, sem detalhes do banco
+    die("Erro de conexão: " . $e->getMessage());
+}
+	\end{minted}
+
+	\begin{itemize}
+		\item Desde o PHP 8.1, um erro do \texttt{mysqli} lança uma exceção, e o
+		      script para com \texttt{Fatal error} se ninguém a tratar;
+		\item Sem \texttt{?>} no final: linhas em branco depois dele seriam
+		      enviadas antes dos cabeçalhos, e o login falharia com
+		      \texttt{headers already sent}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{cadastrar.php}}
+	\begin{minted}[fontsize=\scriptsize,startinline]{php}
+// O banco guarda o hash, nunca a senha
+$hash = password_hash($senha, PASSWORD_DEFAULT);
+
+try {
+    $stmt = mysqli_prepare($conn, "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sss", $nome, $email, $hash);
+    mysqli_stmt_execute($stmt);
+    echo "Usuário cadastrado com sucesso!";
+} catch (mysqli_sql_exception $e) {
+    // 1062 é o código do MySQL para valor repetido em coluna UNIQUE
+    if ($e->getCode() === 1062) {
+        echo "Já existe um usuário com este e-mail.";
+    } else {
+        echo "Erro ao cadastrar: " . $e->getMessage();
+    }
+}
+	\end{minted}
+
+	Não é um formulário público: qualquer visitante poderia criar um usuário e
+	entrar na área administrativa.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{admin/login.php}: busca do usuário}
+	\begin{minted}[fontsize=\scriptsize,startinline]{php}
+$email = trim($_POST["email"] ?? "");
+$senha = $_POST["senha"] ?? "";
+
+// 1. Busca o usuário pelo e-mail
+$stmt = mysqli_prepare($conn, "SELECT id, nome, senha FROM usuarios WHERE email = ?");
+mysqli_stmt_bind_param($stmt, "s", $email);
+mysqli_stmt_execute($stmt);
+$resultado = mysqli_stmt_get_result($stmt);
+$usuario = mysqli_fetch_assoc($resultado); // null quando o e-mail não existe
+	\end{minted}
+
+	O \texttt{conexao.php} está na pasta de cima:
+	\begin{minted}[fontsize=\scriptsize,startinline]{php}
+require_once __DIR__ . "/../conexao.php";
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{admin/login.php}: conferência da senha}
+	\begin{minted}[fontsize=\scriptsize,startinline]{php}
+// 2. Confere a senha digitada com o hash guardado no banco
+if ($usuario && password_verify($senha, $usuario["senha"])) {
+    // 3. Troca o identificador e grava o usuário na sessão
+    session_regenerate_id(true);
+    $_SESSION["usuario_id"]   = $usuario["id"];
+    $_SESSION["usuario_nome"] = $usuario["nome"];
+
+    header("Location: dashboard.php");
+    exit;
+}
+
+$erro = "E-mail ou senha inválidos.";
+	\end{minted}
+
+	A mensagem é a mesma para e-mail inexistente e senha errada, e não revela
+	quais e-mails estão cadastrados.
+\end{frame}
+
+\begin{frame}[fragile]{Páginas protegidas}
+	\texttt{admin/verifica\_login.php}:
+	\begin{minted}{php}
+<?php
+require_once __DIR__ . "/sessao.php";
+
+if (!isset($_SESSION["usuario_id"])) {
+    header("Location: login.php");
+    exit;
+}
+	\end{minted}
+
+	Primeira linha de \texttt{admin/dashboard.php} e de toda página protegida:
+	\begin{minted}{php}
+<?php
+require_once __DIR__ . "/verifica_login.php";
+?>
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{O \texttt{exit} depois do redirecionamento}
+	\texttt{header("Location: ...")} apenas acrescenta um cabeçalho. Sem o
+	\texttt{exit}, o script continua e envia a página protegida inteira.
+
+	\vspace{0.2cm}
+	Demonstração: sem o \texttt{exit} no \texttt{verifica\_login.php},
+
+	\begin{minted}{bash}
+curl -i http://localhost:8000/admin/dashboard.php
+	\end{minted}
+
+	\begin{minted}[fontsize=\scriptsize]{text}
+HTTP/1.1 302 Found
+Location: login.php
+...
+    <h1>Painel</h1>
+    <p>Esta página só aparece para usuários autenticados.</p>
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Scripts que alteram dados}
+	Esconder o link ou o formulário não protege o script que recebe os dados.
+	Todo arquivo da pasta \texttt{admin/} começa com a verificação:
+
+	\begin{minted}{php}
+<?php
+// admin/excluir.php, admin/salvar.php e os demais
+require_once __DIR__ . "/verifica_login.php";
+require_once __DIR__ . "/../conexao.php";
+
+// só então lê $_POST ou $_GET e altera o banco
+	\end{minted}
+
+	As exceções são \texttt{sessao.php}, \texttt{login.php} e
+	\texttt{logout.php}.
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{admin/logout.php}}
+	\begin{minted}{php}
+<?php
+require_once __DIR__ . "/sessao.php";
+
+// 1. Apaga os dados da sessão
+$_SESSION = [];
+
+// 2. Remove o cookie do navegador
+setcookie(session_name(), "", time() - 3600, "/");
+
+// 3. Destrói a sessão no servidor
+session_destroy();
+
+header("Location: login.php");
+exit;
+	\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Fixação de sessão (\emph{session fixation})}
+	Com o \texttt{contador.php} e um identificador inventado:
+	\begin{minted}[fontsize=\scriptsize]{bash}
+curl -b "PHPSESSID=abc123" http://localhost:8000/contador.php
+curl -b "PHPSESSID=abc123" http://localhost:8000/contador.php
+	\end{minted}
+
+	\begin{itemize}
+		\item A saída mostra 1 e, depois, 2: na configuração padrão, o PHP aceita
+		      um identificador escolhido pelo cliente;
+		\item Se a vítima usar um identificador que o atacante conhece, e ele
+		      continuar valendo após o login, o atacante entra na conta;
+		\item \texttt{session\_regenerate\_id(true)} cria um identificador novo no
+		      login e apaga o antigo.
+	\end{itemize}
+\end{frame}
+
+% ==========================================
+\section{Entrega 3}
+% ==========================================
+
+\begin{frame}{Do exemplo para a Entrega 3}
+	O restante da aula é dedicado ao trabalho.
+
+	\begin{enumerate}
+		\item Crie a tabela \texttt{usuarios} e inclua o comando no arquivo
+		      \texttt{.sql};
+		\item Adapte os arquivos da pasta \texttt{admin/} à sua conexão e aos seus
+		      nomes;
+		\item Inclua \texttt{verifica\_login.php} na listagem, no cadastro, na
+		      edição, na exclusão e na página de mensagens;
+		\item Numa janela anônima, digite o endereço de cada arquivo de
+		      \texttt{admin/} e confira que todos levam ao login;
+		\item Teste a senha errada, o e-mail inexistente e o logout.
+	\end{enumerate}
+
+	\vspace{0.2cm}
+	Prazo: 29/11 (domingo), às 23h59. Não há entrega em atraso.
+
+	Próxima aula, em 04/12: Prova 3 e encerramento.
+\end{frame}
+
+\end{document}

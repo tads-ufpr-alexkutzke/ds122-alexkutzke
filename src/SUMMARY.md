@@ -25,7 +25,7 @@
 - [PHP](./aula_11_php.md)
 - [PHP: SuperGlobals, Formulários, Validação e Includes](./aula_12_php_forms.md)
 - [PHP e MySQL](./aula_13_php_mysql.md)
-- [Cookies e Sessions](./aula_14_cookies_session.md)
+- [PHP: Cookies, Sessões e Login](./aula_14_cookies_session.md)
 - [Especificação do trabalho prático](./especificacao_trabalho_02_26.md)
 - [Status das entregas de atividades avaliativas (Tarde)](./DS122_TADSV2_entregas.md)
 - [Status das entregas de atividades avaliativas (Noite)](./DS122_TADSN2_entregas.md)

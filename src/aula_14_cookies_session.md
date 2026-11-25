@@ -1,267 +1,235 @@
-# PHP: Cookies, Sessions e Login
+# PHP: Cookies, Sessões e Login
+
+[Slides desta aula (PDF)](slides/aula_14_cookies_session.pdf)
+
+## Objetivos
+
+Ao final desta aula você deve ser capaz de:
+
+1. Explicar por que o protocolo HTTP precisa de cookies e sessões, e onde cada um guarda os dados;
+2. Criar, ler e remover um cookie em PHP;
+3. Guardar e ler dados em `$_SESSION`, e encerrar uma sessão;
+4. Gravar senhas com `password_hash` e conferi-las com `password_verify`;
+5. Construir um login e proteger as páginas e os scripts de uma área administrativa.
 
 ## Bibliografia recomendada para o tema:
 
-* [Documentação Oficial do PHP — Cookies](https://www.php.net/manual/pt_BR/features.cookies.php)
-* [Documentação Oficial do PHP — Sessões](https://www.php.net/manual/pt_BR/book.session.php)
+* [Documentação Oficial do PHP - Cookies](https://www.php.net/manual/pt_BR/features.cookies.php)
+* [Documentação Oficial do PHP - Sessões](https://www.php.net/manual/pt_BR/book.session.php)
 * [Sobre cookies no protocolo HTTP (Wikipedia)](https://pt.wikipedia.org/wiki/Cookie_HTTP)
-* [w3schools — PHP Cookies](https://www.w3schools.com/php/php_cookies.asp)
-* [w3schools — PHP Sessions](https://www.w3schools.com/php/php_sessions.asp)
+* [w3schools - PHP Cookies](https://www.w3schools.com/php/php_cookies.asp)
+* [w3schools - PHP Sessions](https://www.w3schools.com/php/php_sessions.asp)
+
+## Código de exemplo
+
+<https://gitlab.com/ds122-alexkutzke/ds122-login-app>
 
 ---
 
-## Por que precisamos de Cookies e Sessões?
+## Um contador de visitas
 
-O protocolo HTTP é **stateless** (sem estado): cada requisição é independente — o servidor não sabe se duas requisições consecutivas vieram do mesmo navegador. Isso funciona bem para páginas estáticas, mas não para aplicações que precisam lembrar quem é o usuário.
+Crie o arquivo `contador.php` e inicie o servidor na pasta dele, com `php -d display_errors=1 -S localhost:8000`:
 
-Cookies e Sessões resolvem esse problema, permitindo que o servidor **mantenha estado** entre requisições:
+```php
+<?php
+session_start();
+$_SESSION["visitas"] = ($_SESSION["visitas"] ?? 0) + 1;
+?>
+<p>Visitas nesta sessão: <?= $_SESSION["visitas"] ?></p>
+```
 
-- **Cookies:** pequenos arquivos de texto armazenados no **navegador** do cliente.
-- **Sessões:** dados armazenados no **servidor**, indexados por um identificador único (Session ID) que trafega como cookie.
+Abra `http://localhost:8000/contador.php` e recarregue a página algumas vezes. O número aumenta, embora uma variável comum do PHP deixe de existir ao fim de cada requisição.
+
+Com as ferramentas do desenvolvedor (`F12`) abertas:
+
+* na aba de rede, a primeira resposta traz o cabeçalho `Set-Cookie: PHPSESSID=...`, e as requisições seguintes trazem `Cookie: PHPSESSID=...`;
+* na aba de armazenamento (*Application*, no Chrome, ou *Storage*, no Firefox), o cookie `PHPSESSID` aparece com o mesmo valor;
+* numa janela anônima, ou depois de apagar o cookie, o contador volta a 1.
+
+O número de visitas não aparece no cookie: ele fica num arquivo do servidor, chamado `sess_` seguido do valor de `PHPSESSID`. No Linux, o servidor embutido do PHP o guarda em `/tmp`. O conteúdo, depois de duas visitas:
+
+```text
+visitas|i:2;
+```
+
+## Cookies e sessões
+
+No material do [protocolo HTTP](aula_03_http.md#11-protocolo-sem-estado), vimos que o HTTP é **sem estado** (_stateless_): o servidor trata cada requisição de forma isolada. Para reconhecer um usuário, ele precisa que o cliente reenvie alguma informação em toda requisição.
+
+| | Cookie | Sessão |
+|---|---|---|
+| Onde ficam os dados | No navegador | No servidor |
+| O que trafega na requisição | Os próprios dados | Só o identificador da sessão, num cookie |
+| O usuário pode alterar os dados | Sim | Não |
+| Uso típico | Preferências, como o tema da página | Usuário autenticado, carrinho de compras |
+| Em PHP | `setcookie()` e `$_COOKIE` | `session_start()` e `$_SESSION` |
 
 ---
 
-## Cookies no Protocolo HTTP
+## Cookies em PHP
 
-Do site [Wikipedia — Cookie HTTP](https://pt.wikipedia.org/wiki/Cookie_HTTP):
+A função `setcookie()` acrescenta o cabeçalho `Set-Cookie` à resposta. Os quatro primeiros parâmetros são o nome, o valor, o instante em que o cookie expira e o caminho do site em que ele vale.
 
-> Um cookie é um pequeno pacote de dados enviados de um website para o navegador do usuário quando o usuário visita o site. Cada vez que o usuário visita o site novamente, o navegador envia o cookie de volta para o servidor para notificar atividades prévias do usuário. Os cookies foram designados para ser um mecanismo confiável para que sites se lembrem de informações da atividade do usuário, como senhas gravadas, itens adicionados no carrinho de compras em uma loja online, links que foram clicados anteriormente, entre outros.
-
-### Cookies no PHP — `setcookie()`
-
-A criação de um cookie em PHP utiliza a função `setcookie()`, que recebe os seguintes parâmetros:
-
-```php
-setcookie(
-    string $name,       // Nome do cookie (obrigatório)
-    string $value,      // Valor a armazenar
-    int    $expires,    // Timestamp de expiração (padrão: 0 = expira ao fechar o navegador)
-    string $path,       // Caminho no site onde o cookie é válido (padrão: diretório atual)
-    string $domain,     // Domínio onde o cookie é válido
-    bool   $secure,     // Se true, só envia por HTTPS
-    bool   $httponly     // Se true, inacessível via JavaScript (protege contra XSS)
-);
-```
-
-Apenas o parâmetro `$name` é obrigatório.
-
-#### Criando um cookie
+Criar, em `criar_cookie.php`:
 
 ```php
 <?php
-// Cookie "usuario" com valor "João", válido por 30 dias, disponível em todo o site
-setcookie("usuario", "João", time() + (86400 * 30), "/");
+// Válido por 30 dias, em todo o site
+setcookie("tema", "escuro", time() + 60 * 60 * 24 * 30, "/");
 ?>
+<p>Cookie enviado. <a href="ler_cookie.php">Ler</a></p>
 ```
 
-> **Importante:** `setcookie()` deve ser chamada **antes de qualquer saída HTML**, pois o cookie é enviado nos cabeçalhos da resposta HTTP.
-
-#### Lendo um cookie — `$_COOKIE`
-
-O array superglobal `$_COOKIE` contém os cookies enviados pelo navegador na requisição atual.
-
-**Atenção:** um cookie definido com `setcookie()` **não estará imediatamente disponível** em `$_COOKIE` na mesma requisição — ele só aparecerá na **próxima** requisição, quando o navegador o reenviar.
+Ler, em `ler_cookie.php`:
 
 ```php
 <?php
-// Página 1: definir_cookie.php
-setcookie("usuario", "João", time() + (86400 * 30), "/");
+$tema = $_COOKIE["tema"] ?? "claro";
 ?>
-<!DOCTYPE html>
-<html><body>
-  <p>Cookie definido! <a href="ler_cookie.php">Ver cookie</a></p>
-</body></html>
+<p>Tema escolhido: <?= htmlspecialchars($tema) ?></p>
 ```
+
+Remover, em `remover_cookie.php`, com uma data de expiração no passado e o mesmo caminho usado na criação:
 
 ```php
 <?php
-// Página 2: ler_cookie.php — acessada APÓS definir o cookie
-?>
-<!DOCTYPE html>
-<html><body>
-<?php if (isset($_COOKIE["usuario"])): ?>
-  <p>Bem-vindo de volta, <?= htmlspecialchars($_COOKIE["usuario"]) ?>!</p>
-<?php else: ?>
-  <p>Cookie não encontrado.</p>
-<?php endif; ?>
-</body></html>
+setcookie("tema", "", time() - 3600, "/");
 ```
 
-#### Alterando e removendo um cookie
+Ao usar `setcookie()`:
 
-Para **alterar** o valor, basta chamar `setcookie()` novamente com o mesmo nome e novo valor.
+* **`setcookie()` vem antes de qualquer saída HTML**, porque o cookie é enviado nos cabeçalhos da resposta, e os cabeçalhos vêm antes do corpo;
+* o cookie só aparece em `$_COOKIE` na **próxima** requisição, quando o navegador o envia de volta;
+* sem o instante de expiração, o cookie vale até o navegador ser fechado.
 
-Para **remover**, defina uma data de expiração no passado:
+### O usuário pode alterar o cookie
+
+No `F12`, troque o valor do cookie `tema` por `<b>azul</b>` e recarregue `ler_cookie.php`. O servidor recebe o valor alterado, e o `htmlspecialchars` impede que ele vire HTML. Um cookie é um dado enviado pelo usuário, como um campo de formulário.
+
+Por isso, um cookie como `admin=1` não protege nada: qualquer visitante pode criá-lo. A informação de quem está autenticado fica na sessão.
+
+---
+
+## Sessões em PHP
+
+`session_start()` procura o cookie `PHPSESSID` na requisição. Se ele existir, o PHP carrega os dados daquela sessão em `$_SESSION`; se não existir, cria uma sessão nova e envia o cookie. Toda página que usa `$_SESSION` chama `session_start()`, uma vez, antes de qualquer saída HTML.
 
 ```php
-// Remove o cookie "usuario"
-setcookie("usuario", "", time() - 3600, "/");
+<?php
+session_start();
+
+// Gravar
+$_SESSION["usuario_nome"] = "Maria Silva";
+
+// Ler, em qualquer página que chame session_start()
+echo htmlspecialchars($_SESSION["usuario_nome"] ?? "visitante");
 ```
 
-### Parâmetros de segurança
+### Opções do cookie da sessão
 
-| Parâmetro   | O que faz |
-|-------------|-----------|
-| `secure`    | O cookie só é enviado em conexões HTTPS. Essencial em produção. |
-| `httponly`  | Impede que JavaScript acesse o cookie (`document.cookie`), mitigando roubo via XSS. |
-| `SameSite`  | Controla se o cookie é enviado em requisições cross-site. Use `Lax` (padrão seguro) ou `Strict`. |
+O identificador da sessão precisa ser protegido: com uma cópia dele, outra pessoa acessa o site como se fosse o usuário. Duas opções do cookie ajudam:
 
-**Exemplo de cookie seguro:**
+| Opção | Efeito |
+|---|---|
+| `cookie_httponly` | O JavaScript da página não lê o cookie. Um ataque de XSS não consegue copiar o identificador com `document.cookie`. |
+| `cookie_samesite` com `"Lax"` | O navegador não envia o cookie num formulário POST que outro site submeta para o seu. |
+
+Num site publicado, com HTTPS, acrescenta-se `cookie_secure`, que impede o envio do cookie por HTTP.
+
+Para não repetir as opções em cada página, o `session_start()` fica num arquivo próprio, incluído com `require_once`.
+
+`admin/sessao.php`:
 
 ```php
-// Cookie com flags de segurança ativas (PHP 7.3+ para SameSite no array de opções)
-setcookie("usuario", "João", [
-    "expires"  => time() + (86400 * 30),
-    "path"     => "/",
-    "secure"   => true,   // Apenas HTTPS
-    "httponly" => true,   // Inacessível via JavaScript
-    "samesite" => "Lax",  // Proteção contra CSRF
+<?php
+session_start([
+    "cookie_httponly" => true,
+    "cookie_samesite" => "Lax",
 ]);
 ```
 
-> Para ambiente de desenvolvimento local (`localhost` sem HTTPS), mantenha `secure` como `false`.
+---
+
+## Senhas: `password_hash` e `password_verify`
+
+O banco de dados não guarda a senha do usuário. Ele guarda um **resumo criptográfico** (_hash_) da senha, do qual não se recupera o texto original. Se o banco vazar, as senhas não vazam com ele.
+
+```php
+<?php
+echo password_hash("123456", PASSWORD_DEFAULT), "<br>";
+echo password_hash("123456", PASSWORD_DEFAULT), "<br>";
+```
+
+Uma saída possível. O começo muda conforme a versão do PHP, e o restante muda a cada execução:
+
+```text
+$2y$10$q6WA7ddvt4RPkToscD5YPO6OjWIV1oNZaxPvxCrstTStCIi9DXavq
+$2y$10$zITCq58z8tNBapehdpRRwuHmEYOwBC5ivKRBfLw/vYF71oULWke9W
+```
+
+A mesma senha produz dois hashes diferentes, porque `password_hash` mistura à senha um valor aleatório, chamado _salt_, e o guarda dentro do próprio hash. Por isso, a comparação com `===` não funciona. A função `password_verify($senha, $hash)` lê o _salt_ do hash e devolve `true` quando a senha confere.
+
+* `PASSWORD_DEFAULT` usa, hoje, o algoritmo bcrypt. Como o padrão pode mudar, a coluna da senha é `VARCHAR(255)`;
+* não use `md5()` nem `sha1()` para senhas: são rápidas de calcular, e isso facilita testar milhões de senhas por segundo.
 
 ---
 
-## Sessões
+## Sistema de login
 
-Enquanto cookies armazenam dados no **navegador** (visíveis e modificáveis pelo usuário), sessões armazenam dados no **servidor**. O navegador guarda apenas um identificador (Session ID) em um cookie.
+A estrutura segue a que a Entrega 3 pede, com a área administrativa na pasta `admin/`:
 
-### Fluxo de uma sessão
+```text
+ds122-login-app/
+├── config.php               dados de conexão
+├── conexao.php              conexão com o MySQL
+├── criar_bd.php             cria a base de dados
+├── criar_tabela.php         cria a tabela de usuários
+├── cadastrar.php            cadastra o primeiro usuário
+├── index.php                página pública
+└── admin/
+    ├── sessao.php           inicia a sessão
+    ├── verifica_login.php   barra quem não está autenticado
+    ├── login.php            formulário e processamento do login
+    ├── dashboard.php        página protegida
+    └── logout.php           encerra a sessão
+```
 
-1. O PHP gera um **Session ID** único.
-2. O Session ID é enviado ao navegador como cookie (`PHPSESSID`).
-3. Os dados da sessão ficam armazenados no servidor (arquivo ou banco).
-4. A cada requisição, o navegador reenvia o Session ID, e o PHP recupera os dados correspondentes.
+### Conexão
 
-### Iniciando uma sessão — `session_start()`
+`config.php`:
 
 ```php
 <?php
-// Sempre no topo do arquivo, antes de qualquer saída HTML
-session_start();
-?>
-```
-
-> Use `session_status()` para verificar se já existe uma sessão ativa e evitar chamar `session_start()` duas vezes:
-
-```php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-```
-
-### Gravando e lendo dados da sessão — `$_SESSION`
-
-O array superglobal `$_SESSION` funciona como um array associativo comum — você grava e lê valores livremente:
-
-```php
-<?php
-session_start();
-
-// Gravando dados (ex: após login bem-sucedido)
-$_SESSION["usuario_id"]    = 42;
-$_SESSION["usuario_nome"]  = "Maria Silva";
-$_SESSION["logado_em"]     = time();
-?>
-```
-
-```php
-<?php
-// Lendo dados em qualquer outra página
-session_start();
-
-if (isset($_SESSION["usuario_id"])) {
-    echo "Bem-vinda, " . htmlspecialchars($_SESSION["usuario_nome"]) . "!";
-} else {
-    echo "Você não está logado.";
-}
-?>
-```
-
-### Encerrando uma sessão (logout)
-
-```php
-<?php
-session_start();
-
-// 1. Limpa todas as variáveis da sessão
-$_SESSION = [];
-
-// 2. Remove o cookie de sessão do navegador
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), "", time() - 3600,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
-}
-
-// 3. Destrói a sessão no servidor
-session_destroy();
-
-// 4. Redireciona para a página de login
-header("Location: login.php");
-exit;
-?>
-```
-
-### Segurança: `session_regenerate_id()`
-
-Após o login, é boa prática **regenerar o Session ID** para evitar *Session Fixation* (quando um atacante força o uso de um ID conhecido):
-
-```php
-session_regenerate_id(true); // true = apaga o arquivo de sessão antigo
-```
-
----
-
-## Sistema de Login com Sessões e Banco de Dados
-
-Abaixo, um exemplo completo de sistema de login que utiliza **mysqli + Prepared Statements** e sessões PHP.
-
-### Estrutura de arquivos
-
-```
-/
-├── config.php          # Dados de conexão
-├── conexao.php         # Conexão com MySQL
-├── criar_tabela.php    # Script para criar a tabela de usuários
-├── cadastrar.php       # Cadastro de usuário (com hash de senha)
-├── login.php           # Formulário + processamento de login
-├── dashboard.php       # Página protegida (só acessa logado)
-└── logout.php          # Encerra a sessão
-```
-
-### `config.php` — Dados de conexão
-
-```php
-<?php
-// Arquivo de configuração — não commitar credenciais reais em repositórios públicos
+// Ajuste para o seu ambiente. No XAMPP, sem usuário próprio: "root" e senha vazia.
+// Não envie senhas reais para um repositório público.
 define("DB_HOST", "localhost");
 define("DB_USER", "appuser");
 define("DB_PASS", "web1");
 define("DB_NAME", "minha_aplicacao");
-?>
 ```
 
-### `conexao.php` — Conexão com o banco
+`conexao.php`:
 
 ```php
 <?php
 require_once __DIR__ . "/config.php";
 
-$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if (mysqli_connect_error()) {
-    die("Erro de conexão: " . mysqli_connect_error());
+try {
+    $conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_set_charset($conn, "utf8mb4");
+} catch (mysqli_sql_exception $e) {
+    // Em produção, mostre uma mensagem genérica, sem detalhes do banco
+    die("Erro de conexão: " . $e->getMessage());
 }
-
-mysqli_set_charset($conn, "utf8mb4");
-?>
 ```
 
-### `criar_tabela.php` — Tabela de usuários
+**`try` e `catch`.** Desde o PHP 8.1, um erro do `mysqli` lança uma exceção (_exception_), e o script para com `Fatal error` se ninguém a tratar. O `if (mysqli_connect_error())` do material de PHP e MySQL não chega a ser executado quando a conexão falha. O `try` e o `catch` funcionam como no `fetch`: o erro desvia a execução para o `catch`.
+
+**Sem `?>` no final.** Num arquivo que só tem PHP, omita a tag de fechamento. Linhas em branco depois do `?>` fazem parte da saída HTML, e no `config.php` elas seriam enviadas antes dos cabeçalhos. O login para de funcionar, com o aviso `headers already sent`.
+
+### Tabela e primeiro usuário
+
+`criar_tabela.php`:
 
 ```php
 <?php
@@ -275,13 +243,15 @@ $sql = "CREATE TABLE IF NOT EXISTS usuarios (
     data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
-mysqli_query($conn, $sql);
-echo "Tabela 'usuarios' pronta!";
-mysqli_close($conn);
-?>
+try {
+    mysqli_query($conn, $sql);
+    echo "Tabela 'usuarios' pronta!";
+} catch (mysqli_sql_exception $e) {
+    echo "Erro ao criar a tabela: " . $e->getMessage();
+}
 ```
 
-### `cadastrar.php` — Cadastro com senha segura
+`cadastrar.php`:
 
 ```php
 <?php
@@ -289,34 +259,39 @@ require_once __DIR__ . "/conexao.php";
 
 $nome  = "Admin";
 $email = "admin@exemplo.com";
-$senha_plana = "123456";
+$senha = "123456";
 
-// NUNCA armazene a senha em texto plano — use password_hash()
-$senha_hash = password_hash($senha_plana, PASSWORD_DEFAULT);
+// O banco guarda o hash, nunca a senha
+$hash = password_hash($senha, PASSWORD_DEFAULT);
 
-$stmt = mysqli_prepare($conn, "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
-mysqli_stmt_bind_param($stmt, "sss", $nome, $email, $senha_hash);
-
-if (mysqli_stmt_execute($stmt)) {
+try {
+    $stmt = mysqli_prepare($conn, "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "sss", $nome, $email, $hash);
+    mysqli_stmt_execute($stmt);
     echo "Usuário cadastrado com sucesso!";
-} else {
-    echo "Erro: " . mysqli_stmt_error($stmt);
+} catch (mysqli_sql_exception $e) {
+    // 1062 é o código do MySQL para valor repetido em coluna UNIQUE
+    if ($e->getCode() === 1062) {
+        echo "Já existe um usuário com este e-mail.";
+    } else {
+        echo "Erro ao cadastrar: " . $e->getMessage();
+    }
 }
-
-mysqli_stmt_close($stmt);
-mysqli_close($conn);
-?>
 ```
 
-> **`password_hash()`**: função nativa do PHP que gera um hash criptográfico seguro usando o algoritmo bcrypt (ou Argon2, se disponível). **Nunca** utilize `md5()` ou `sha1()` para senhas — são facilmente quebráveis. Para verificar a senha, utilize `password_verify()`.
+A coluna `email` é `UNIQUE`. Ao executar o `cadastrar.php` pela segunda vez, o MySQL recusa o e-mail repetido, e o `catch` mostra uma mensagem no lugar do erro fatal.
 
-### `login.php` — Formulário e processamento
+O cadastro não é um formulário público, porque qualquer visitante poderia criar um usuário e entrar na área administrativa. Depois de executá-lo, remova o arquivo do servidor.
+
+### Login
+
+`admin/login.php`:
 
 ```php
 <?php
-session_start();
+require_once __DIR__ . "/sessao.php";
 
-// Se já estiver logado, redireciona
+// Quem já está autenticado vai direto para o painel
 if (isset($_SESSION["usuario_id"])) {
     header("Location: dashboard.php");
     exit;
@@ -325,41 +300,31 @@ if (isset($_SESSION["usuario_id"])) {
 $erro = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    require_once __DIR__ . "/conexao.php";
+    // O conexao.php está na pasta de cima
+    require_once __DIR__ . "/../conexao.php";
 
-    $email = $_POST["email"] ?? "";
+    $email = trim($_POST["email"] ?? "");
     $senha = $_POST["senha"] ?? "";
 
-    if (empty($email) || empty($senha)) {
-        $erro = "Preencha todos os campos.";
-    } else {
-        // Prepared Statement para buscar o usuário pelo email
-        $stmt = mysqli_prepare($conn, "SELECT id, nome, senha FROM usuarios WHERE email = ?");
-        mysqli_stmt_bind_param($stmt, "s", $email);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
+    // 1. Busca o usuário pelo e-mail
+    $stmt = mysqli_prepare($conn, "SELECT id, nome, senha FROM usuarios WHERE email = ?");
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
+    $usuario = mysqli_fetch_assoc($resultado); // null quando o e-mail não existe
 
-        if ($usuario = mysqli_fetch_assoc($result)) {
-            // Verifica a senha com password_verify()
-            if (password_verify($senha, $usuario["senha"])) {
-                // Login bem-sucedido → regenera ID e grava sessão
-                session_regenerate_id(true);
-                $_SESSION["usuario_id"]   = $usuario["id"];
-                $_SESSION["usuario_nome"] = $usuario["nome"];
+    // 2. Confere a senha digitada com o hash guardado no banco
+    if ($usuario && password_verify($senha, $usuario["senha"])) {
+        // 3. Troca o identificador e grava o usuário na sessão
+        session_regenerate_id(true);
+        $_SESSION["usuario_id"]   = $usuario["id"];
+        $_SESSION["usuario_nome"] = $usuario["nome"];
 
-                mysqli_stmt_close($stmt);
-                mysqli_close($conn);
-
-                header("Location: dashboard.php");
-                exit;
-            }
-        }
-
-        // Login falhou (email não encontrado OU senha incorreta)
-        $erro = "Email ou senha inválidos.";
-        mysqli_stmt_close($stmt);
-        mysqli_close($conn);
+        header("Location: dashboard.php");
+        exit;
     }
+
+    $erro = "E-mail ou senha inválidos.";
 }
 ?>
 <!DOCTYPE html>
@@ -376,7 +341,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
 
     <form method="post" action="login.php">
-        <label for="email">Email:</label><br>
+        <label for="email">E-mail:</label><br>
         <input type="email" id="email" name="email" required><br><br>
 
         <label for="senha">Senha:</label><br>
@@ -388,17 +353,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </html>
 ```
 
-### `dashboard.php` — Página protegida
+* O `__DIR__` é a pasta do próprio arquivo, `admin/`. O `"/../conexao.php"` sobe um nível para achar a conexão;
+* a mensagem de erro é a mesma para e-mail inexistente e senha errada, e não revela quais e-mails estão cadastrados;
+* `session_regenerate_id(true)` troca o identificador da sessão no momento do login. A seção sobre fixação de sessão, adiante, mostra por quê.
+
+### Páginas protegidas
+
+`admin/verifica_login.php`:
 
 ```php
 <?php
-session_start();
+require_once __DIR__ . "/sessao.php";
 
-// Proteção: se não estiver logado, redireciona para o login
 if (!isset($_SESSION["usuario_id"])) {
     header("Location: login.php");
     exit;
 }
+```
+
+`admin/dashboard.php`:
+
+```php
+<?php
+require_once __DIR__ . "/verifica_login.php";
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -407,55 +384,101 @@ if (!isset($_SESSION["usuario_id"])) {
     <title>Painel</title>
 </head>
 <body>
-    <h1>Painel do Usuário</h1>
-    <p>Bem-vindo(a), <strong><?= htmlspecialchars($_SESSION["usuario_nome"]) ?></strong>!</p>
-    <p>Esta página só pode ser acessada por usuários autenticados.</p>
+    <h1>Painel</h1>
+    <p>Olá, <strong><?= htmlspecialchars($_SESSION["usuario_nome"]) ?></strong>!</p>
+    <p>Esta página só aparece para usuários autenticados.</p>
 
     <p><a href="logout.php">Sair</a></p>
 </body>
 </html>
 ```
 
-### `logout.php` — Encerrando a sessão
+A verificação é a **primeira linha** de cada arquivo protegido, antes de qualquer HTML.
+
+### O `exit` depois do redirecionamento
+
+`header("Location: login.php")` apenas acrescenta um cabeçalho à resposta. Sem o `exit`, o script continua e envia a página protegida inteira. O navegador segue o redirecionamento e não mostra o conteúdo, mas ele foi enviado.
+
+Para ver, apague temporariamente o `exit` do `verifica_login.php` e peça a página sem estar autenticado. Ajuste o endereço ao do seu servidor:
+
+```bash
+curl -i http://localhost:8000/admin/dashboard.php
+```
+
+A resposta tem status 302 e, no corpo, o HTML do painel. Com o `exit`, o corpo vem vazio.
+
+### Scripts que alteram dados também precisam da verificação
+
+Esconder o link ou o formulário não protege o script que recebe os dados. Quem souber o endereço pode enviar a requisição direto, com o `curl` ou pelo console do navegador. Todo arquivo da pasta `admin/` começa com a verificação, inclusive os que não mostram nada:
 
 ```php
 <?php
-session_start();
+// admin/excluir.php, admin/salvar.php e os demais
+require_once __DIR__ . "/verifica_login.php";
+require_once __DIR__ . "/../conexao.php";
 
-// Limpa variáveis da sessão
+// só então lê $_POST ou $_GET e altera o banco
+```
+
+As exceções são `sessao.php`, `login.php` e `logout.php`.
+
+### Logout
+
+`admin/logout.php`:
+
+```php
+<?php
+require_once __DIR__ . "/sessao.php";
+
+// 1. Apaga os dados da sessão
 $_SESSION = [];
 
-// Remove o cookie PHPSESSID do navegador
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), "", time() - 3600,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
-}
+// 2. Remove o cookie do navegador
+setcookie(session_name(), "", time() - 3600, "/");
 
-// Destrói a sessão no servidor
+// 3. Destrói a sessão no servidor
 session_destroy();
 
-// Redireciona para o login
 header("Location: login.php");
 exit;
-?>
 ```
+
+### Fixação de sessão
+
+Com o `contador.php` do início da aula, envie um identificador inventado:
+
+```bash
+curl -b "PHPSESSID=abc123" http://localhost:8000/contador.php
+curl -b "PHPSESSID=abc123" http://localhost:8000/contador.php
+```
+
+A saída mostra 1 e, depois, 2: na configuração padrão, o PHP aceita um identificador escolhido pelo cliente. Se um atacante conseguir que a vítima use um identificador que ele conhece, e esse identificador continuar valendo após o login, o atacante entra na conta. O ataque se chama **fixação de sessão** (_session fixation_). Como `session_regenerate_id(true)` cria um identificador novo no login e apaga o antigo, o valor conhecido pelo atacante deixa de servir.
 
 ### Fluxo completo
 
-1. O usuário acessa `login.php` e preenche email/senha.
-2. O PHP busca o email no banco com **Prepared Statement** (protegido contra SQL Injection).
-3. `password_verify()` compara a senha digitada com o hash armazenado.
-4. Se válido: `session_regenerate_id()` + grava dados em `$_SESSION` + redireciona para `dashboard.php`.
-5. Toda página protegida verifica `$_SESSION["usuario_id"]` e redireciona para `login.php` se ausente.
-6. O logout limpa `$_SESSION`, remove o cookie e destrói a sessão.
+1. O visitante pede `admin/dashboard.php`. O `verifica_login.php` não encontra `usuario_id` na sessão e redireciona para o login.
+2. O formulário envia e-mail e senha por POST ao `login.php`.
+3. Um *prepared statement* busca o usuário pelo e-mail, e `password_verify` confere a senha.
+4. Com a senha correta, o identificador da sessão é trocado, `usuario_id` é gravado em `$_SESSION`, e o navegador é redirecionado ao painel.
+5. As demais páginas da pasta `admin/` encontram `usuario_id` e são exibidas.
+6. O logout apaga os dados, remove o cookie e destrói a sessão.
 
 ---
 
-## Referência completa do exemplo
+## Do exemplo para a Entrega 3
 
-O código completo deste sistema de login está disponível em:
+O restante da aula é dedicado ao trabalho. Para levar o login ao seu projeto:
 
-<https://gitlab.com/ds122-alexkutzke/ds122-login-app>
+1. Crie a tabela `usuarios` e inclua o comando no arquivo `.sql` do repositório.
+2. Use os arquivos da pasta `admin/` do exemplo como referência e adapte-os à sua conexão e aos seus nomes.
+3. Coloque o `require_once` do `verifica_login.php` na primeira linha da listagem, do cadastro, da edição, da exclusão e da página de mensagens.
+4. Teste numa janela anônima, sem login: digite o endereço de cada arquivo da pasta `admin/` e confira que todos levam ao login.
+5. Teste a senha errada, o e-mail inexistente e o logout.
+
+Saiba explicar cada linha que usar: a Prova 3 poderá ter uma questão sobre o seu próprio projeto.
+
+## Próximos passos
+
+A Entrega 3 do trabalho (PHP e MySQL) vence em 29/11 (domingo), às 23h59. Não há entrega em atraso: vale o último *commit* enviado até o prazo.
+
+Próxima aula, em 04/12: Prova 3, sobre PHP e MySQL (`mysqli`, CRUD, sessões e login), e encerramento da disciplina.
